@@ -1242,7 +1242,7 @@ a { color: inherit; }
 
   function renderStats() {
     var att = attending();
-    var html = heroTop('인원 통계') + '<div class="count">비율은 출석 교우 ' + att.length + '명 기준</div>';
+    var html = heroTop('인원 통계');
     charts().forEach(function (c) {
       var rows = c.items.map(function (it, i) {
         var n = c.base.filter(it.test).length;
