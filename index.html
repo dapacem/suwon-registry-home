@@ -347,7 +347,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'd9798923af';
+  var UI_VERSION = '41ef7428a3';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1217,10 +1217,10 @@ a { color: inherit; }
       { label: '7~9회', test: function (m) { return m.recent >= 7 && m.recent <= 9; } },
       { label: '10회 이상', test: function (m) { return m.recent >= 10; } },
     ] });
-    list.push({ id: 'family', title: '함께 출석하는 가족', items: [
-      { label: '혼자 출석', tone: 'red', test: function (m) { return (m.famCount || 1) <= 1; } },
-      { label: '2인 출석', test: function (m) { return m.famCount === 2; } },
-      { label: '3인 이상 출석', test: function (m) { return m.famCount >= 3; } },
+    list.push({ id: 'family', type: 'donut', title: '함께 출석하는 가족', items: [
+      { label: '혼자 출석', tone: 'red', color: '#B03A2E', test: function (m) { return (m.famCount || 1) <= 1; } },
+      { label: '2인 출석', color: '#EDC53A', test: function (m) { return m.famCount === 2; } },
+      { label: '3인 이상 출석', color: '#2E6FB5', test: function (m) { return m.famCount >= 3; } },
     ] });
     // 기준 문장은 Francis님 문안 (2026-11-02)
     if (ADMIN) list.push({ id: 'network', type: 'strip', title: '공동체 연결 정도',
@@ -1254,7 +1254,7 @@ a { color: inherit; }
       return seg;
     }).join('');
     var legend = rows.map(function (r) {
-      return '<button class="lg-row" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
+      return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
         '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
     }).join('');
     return '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
