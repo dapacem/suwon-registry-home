@@ -2,7 +2,7 @@
   "name": "수원교회 교적부 G",
   "short_name": "교적부 G",
   "start_url": "./",
-  "display": "browser",
+  "display": "standalone",
   "background_color": "#1A5276",
   "theme_color": "#1A5276",
   "icons": [
