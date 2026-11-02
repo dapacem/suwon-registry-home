@@ -43,39 +43,9 @@
       <div class="note">허락된 구글 계정으로만 들어갈 수 있습니다.<br>처음 한 번, 이 화면에서 「홈 화면에 추가」를 해 두십시오.</div>
     </div>
   </div>
-  <iframe id="app" title="수원교회 교적부" allow="clipboard-write"></iframe>
-  <script>
-  // 출입증(t): 입구 앱이 #t=… 로 돌려준다. 이 기기에만 보관하고, 만료 시각이 지나면 버린다.
-  (function () {
-    var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-    var KEY = 'suwon-registry-pass';
-    function expOf(t) {
-      try {
-        var p = t.split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
-        while (p.length % 4) p += '=';
-        var s = decodeURIComponent(escape(atob(p)));
-        return Number(s.slice(s.lastIndexOf('|') + 1)) || 0;
-      } catch (e) { return 0; }
-    }
-    function save(t) { try { localStorage.setItem(KEY, t); } catch (e) {} }
-    function load() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
-    function drop() { try { localStorage.removeItem(KEY); } catch (e) {} }
-
-    var m = location.hash.match(/[#&]t=([^&]+)/);
-    var t = m ? decodeURIComponent(m[1]) : load();
-    if (m) { save(t); history.replaceState(null, '', location.pathname); }
-    if (t && expOf(t) > Date.now() + 60000) {
-      var f = document.getElementById('app');
-      f.src = MAIN + '?t=' + encodeURIComponent(t);
-      f.style.display = 'block';
-      document.getElementById('splash').style.display = 'none';
-    } else if (t) { drop(); }
-
-    // 본 앱이 출입증이 끝났다고 알려 오면 처음 화면으로
-    window.addEventListener('message', function (e) {
-      if (e.data === 'suwon-registry-expired') { drop(); location.replace(location.pathname); }
-    });
-  })();
+    <script>
+  // 2026-11-02: 화면 안에 띄우는 방식은 아이폰에서 막혀 되돌림. 예전에 저장한 출입증은 지운다.
+  try { localStorage.removeItem('suwon-registry-pass'); } catch (e) {}
   </script>
 </body>
 </html>
