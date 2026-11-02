@@ -1196,8 +1196,8 @@ a { color: inherit; }
     ] });
     list.push({ id: 'family', title: '함께 출석하는 가족', items: [
       { label: '혼자 출석', tone: 'red', test: function (m) { return (m.famCount || 1) <= 1; } },
-      { label: '2인 가족', test: function (m) { return m.famCount === 2; } },
-      { label: '3인 이상', test: function (m) { return m.famCount >= 3; } },
+      { label: '2인 출석', test: function (m) { return m.famCount === 2; } },
+      { label: '3인 이상 출석', test: function (m) { return m.famCount >= 3; } },
     ] });
     // 기준 문장은 Francis님 문안 (2026-11-02)
     if (ADMIN) list.push({ id: 'network', title: '공동체 연결 정도',
