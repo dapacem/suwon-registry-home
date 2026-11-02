@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="교적부 G">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1A5276">
 <meta property="og:type" content="website">
 <meta property="og:title" content="수원교회 교적부 G">
@@ -20,17 +20,291 @@
 <meta property="og:image" content="https://dapacem.github.io/suwon-registry-home/og.jpg">
 <meta property="og:url" content="https://dapacem.github.io/suwon-registry-home/">
 <style>
-  html, body { margin: 0; height: 100%; background: #1A5276; }
-  body { font-family: Arial, sans-serif; color: #fff; }
-  #splash { min-height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1.5rem; box-sizing: border-box; }
+/* 수원교회 교적부 GS Ver1 — 디자인 기준 §7.1
+   글자 크기는 시안 기준(px)을 rem으로 옮겨, 휴대폰 글자 크기 설정을 따라 함께 커지게 한다.
+   (rem 비율은 시안 기준. 실제 크기 = 시안 × 1.125. 20px=1.25rem, 22px=1.375rem, 15px=.9375rem, 13px=.8125rem, 12px=.75rem)
+   아래 탭 글자만 11px → 12px로 올림 (2026-11-02 Francis님 위임). */
+:root {
+  --primary: #1A5276;
+  --primary-soft: #2C6A90;
+  --gold: #B8860B;
+  --chip: #EAF2FF;
+  --chip-text: #1A5276;
+  --bg: #F4F6F9;
+  --card: #FFFFFF;
+  --line: #E3E8EF;
+  --text: #1C2430;
+  --sub: #5F6B7A;
+  --faint: #9AA5B1;
+  --warn: #B03A2E;
+}
+/* 전체 글자 크기 기준 (2026-11-02 Francis님: 「전반적으로 글씨가 작다」 → 100% → 112.5%).
+   모든 글자가 rem이라 이 값 하나로 함께 커지고 작아진다. */
+html { font-size: 112.5%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Arial, sans-serif; line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; }
+
+/* ── 머리 ── */
+.hero { background: var(--primary); color: #fff; padding: 1.3rem .6rem 1.1rem; }
+.hero-brand { display: flex; align-items: center; gap: .75rem; margin-bottom: .9rem; }
+.hero-brand .hero-title { margin: .1rem 0 0; }
+.hero-brand:last-child { margin-bottom: 0; }
+.hero-photo { flex: none; width: 3.2rem; height: 3.2rem; border-radius: .7rem; object-fit: cover; border: 2px solid rgba(255,255,255,.85); }
+.hero-church { font-size: .8125rem; opacity: .85; }
+.hero-title { font-size: 1.25rem; font-weight: 700; margin: .25rem 0 .9rem; }
+.search {
+  display: flex; align-items: center; gap: .5rem;
+  background: rgba(255,255,255,.14); border-radius: .75rem; padding: .7rem .9rem;
+}
+.search svg { flex: none; opacity: .8; }
+.search input {
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff;
+  font: inherit; font-size: .9375rem;
+}
+.search input::placeholder { color: rgba(255,255,255,.7); }
+.search .clear[hidden] { display: none; }
+.search .clear { color: #fff; opacity: .8; font-size: .9375rem; padding: 0 .25rem; }
+
+/* ── 거름 단추 ── */
+.filters { display: flex; gap: .5rem; overflow-x: auto; padding: .9rem 1rem .25rem; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.filters.sub { padding-top: .35rem; }
+.chip-btn {
+  flex: none; font-size: .8125rem; padding: .45rem .95rem; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line); color: var(--sub);
+}
+.chip-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700; }
+.filters.sub .chip-btn { font-size: .75rem; padding: .3rem .75rem; }
+.conds { padding: .5rem 0 .2rem; }
+.seg-row { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem 0; }
+.seg-label { flex: none; width: 2.4rem; font-size: .8125rem; font-weight: 700; color: var(--sub); }
+.sel {
+  flex: 1; min-width: 0; font: inherit; font-size: .8125rem; color: var(--text);
+  background: var(--card); border: 1px solid var(--line); border-radius: .6rem;
+  padding: .45rem 2rem .45rem .7rem; -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F6B7A' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right .7rem center;
+}
+.sheet-back { position: fixed; inset: 0; background: rgba(15,30,45,.45); z-index: 50; display: flex; align-items: flex-end; }
+.sheet { width: 100%; max-height: 82vh; background: var(--card); border-radius: 1rem 1rem 0 0; display: flex; flex-direction: column; animation: up .2s ease-out; }
+@keyframes up { from { transform: translateY(30%); opacity: .4; } to { transform: none; opacity: 1; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; padding: .9rem .9rem .5rem; font-size: 1.0625rem; font-weight: 700; }
+.sheet-close { font-size: 1.1rem; color: var(--sub); padding: .2rem .4rem; }
+.sheet-body { overflow-y: auto; padding: 0 .9rem calc(1.2rem + env(safe-area-inset-bottom)); }
+.sheet-title { font-size: 1rem; font-weight: 700; color: var(--primary); margin: .9rem 0 .45rem; padding-top: .7rem; border-top: 1px solid var(--line); }
+.sheet-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.pick { font-size: .9375rem; padding: .45rem .8rem; border-radius: 999px; background: var(--chip); color: var(--chip-text); }
+.pick.on { background: var(--primary); color: #fff; font-weight: 700; }
+.sel { text-align: left; }
+.reset { margin-left: .4rem; font-size: .75rem; color: var(--primary); text-decoration: underline; }
+.seg { flex: 1; display: flex; background: var(--card); border: 1px solid var(--line); border-radius: .6rem; overflow: hidden; }
+.seg button { flex: 1; padding: .45rem .2rem; font-size: .8125rem; color: var(--sub); border-left: 1px solid var(--line); white-space: nowrap; }
+.seg button:first-child { border-left: 0; }
+.seg button.on { background: var(--primary); color: #fff; font-weight: 700; }
+.count { font-size: .8125rem; color: var(--sub); padding: .7rem .6rem .5rem; }
+
+/* ── 경고 띠 (관리자) ── */
+.warn-box {
+  margin: .75rem 0 0; padding: .6rem .6rem; border-radius: 0;
+  background: #FDEDEC; color: var(--warn); font-size: .75rem;
+}
+
+/* ── 목록 ── */
+/* 좌우 여백 없이 화면 끝까지 (2026-11-02 Francis님: 좌우 마진은 거의 쓰지 말 것) */
+.list { margin: 0 0 .9rem; background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
+.section-title { font-size: 1rem; font-weight: 700; color: var(--primary); padding: .9rem .6rem .4rem; }
+.row {
+  display: flex; align-items: center; gap: .65rem; width: 100%; text-align: left;
+  padding: .45rem .6rem .45rem .6rem; border-top: 1px solid var(--line);
+}
+.list > .row:first-child, .list > .section-title + .row { border-top: 0; }
+.row-main { flex: 1; min-width: 0; }
+/* 목록 가독성: AS Ver1 수준 (2026-11-02 Francis님) */
+.row-name { font-size: .9375rem; line-height: 1.35; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-saint { font-weight: 400; font-size: .75rem; color: #7B8794; margin-left: .3rem; }
+.row-name .row-title { font-size: .8125rem; }
+.row-title { color: var(--gold); font-weight: 700; }
+.row-sub .dot { flex: none; }
+.row-top { display: flex; align-items: center; gap: .4rem; min-width: 0; }
+.row-top .row-name { flex: 1; min-width: 0; }
+.care-extra { color: var(--primary); }
+.row-sub {
+  display: flex; align-items: center; gap: .35rem; margin-top: .1rem;
+  font-size: .8125rem; color: var(--sub); white-space: nowrap; overflow: hidden;
+}
+.fam-of { flex: none; color: var(--primary); font-weight: 700; }
+.row-sub .txt { overflow: hidden; text-overflow: ellipsis; }
+.row-tail { flex: none; display: flex; align-items: center; gap: .35rem; color: var(--faint); }
+.status-tag { font-size: .6875rem; padding: .1rem .4rem; border-radius: .3rem; background: #EEF0F3; color: var(--sub); }
+.status-tag.check { background: #FEF5E7; color: #9A6A00; }
+.title-tag {
+  flex: none; display: inline-block; background: var(--gold); color: #fff;
+  font-size: .6875rem; font-weight: 700; padding: .1rem .45rem; border-radius: .35rem;
+}
+.empty { padding: 2rem 1rem; text-align: center; color: var(--sub); font-size: .8125rem; }
+
+/* ── 사진 ── */
+.avatar {
+  flex: none; width: 3rem; height: 3rem; border-radius: 50%; overflow: hidden;
+  background: #DDE6F0; color: var(--primary); font-weight: 700; font-size: 1.35rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.avatar.noimg { background: #E4E8EE; color: #B4BDC8; align-items: flex-end; }
+.avatar.noimg svg { width: 82%; height: 82%; }
+.avatar.is-loading {
+  background: linear-gradient(100deg, #DDE6F0 30%, #EEF3F8 50%, #DDE6F0 70%);
+  background-size: 300% 100%; animation: shimmer 1.2s ease-in-out infinite;
+}
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+.avatar img.fade { animation: fadein .25s ease-out; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.avatar.md { width: 2.75rem; height: 2.75rem; font-size: .95rem; }
+.avatar.lg { width: 6rem; height: 6rem; font-size: 2rem; border: 3px solid #fff; background: #DDE6F0; }
+
+/* ── 상세 ── */
+.detail-hero { background: var(--primary); color: #fff; text-align: center; padding: .6rem .6rem 1.1rem; position: relative; }
+.back { position: absolute; left: .5rem; top: .6rem; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; color: #fff; }
+.detail-hero .avatar.lg { margin: .5rem auto .6rem; }
+.detail-name { font-size: 1.375rem; font-weight: 700; }
+.detail-saint { font-size: 1rem; font-weight: 400; opacity: .85; margin-left: .35rem; }
+.detail-hero .title-tag { font-size: .8125rem; padding: .25rem .75rem; margin-top: .6rem; border-radius: 999px; }
+.prayer { margin-top: .6rem; font-size: 1.125rem; line-height: 1.5; opacity: .95; word-break: keep-all; text-wrap: balance; }
+.again {
+  position: absolute; right: .75rem; top: .75rem; display: flex; align-items: center; gap: .3rem;
+  font-size: .8125rem; font-weight: 700; color: #fff;
+  border: 1px solid rgba(255,255,255,.55); border-radius: 999px; padding: .4rem .8rem;
+}
+.card { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: .45rem 0; padding: .8rem .6rem; }
+.card h3 { margin: 0 0 .5rem; font-size: 1rem; color: var(--primary); }
+.card h3 .muted { font-weight: 400; font-size: .8125rem; color: var(--sub); margin-left: .4rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.tag { font-size: .8125rem; background: var(--chip); color: var(--chip-text); padding: .35rem .8rem; border-radius: 999px; }
+.tag.dormant { background: #EEF0F3; color: var(--sub); }
+.fam { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .6rem 0; border-top: 1px solid var(--line); }
+.card h3 + .fam { border-top: 0; padding-top: 0; }
+.fam.off { opacity: .5; }
+.fam-name { font-size: 1.0625rem; font-weight: 700; }
+.fam-rel { font-size: .875rem; color: var(--sub); margin-top: .1rem; }
+.kv { display: flex; gap: .8rem; padding: .4rem 0; font-size: .8125rem; border-top: 1px solid var(--line); }
+.card h3 + .kv { border-top: 0; }
+.kv .k { flex: none; width: 6.2rem; color: var(--sub); }
+.kv .v { flex: 1; min-width: 0; word-break: break-all; white-space: pre-wrap; }
+.kv a { color: var(--primary); }
+
+/* ── 단체·통계·돌봄 ── */
+.tile-sec { margin-top: .7rem; }
+.tile-title { font-size: 1rem; font-weight: 700; color: var(--primary); padding: .2rem .6rem .45rem; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+/* 이름 위, 인원 아래 — 위아래 여백은 줄여 납작하게 (2026-11-02) */
+.tile { background: var(--card); text-align: left; padding: .4rem .55rem .45rem; display: flex; flex-direction: column; justify-content: center; gap: .05rem; min-height: 2.9rem; }
+.tile:active { background: var(--chip); }
+.t-name { font-size: .875rem; font-weight: 700; color: var(--text); line-height: 1.25; word-break: keep-all; min-width: 0; }
+.t-num { flex: none; font-size: .75rem; color: var(--primary); }
+.tile.dormant .t-name, .tile.dormant .t-num { color: var(--faint); }
+.card-btn { display: block; width: 100%; text-align: left; }
+.card-btn h3 { margin-bottom: .4rem; font-size: 1.125rem; }
+.care-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: .6rem; }
+.care-tile { background: var(--card); text-align: left; padding: .9rem .7rem 1rem; display: flex; flex-direction: column; gap: .25rem; min-height: 9.5rem; }
+.care-name { font-size: 1.0625rem; font-weight: 700; color: var(--text); }
+.care-num { font-size: 2.1rem; font-weight: 700; color: var(--primary); line-height: 1.1; }
+.care-num span { font-size: 1rem; margin-left: .15rem; }
+.care-note { font-size: .78rem; color: var(--sub); line-height: 1.45; word-break: keep-all; }
+.care-card h3 { font-size: 1.25rem; }
+.care-card h3 .muted { font-size: 1.0625rem; font-weight: 700; color: var(--primary); }
+.care-card .card-desc { font-size: .9375rem; }
+.card-desc { font-size: .875rem; color: var(--sub); line-height: 1.55; }
+.tag { border: 0; }
+.sub-hero { padding: 1rem 3rem 1.2rem; }
+.sub-title { font-size: 1.25rem; font-weight: 700; margin-top: .35rem; }
+.sub-note { font-size: .75rem; opacity: .85; margin-top: .35rem; line-height: 1.5; }
+.row-count { font-size: .875rem; color: var(--sub); }
+.bar-row { display: block; width: 100%; text-align: left; padding: .45rem 0; border-top: 1px solid var(--line); }
+.card h3 + .bar-row { border-top: 0; padding-top: 0; }
+.bar-head { display: flex; justify-content: space-between; gap: .5rem; font-size: .8125rem; }
+.bar-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-val { flex: none; color: var(--sub); }
+.bar-track { height: .5rem; background: var(--chip); border-radius: 999px; margin-top: .3rem; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--primary); border-radius: 999px; min-width: 2px; }
+.tone-red .bar-fill { background: var(--warn); }
+.tone-red .bar-label, .tone-red .bar-val { color: var(--warn); font-weight: 700; }
+.tone-amber .bar-fill { background: #D4A017; }
+.tone-amber .bar-label, .tone-amber .bar-val { color: #8A6A00; font-weight: 700; }
+.donut-wrap { display: flex; align-items: center; gap: .7rem; }
+.donut { flex: none; width: 5.8rem; height: 5.8rem; }
+.d-total { font-size: 17px; font-weight: 700; fill: var(--text); }
+.d-unit { font-size: 9px; fill: var(--sub); }
+.legend { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lg-row { display: flex; align-items: center; gap: .4rem; padding: .45rem 0; border-top: 1px solid var(--line); font-size: .8125rem; text-align: left; white-space: nowrap; }
+.lg-row:first-child { border-top: 0; }
+.sw { flex: none; width: .75rem; height: .75rem; border-radius: 3px; }
+.lg-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.lg-val { flex: none; color: var(--sub); font-size: .75rem; }
+.chart-desc { font-size: .8125rem; color: var(--sub); margin: -.2rem 0 .6rem; line-height: 1.5; word-break: keep-all; }
+.bar-note { font-size: .6875rem; color: var(--sub); margin-top: .3rem; line-height: 1.45; }
+
+/* ── 상세 항목 두 칸 격자 ── */
+.kv-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: .8rem; row-gap: .55rem; }
+.kv2 { min-width: 0; }
+.kv2.wide { grid-column: 1 / -1; }
+.kv2 .k { font-size: .75rem; color: var(--sub); }
+.kv2 .v { font-size: .9375rem; margin-top: .05rem; word-break: keep-all; overflow-wrap: anywhere; white-space: pre-wrap; }
+.kv2 a { color: var(--primary); font-weight: 700; }
+
+/* ── 준비 중 ── */
+.soon { margin: 2rem .9rem; text-align: center; color: var(--sub); font-size: .8125rem; }
+
+/* ── 아래 탭 ── */
+.screen { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); min-height: 100vh; }
+.tabs {
+  /* 아래 탭: AS Ver1처럼 남색 바탕 + 흰 아이콘 (2026-11-02 시인성 개선) */
+  position: fixed; left: 0; right: 0; bottom: 0; display: flex;
+  background: var(--primary);
+  padding: .35rem .2rem calc(.35rem + env(safe-area-inset-bottom));
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: .15rem;
+  color: rgba(255,255,255,.82); font-size: .75rem; padding: .3rem 0 .25rem; border-radius: .7rem;
+}
+.tab svg { width: 1.5rem; height: 1.5rem; stroke-width: 2; }
+.tab.on { color: var(--primary); font-weight: 700; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+.tab.on svg { stroke-width: 2.4; }
+
+/* ── 불러오는 중 ── */
+.loading { padding: 4rem 1rem; text-align: center; color: var(--sub); font-size: .8125rem; }
+.refresh-line { text-align: center; padding: 0 0 1rem; }
+.refresh-line .build { margin-left: .6rem; font-size: .6875rem; color: var(--faint); }
+.refresh-line button { font-size: .75rem; color: var(--sub); text-decoration: underline; }
+
+/* ── 안내 화면 (권한 없음 등) ── */
+.msg-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.msg-card { width: 100%; max-width: 24rem; background: var(--card); border: 1px solid var(--line); border-radius: 1rem; padding: 1.6rem 1.3rem; text-align: center; }
+.msg-church { font-size: .8125rem; color: var(--sub); }
+.msg-title { font-size: 1.25rem; margin: .4rem 0 .8rem; color: var(--primary); }
+.msg-body { font-size: .9375rem; margin: 0 0 .8rem; }
+.msg-email { font-size: .8125rem; color: var(--sub); margin: 0 0 1rem; word-break: break-all; }
+.btn-primary { display: inline-block; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; padding: .7rem 1.4rem; border-radius: .7rem; font-size: .9375rem; }
+</style>
+<style>.hero + .list, .sub-hero + .list, .count + .list { margin-top: .9rem; } .count + .list { margin-top: 0; }</style>
+<style>.detail-hero.random { padding-top: 3.4rem; } .detail-hero.random .again { top: .7rem; }</style>
+
+<style>
+  body { padding-top: env(safe-area-inset-top); }
+  #splash { position: fixed; inset: 0; z-index: 100; background: #1A5276; color: #fff; display: none;
+            align-items: center; justify-content: center; text-align: center; padding: 1.5rem; }
+  #splash.on { display: flex; }
   #splash img { width: 112px; height: 112px; border-radius: 24px; border: 3px solid rgba(255,255,255,.9); object-fit: cover; }
-  .church { margin-top: 1rem; font-size: .9rem; opacity: .85; }
-  h1 { margin: .3rem 0 1.4rem; font-size: 1.4rem; }
-  .btn { display: inline-block; background: #fff; color: #1A5276; font-weight: 700; text-decoration: none; padding: .8rem 1.6rem; border-radius: .8rem; }
-  .note { margin-top: 1rem; font-size: .8rem; opacity: .75; line-height: 1.6; }
-  /* 교적부 본 앱을 화면 가득 띄운다. 맨 위는 아이폰 상태 표시줄 자리 */
-  #app { position: fixed; left: 0; right: 0; bottom: 0; top: env(safe-area-inset-top); width: 100%;
-         height: calc(100% - env(safe-area-inset-top)); border: 0; background: #F4F6F9; display: none; }
+  #splash .church { margin-top: 1rem; font-size: .9rem; opacity: .85; }
+  #splash h1 { margin: .3rem 0 1.4rem; font-size: 1.4rem; }
+  #splash .go { display: inline-block; background: #fff; color: #1A5276; font-weight: 700; padding: .8rem 1.6rem; border-radius: .8rem; font-size: 1rem; }
+  #splash .note { margin-top: 1rem; font-size: .8rem; opacity: .8; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -39,13 +313,1054 @@
       <img src="apple-touch-icon.png" alt="수원교회">
       <div class="church">대한성공회 수원교회</div>
       <h1>교적부 G</h1>
-      <a class="btn" href="https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec" target="_top">교적부 열기</a>
-      <div class="note">허락된 구글 계정으로만 들어갈 수 있습니다.<br>처음 한 번, 이 화면에서 「홈 화면에 추가」를 해 두십시오.</div>
+      <button class="go" id="loginBtn">교적부 열기</button>
+      <div class="note" id="splashNote">허락된 구글 계정으로만 들어갈 수 있습니다.<br>처음 한 번, 이 화면에서 「홈 화면에 추가」를 해 두십시오.</div>
     </div>
   </div>
-    <script>
-  // 2026-11-02: 화면 안에 띄우는 방식은 아이폰에서 막혀 되돌림. 예전에 저장한 출입증은 지운다.
-  try { localStorage.removeItem('suwon-registry-pass'); } catch (e) {}
-  </script>
+  <div id="screen" class="screen"></div>
+  <nav id="tabs" class="tabs"></nav>
+  <div id="boot" hidden data-church="대한성공회 수원교회" data-photo="apple-touch-icon.png"></div>
+<script>
+(function () {
+  'use strict';
+  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec', GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
+  var KEY = 'suwon-registry-pass', NKEY = 'suwon-registry-nonce';
+
+  // ── 출입증: 이 기기에만 보관 ──
+  function get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function put(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function expOf(t) {
+    try {
+      var p = t.split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
+      while (p.length % 4) p += '=';
+      var s = decodeURIComponent(escape(atob(p)));
+      return Number(s.slice(s.lastIndexOf('|') + 1)) || 0;
+    } catch (e) { return 0; }
+  }
+  function pass() { var t = get(KEY); return t && expOf(t) > Date.now() + 60000 ? t : ''; }
+
+  function api(params) {
+    var q = Object.keys(params).map(function (k) { return k + '=' + encodeURIComponent(params[k]); }).join('&');
+    return fetch(MAIN + '?' + q, { credentials: 'omit' }).then(function (r) { return r.json(); });
+  }
+
+  // ── 처음 화면(로그인) ──
+  var splash = document.getElementById('splash');
+  function showSplash(note) {
+    splash.classList.add('on');
+    if (note) document.getElementById('splashNote').innerHTML = note;
+  }
+  document.getElementById('loginBtn').addEventListener('click', function () {
+    var a = new Uint8Array(18); crypto.getRandomValues(a);
+    var n = btoa(String.fromCharCode.apply(null, a)).replace(/[+/=]/g, function (c) { return c === '+' ? '-' : c === '/' ? '_' : ''; });
+    put(NKEY, n);
+    location.href = GATE + '?n=' + encodeURIComponent(n);
+  });
+
+  // 로그인 창을 닫고 돌아오면, 맡겨 둔 출입증을 찾아온다
+  var claiming = false;
+  function tryClaim() {
+    var n = get(NKEY);
+    if (!n || claiming || pass()) return;
+    claiming = true;
+    api({ api: 'claim', n: n }).then(function (j) {
+      claiming = false;
+      if (j && j.t) { put(KEY, j.t); del(NKEY); location.replace(location.pathname); }
+    }).catch(function () { claiming = false; });
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) tryClaim(); });
+  window.addEventListener('focus', tryClaim);
+  window.addEventListener('pageshow', tryClaim);
+  setInterval(function () { if (splash.classList.contains('on')) tryClaim(); }, 2500);
+
+  // ── 화면 코드가 쓰는 google.script.run / history 를 자료 창구로 바꿔 끼움 ──
+  var preload = null;
+  function runner() {
+    var ok = function () {}, fail = function () {};
+    var o = {
+      withSuccessHandler: function (f) { ok = f; return o; },
+      withFailureHandler: function (f) { fail = f; return o; },
+      apiData: function (token, refresh) {
+        if (preload && !refresh) { var d = preload; preload = null; setTimeout(function () { ok(JSON.stringify(d)); }, 0); return; }
+        api({ api: 'data', t: token, refresh: refresh ? 1 : '' }).then(function (d) {
+          if (d.error) { onApiError(d.error); fail(new Error(d.error)); } else ok(JSON.stringify(d));
+        }).catch(function (e) { fail(e); });
+      },
+      apiPhotos: function (token, ids, size) {
+        api({ api: 'photos', t: token, ids: ids.join(','), size: size || 'sm' }).then(function (d) {
+          if (d.error) { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
+        }).catch(function (e) { fail(e); });
+      },
+    };
+    return o;
+  }
+  window.google = { script: {
+    run: new Proxy({}, { get: function (_, k) { return runner()[k]; } }),
+    history: {
+      push: function (state, params, hash) { history.pushState(state, '', '#' + (hash || '')); },
+      setChangeHandler: function (fn) { window.addEventListener('popstate', function (e) { fn({ state: e.state }); }); },
+    },
+  } };
+
+  function onApiError(code) {
+    if (code === 'EXPIRED' || code === 'NO_ACCESS') {
+      del(KEY);
+      showSplash(code === 'NO_ACCESS'
+        ? '이 계정은 열람 권한이 없습니다.<br>주재성 위원에게 문의하십시오.'
+        : '출입 기간이 지났습니다. 다시 로그인해 주십시오.');
+    }
+  }
+  window.addEventListener('message', function (e) { if (e.data === 'suwon-registry-expired') onApiError('EXPIRED'); });
+
+  // ── 시작 ──
+  var t = pass();
+  if (!t) { del(KEY); showSplash(); tryClaim(); return; }
+  document.getElementById('screen').innerHTML = '<div class="loading">교우 자료를 불러오는 중입니다…</div>';
+  api({ api: 'data', t: t }).then(function (d) {
+    if (d.error) { onApiError(d.error); return; }
+    var boot = document.getElementById('boot');
+    boot.dataset.token = t;
+    boot.dataset.role = d.role;
+    boot.dataset.build = d.build || '';
+    preload = d;
+    startApp();
+  }).catch(function () {
+    document.getElementById('screen').innerHTML = '<div class="loading">자료를 불러오지 못했습니다. 잠시 후 다시 여십시오.</div>';
+  });
+
+  function startApp() {
+
+/* 수원교회 교적부 GS Ver1 — 화면
+   자료는 서버가 등급에 맞게 잘라 보낸 것만 있다. 화면에서 권한을 판단하지 않는다. */
+(function () {
+  'use strict';
+
+  var bootEl = document.getElementById('boot');
+  var TOKEN = bootEl.dataset.token;
+  var ROLE = bootEl.dataset.role;
+  var CHURCH = bootEl.dataset.church;
+  var ADMIN = ROLE === '관리자';
+  var CHURCH_IMG = bootEl.dataset.photo || '';
+  var TITLED = '__직책섬김이';
+  var NOGROUP = '__무소속';  // 연령단체 말고는 봉사단체·소그룹·세실대 어디에도 없음 (인원 통계 「연령단체 외 소속 없음」과 같은 기준)  // 단체 조건의 「직책 섬김이」 (직책이 있는 교우)
+
+  /** 머리: 교회 사진 + 교회 이름 + 화면 제목 */
+  function brand(title) {
+    return '<div class="hero-brand">' +
+      (CHURCH_IMG ? '<img class="hero-photo" alt="" src="' + CHURCH_IMG + '">' : '') +
+      '<div><div class="hero-church">' + esc(CHURCH) + '</div><div class="hero-title">' + esc(title) + '</div></div></div>';
+  }
+
+  var D = null;           // 서버 자료
+  var byKey = {};
+  var photos = {};        // photoId -> dataUrl (메모리에만, 휴대폰에 남기지 않음)
+  var state = { tab: 'groups', q: '', sex: '전체', group: '', status: '전체', view: 'list', key: '', lastRandom: '' };
+  var screen = document.getElementById('screen');
+  var tabsEl = document.getElementById('tabs');
+
+  // ── 순서 규칙 (§4.2, §4.3) ──
+  var AGE_ORDER = ['니콜라회', '라자로회', '바울로회', '미리암회', '모니카회', '에스더회', '베로니카회', '그라티아회', '주일학교'];
+  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성가대', '교육부', '다시서기', '정원 돌봄'];
+  var CECIL_ORDER = ['1기', '2기', '5기', '6기', '7기'];
+
+  function titleRank(m) {
+    var t = m.title || '';
+    if (!t) return 99;
+    // 「부제(협동)」처럼 뒤에 덧붙은 말이 있어도 앞부분으로 판단
+    var fixed = [['관할사제', 1], ['보좌사제', 2], ['부제', 3], ['동행사제', 4], ['신자회장', 5], ['사제회장', 6], ['감사', 9]];
+    for (var i = 0; i < fixed.length; i++) if (t.indexOf(fixed[i][0]) === 0) return fixed[i][1];
+    if (t.indexOf('교회위원') === 0) return 7;
+    if (/회 회장$/.test(t) && m.service.indexOf('교회위원') >= 0) return 8;
+    return 10;
+  }
+
+  function idxIn(list, v) { var i = list.indexOf(v); return i < 0 ? 999 : i; }
+  function byName(a, b) { return a.name.localeCompare(b.name, 'ko'); }
+
+  // ── 검색 (F-04): 띄어쓰기 무시, 초성 검색 ──
+  var CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+  function norm(s) { return String(s || '').replace(/\s+/g, '').toLowerCase(); }
+  function chosung(s) {
+    var out = '';
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i) - 0xAC00;
+      out += (c >= 0 && c < 11172) ? CHO[Math.floor(c / 588)] : s[i];
+    }
+    return out;
+  }
+  function isChosungOnly(s) { return /^[ㄱ-ㅎ]+$/.test(s); }
+
+  function indexMember(m) {
+    // 시트의 「교회위원회」를 화면 표기 「교회위원」으로 통일 (§3.4, §4.7)
+    m.service = m.service.map(function (x) { return x === '교회위원회' ? '교회위원' : x; });
+    var parts = [m.name, m.saint, m.title, m.ageGroup, m.cecil, m.cecil ? '세실대' + m.cecil : '']
+      .concat(m.service, m.small);
+    m._hay = norm(parts.join(' '));
+    m._cho = chosung(norm(m.name));
+    m._groups = [m.ageGroup].concat(m.service, m.cecil ? ['세실대 ' + m.cecil] : [], m.small).filter(Boolean);
+  }
+
+  // ── 자료 불러오기 (F-02, F-03) ──
+  function load(refresh) {
+    if (refresh) screen.innerHTML = '<div class="loading">자료를 다시 읽는 중입니다…</div>';
+    google.script.run
+      .withSuccessHandler(function (json) {
+        D = JSON.parse(json);
+        byKey = {};
+        D.members.forEach(function (m) { indexMember(m); byKey[m.key] = m; });
+        render();
+        setTimeout(prefetchPhotos, 1500);
+      })
+      .withFailureHandler(onFail)
+      .apiData(TOKEN, !!refresh);
+  }
+
+  function onFail(err) {
+    var msg = String(err && err.message || err);
+    if (msg.indexOf('EXPIRED') >= 0 || msg.indexOf('NO_ACCESS') >= 0) {
+      try { window.top.postMessage('suwon-registry-expired', '*'); } catch (e) {}
+      screen.innerHTML = '<div class="msg-page"><div class="msg-card"><h1 class="msg-title">다시 들어와 주십시오</h1>' +
+        '<p class="msg-body">출입 시간이 지났습니다. 홈 화면의 교적부 아이콘으로 다시 여십시오.</p></div></div>';
+    } else {
+      screen.innerHTML = '<div class="loading">자료를 불러오지 못했습니다. 잠시 후 다시 여십시오.</div>';
+    }
+  }
+
+  // ── 사진: 보이는 것만 불러옴 (F-07) ──
+  var pending = {}, timer = null;
+  var observer = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      observer.unobserve(e.target);
+      want(e.target.dataset.photo, e.target.dataset.size || 'sm');
+    });
+  }, { rootMargin: '200px' }) : null;
+
+  function want(id, size) {
+    var k = id + '|' + size;
+    if (photos[k]) return paint(id, size);
+    pending[size] = pending[size] || {};
+    pending[size][id] = true;
+    clearTimeout(timer);
+    timer = setTimeout(flush, 60);
+  }
+
+  function flush() {
+    Object.keys(pending).forEach(function (size) {
+      var ids = Object.keys(pending[size]);
+      delete pending[size];
+      for (var i = 0; i < ids.length; i += 30) {
+        (function (chunk) {
+          google.script.run.withSuccessHandler(function (got) {
+            Object.keys(got || {}).forEach(function (id) { photos[id + '|' + size] = got[id]; paint(id, size); });
+          }).apiPhotos(TOKEN, chunk, size);
+        })(ids.slice(i, i + 30));
+      }
+    });
+  }
+
+  function paint(id, size) {
+    var url = photos[id + '|' + size];
+    if (!url) return;
+    document.querySelectorAll('[data-photo="' + id + '"][data-size="' + size + '"]').forEach(function (el) {
+      el.classList.remove('is-loading');
+      var img = el.querySelector('img');
+      if (img && img.getAttribute('src') === url) return;
+      el.innerHTML = '<img alt="" class="fade" src="' + url + '">';
+    });
+  }
+
+  /** 목록을 연 뒤 남은 작은 사진을 조금씩 미리 받아 둔다 (스크롤할 때 바로 보이게) */
+  var prefetchStarted = false;
+  function prefetchPhotos() {
+    if (prefetchStarted || !D) return;
+    prefetchStarted = true;
+    var ids = D.members.slice().sort(byName).map(function (m) { return m.photoId; })
+      .filter(function (id) { return id && !photos[id + '|sm']; });
+    (function next() {
+      var chunk = ids.splice(0, 40).filter(function (id) { return !photos[id + '|sm']; });
+      if (!chunk.length) { if (ids.length) next(); return; }
+      google.script.run.withSuccessHandler(function (got) {
+        Object.keys(got || {}).forEach(function (id) { photos[id + '|sm'] = got[id]; paint(id, 'sm'); });
+        if (ids.length) setTimeout(next, 200);
+      }).withFailureHandler(function () {}).apiPhotos(TOKEN, chunk, 'sm');
+    })();
+  }
+
+  function wirePhotos() {
+    document.querySelectorAll('[data-photo]').forEach(function (el) {
+      // 큰 사진 자리에 작은 사진이 임시로 들어 있어도, 큰 사진은 따로 받아 바꿔 끼운다
+      if (photos[el.dataset.photo + '|' + el.dataset.size]) return paint(el.dataset.photo, el.dataset.size);
+      if (observer) observer.observe(el); else want(el.dataset.photo, el.dataset.size);
+    });
+  }
+
+  // ── 그리기 도우미 ──
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  var PERSON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.8 21c.8-4.3 4.1-6.8 8.2-6.8s7.4 2.5 8.2 6.8z"/></svg>';
+
+  /** 사진: 없으면 사람 아이콘, 있으면 불러오는 동안 반짝임 표시 (2026-11-02) */
+  function avatar(name, photoId, cls, size) {
+    size = size || 'sm';
+    if (!photoId) return '<div class="avatar noimg ' + (cls || '') + '">' + PERSON + '</div>';
+    var have = photos[photoId + '|' + size] || (size === 'lg' && photos[photoId + '|sm']);
+    return '<div class="avatar ' + (have ? '' : 'is-loading ') + (cls || '') + '" data-photo="' + esc(photoId) + '" data-size="' + size + '">' +
+      (have ? '<img alt="" src="' + have + '">' : '') + '</div>';
+  }
+
+  function statusTag(m) {
+    if (!ADMIN || !m.status || m.status === '출석') return '';
+    return '<span class="status-tag' + (m.status === '확인필요' ? ' check' : '') + '">' + esc(m.status) + '</span>';
+  }
+
+  /** 목록 한 줄: AS Ver1처럼 「성명 신명 · 직책」을 크게, 둘째 줄에 소속 (§5.2) */
+  /** 목록 한 줄: 첫 줄 「성명 신명 · 직책」(+상태), 둘째 줄 소속. 직책과 겹치는 소속은 뺀다 */
+  function rowHtml(m) {
+    var groups = m._groups.filter(function (g) {
+      if (!m.title) return true;
+      if (g === '교회위원' && m.title.indexOf('교회위원') === 0) return false;  // 직책과 겹치는 소속은 뺀다
+      if (g === '사목단' && titleRank(m) <= 4) return false;
+      return true;
+    });
+    var sub = groups.join(' · ');
+    return '<button class="row" data-go="' + m.key + '">' +
+      avatar(m.name, m.photoId) +
+      '<div class="row-main">' +
+        '<div class="row-top"><div class="row-name">' + esc(m.name) + (m.saint ? '<span class="row-saint">' + esc(m.saint) + '</span>' : '') +
+          (m.title ? '<span class="row-title"> · ' + esc(m.title) + '</span>' : '') + '</div>' +
+          statusTag(m) + '</div>' +
+        (sub ? '<div class="row-sub"><span class="txt">' + esc(sub) + '</span></div>' : '') +
+      '</div>' +
+    '</button>';
+  }
+
+  function chevron() {
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+  }
+
+  // ── 교우 목록 (§5.2) ──
+  function filtered() {
+    var q = norm(state.q);
+    var cho = isChosungOnly(q);
+    return D.members.filter(function (m) {
+      if (ADMIN && state.status !== '전체' && m.status !== state.status) return false;
+      if (state.sex === '남성' && m.sex !== '남') return false;
+      if (state.sex === '여성' && m.sex !== '여') return false;
+      if (state.group === TITLED) { if (!m.title) return false; }
+      else if (state.group === NOGROUP) { if (m.service.length || m.small.length || m.cecil) return false; }
+      else if (state.group && !inGroup(m, state.group)) return false;
+      if (!q) return true;
+      return cho ? m._cho.indexOf(q) >= 0 : m._hay.indexOf(q) >= 0;
+    });
+  }
+
+  /** 단체 고르기 판 (아이폰 기본 펼침 목록 대신, 묶음 제목을 잘 보이게) */
+  function pickerSections() {
+    return [
+      { title: '', items: [['', '전체'], [NOGROUP, '무소속 (연령단체 외 소속 無)']] },
+      { title: '섬기는 이들', items: [['사목단', '사목단'], ['교회위원', '교회위원회'], [TITLED, '직책 섬김이']] },
+    ].concat(kindCards().filter(function (c) { return c.names.length; }).map(function (c) {
+      return { title: c.kind, items: c.names.map(function (n) { return [n, (c.kind === '세실대' ? '세실대 ' : '') + shown(n)]; }) };
+    }));
+  }
+
+  function groupLabel(v) {
+    var found = '';
+    pickerSections().forEach(function (sec) { sec.items.forEach(function (it) { if (it[0] === v) found = it[1]; }); });
+    return found || '전체';
+  }
+
+  function openPicker() {
+    var el = document.createElement('div');
+    el.className = 'sheet-back';
+    el.innerHTML = '<div class="sheet" role="dialog" aria-label="단체 고르기">' +
+      '<div class="sheet-head"><span>단체 고르기</span><button class="sheet-close" data-close="1" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-body">' + pickerSections().map(function (sec) {
+        return (sec.title ? '<div class="sheet-title">' + esc(sec.title) + '</div>' : '') +
+          '<div class="sheet-chips">' + sec.items.map(function (it) {
+            return '<button class="pick' + (state.group === it[0] ? ' on' : '') + '" data-pick="' + esc(it[0]) + '">' + esc(it[1]) + '</button>';
+          }).join('') + '</div>';
+      }).join('') + '</div></div>';
+    el.addEventListener('click', function (ev) {
+      var t = ev.target.closest('[data-pick],[data-close]');
+      if (ev.target === el || (t && t.dataset.close)) { el.remove(); return; }
+      if (t && t.dataset.pick !== undefined) {
+        ev.stopPropagation();
+        state.group = t.dataset.pick;
+        el.remove();
+        renderList();
+      }
+    });
+    document.body.appendChild(el);
+  }
+
+  function segRow(label, field, opts) {
+    return '<div class="seg-row"><span class="seg-label">' + label + '</span><div class="seg">' +
+      opts.map(function (o) {
+        return '<button class="' + (state[field] === o ? 'on' : '') + '" data-cond="' + field + '=' + o + '">' + o + '</button>';
+      }).join('') + '</div></div>';
+  }
+
+  /** 검색창은 한 번만 그리고, 글자를 칠 때는 아래 결과만 바꾼다 (한글 조합이 끊기지 않게). */
+  function renderList() {
+    var html = '<header class="hero">' + brand('교우 검색') +
+      '<label class="search">' + iconSearch(18) +
+      '<input id="q" type="search" placeholder="이름, 신명, 단체, 직책으로 찾기" value="' + esc(state.q) + '" autocomplete="off">' +
+      '<button class="clear" data-clear="1" aria-label="지우기"' + (state.q ? '' : ' hidden') + '>✕</button>' +
+      '</label></header>';
+
+    if (ADMIN && D.warnings.length) {
+      html += '<div class="warn-box">' + D.warnings.map(esc).join('<br>') + '</div>';
+    }
+
+    // 조건 (모두 AND): 출결 · 성별 · 직책 · 단체
+    html += '<div class="conds">';
+    if (ADMIN) html += segRow('출결', 'status', ['전체', '출석', '비출석', '확인필요']);
+    html += segRow('성별', 'sex', ['전체', '남성', '여성']);
+    html += '<div class="seg-row"><span class="seg-label">단체</span>' +
+      '<button class="sel" data-picker="1">' + esc(groupLabel(state.group)) + '</button></div>';
+    html += '</div>';
+
+    html += '<div id="results">' + resultsHtml() + '</div>';
+    html += '<div class="refresh-line"><button data-refresh="1">새로 고침</button>' +
+      (ADMIN && bootEl.dataset.build ? '<span class="build">판 ' + esc(bootEl.dataset.build) + '</span>' : '') + '</div>';
+    screen.innerHTML = html;
+
+    var input = document.getElementById('q');
+    var clear = screen.querySelector('[data-clear]');
+    input.addEventListener('input', function () {
+      state.q = input.value;
+      clear.hidden = !state.q;
+      updateResults();
+    });
+    wirePhotos();
+  }
+
+  function updateResults() {
+    var box = document.getElementById('results');
+    if (!box) return;
+    box.innerHTML = resultsHtml();
+    wirePhotos();
+  }
+
+  function resultsHtml() {
+    var list = filtered();
+    var label = state.status === '출석' || !ADMIN ? '출석 교우' : (state.status === '전체' ? '교적 전체' : state.status + ' 교우');
+    var narrowed = state.q || state.sex !== '전체' || state.group;
+    var html = '<div class="count">' + (narrowed ? '조건에 맞는 ' : '') + label + ' ' + list.length + '명' +
+      (narrowed ? ' <button class="reset" data-reset="1">조건 지우기</button>' : '') + '</div>';
+    if (!list.length) return html + '<div class="list"><div class="empty">조건에 맞는 교우가 없습니다.</div></div>';
+    var g = state.group ? groupInfo(state.group) : null;
+    list.sort(function (a, b) {
+      if (state.group === TITLED || state.group === '사목단' || state.group === '교회위원') return titleRank(a) - titleRank(b) || byName(a, b);
+      if (state.group && state.group !== NOGROUP) return isLeader(b, g && g.leader, state.group) - isLeader(a, g && g.leader, state.group) || byName(a, b);
+      return byName(a, b);
+    });
+    html += '<div class="list">' + list.map(rowHtml).join('') + '</div>';
+    return html + familyOfMatches(list);
+  }
+
+  /** 이름(신명)으로 찾았으면 그 교우의 가족도 아래에 함께 보여 준다 (2026-11-02 Francis님).
+      단체·직책 이름으로 찾은 경우에는 붙이지 않는다. */
+  function familyOfMatches(list) {
+    var q = norm(state.q);
+    if (!q) return '';
+    var cho = isChosungOnly(q);
+    var byNameHit = list.filter(function (m) {
+      return cho ? m._cho.indexOf(q) >= 0 : norm(m.name + m.saint).indexOf(q) >= 0 || norm(m.name).indexOf(q) >= 0;
+    });
+    if (!byNameHit.length || byNameHit.length > 5) return '';
+    var shownKeys = {};
+    list.forEach(function (m) { shownKeys[m.key] = 1; });
+    var rows = [];
+    byNameHit.forEach(function (m) {
+      m.family.forEach(function (f) {
+        if (!f.key || shownKeys[f.key] || !byKey[f.key]) return;
+        shownKeys[f.key] = 1;
+        rows.push(rowHtml(byKey[f.key]).replace('<div class="row-sub">',
+          '<div class="row-sub"><span class="fam-of">' + esc(m.name) + '님의 ' + esc(relLabel(f)) + '</span>'));
+      });
+    });
+    if (!rows.length) return '';
+    return '<div class="list"><div class="section-title">가족</div>' + rows.join('') + '</div>';
+  }
+
+  /** 단체별: 연령단체 순서로 묶음 (§4.2). 회장은 묶음 맨 위. */
+  function groupedHtml(list) {
+    var buckets = {};
+    list.forEach(function (m) {
+      var g = m.ageGroup || '연령단체 미지정';
+      (buckets[g] = buckets[g] || []).push(m);
+    });
+    var leaders = {};
+    D.groups.forEach(function (g) { if (g.leader) leaders[g.name] = g.leader; });
+    return Object.keys(buckets).sort(function (a, b) { return idxIn(AGE_ORDER, a) - idxIn(AGE_ORDER, b); })
+      .map(function (g) {
+        var ms = buckets[g].sort(function (a, b) {
+          return isLeader(b, leaders[g], g) - isLeader(a, leaders[g], g) || byName(a, b);
+        });
+        return '<div class="list"><div class="section-title">' + esc(g) + ' · ' + ms.length + '명</div>' +
+          ms.map(rowHtml).join('') + '</div>';
+      }).join('');
+  }
+
+  /** 회장·리더인가: ① 단체상태 「단체장」 칸의 이름(띄어쓰기 무시) ② 직책에 「○○회 회장」이 있으면 */
+  function isLeader(m, leaderText, groupName) {
+    var full = norm(m.name + m.saint), name = norm(m.name);
+    var byList = (leaderText || '').split('·').some(function (s) {
+      var t = norm(s);
+      return t && (t === full || t === name);
+    });
+    var byTitle = !!groupName && !!m.title && m.title.indexOf(alias(groupName)) >= 0 && /회장|리더/.test(m.title);
+    return byList || byTitle ? 1 : 0;
+  }
+
+  // ── 교우 상세 (§5.3) ──
+  var REL = { father: '아버지', mother: '어머니', husband: '남편', wife: '아내', sibling: '형제자매' };
+  var REL_ORDER = ['father', 'mother', 'husband', 'wife', 'child', 'sibling'];
+
+  function relLabel(f) {
+    if (f.rel === 'child') return f.sex === '남' ? '아들' : f.sex === '여' ? '딸' : '자녀';
+    return REL[f.rel] || '';
+  }
+
+  /** 상세 항목: 두 칸 격자에 「이름 위, 값 아래」로 촘촘히. 긴 값은 한 줄 전체 (2026-11-02 화면 압축) */
+  var WIDE = ['후견인', '이메일', '주소', '메모'];
+  function kv(k, v, raw) {
+    if (v === null || v === undefined || v === '') return '';
+    return '<div class="kv2' + (WIDE.indexOf(k) >= 0 ? ' wide' : '') + '"><div class="k">' + esc(k) + '</div><div class="v">' + (raw ? v : esc(v)) + '</div></div>';
+  }
+  function grid(body) { return body ? '<div class="kv-grid">' + body + '</div>' : ''; }
+
+  function card(title, body, extra) {
+    if (!body) return '';
+    return '<section class="card"><h3>' + title + (extra ? '<span class="muted">' + extra + '</span>' : '') + '</h3>' + body + '</section>';
+  }
+
+  function renderDetail(m, opts) {
+    opts = opts || {};
+    var html = '<header class="detail-hero' + (opts.random ? ' random' : '') + '">' +
+      (opts.random ? '<button class="again" data-random="1">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>' +
+        '다른 교우</button>' : '<button class="back" data-back="1" aria-label="뒤로">' +
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>') +
+      avatar(m.name, m.photoId, 'lg', 'lg') +
+      '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
+      (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '') +
+      (opts.random ? '<div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div>' : '') +
+      '</header>';
+
+    // 소속
+    var chips = [];
+    if (m.ageGroup) chips.push(tag(m.ageGroup));
+    SERVICE_ORDER.concat(m.service.filter(function (s) { return SERVICE_ORDER.indexOf(s) < 0; }))
+      .forEach(function (s) { if (m.service.indexOf(s) >= 0) chips.push(tag(s)); });
+    m.small.slice().sort(function (a, b) { return a.localeCompare(b, 'ko'); }).forEach(function (s) { chips.push(tag(s)); });
+    if (m.cecil) chips.push(tag('세실대 ' + m.cecil, m.cecil));
+    html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '');
+
+    // 가족: 출석 가족 먼저
+    var fam = m.family.slice().sort(function (a, b) {
+      return (b.attending ? 1 : 0) - (a.attending ? 1 : 0) || REL_ORDER.indexOf(a.rel) - REL_ORDER.indexOf(b.rel);
+    });
+    var famHtml = fam.map(function (f) {
+      var shownName = f.name || f.text;
+      var inner = avatar(shownName, f.photoId || '', 'md') +
+        '<div class="row-main"><div class="fam-name">' + esc(shownName) +
+        (f.saint ? '<span class="row-saint">' + esc(f.saint) + '</span>' : '') + '</div>' +
+        '<div class="fam-rel">' + esc(relLabel(f)) + (f.attending ? '' : ' (' + (f.status === '확인필요' ? '확인필요' : '비출석') + ')') + '</div></div>';
+      return f.key
+        ? '<button class="fam' + (f.attending ? '' : ' off') + '" data-go="' + f.key + '">' + inner + '<span class="row-tail">' + chevron() + '</span></button>'
+        : '<div class="fam off">' + inner + '</div>';
+    }).join('');
+    html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '');
+
+    // 신앙
+    html += card('신앙', grid(
+      kv('출신교파', m.origin) + kv('등록일', m.regDate) + kv('세례일', m.baptism) + kv('견진일', m.confirm) +
+      kv('후견인', m.sponsor || '없음 (확인 필요)')));
+
+    if (ADMIN) {
+      var tel = m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^0-9+]/g, '')) + '">' + esc(m.phone) + '</a>' : '';
+      html += card('연락', grid(kv('휴대폰', tel, true) + kv('카톡 등록', m.kakao) + kv('이메일', m.email) + kv('주소', m.address)));
+      html += card('관리', grid(
+        kv('교적번호', m.id) + kv('성별', m.sex) + kv('생년', m.birthYear) + kv('생년월일', m.birthDate) +
+        kv('만 나이', m.age) + kv('출석 상태', m.status) + kv('교적 등재', m.registered) +
+        kv('사진 동의', m.photoOk) + kv('연락 동의', m.contactOk) +
+        kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
+        kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
+        kv('확인필요성', m.checkScore) + kv('메모', m.memo)));
+    }
+    screen.innerHTML = html;
+    wirePhotos();
+  }
+
+  function tag(s, group) {
+    return '<button class="tag" data-group="' + esc(group || s) + '">' + esc(s) + '</button>';
+  }
+
+  // ── 랜덤 교우 (§5.9) ──
+  function pickRandom() {
+    var pool = D.members.filter(function (m) { return !ADMIN || m.status === '출석'; });
+    if (!pool.length) return null;
+    var m;
+    for (var i = 0; i < 5; i++) {
+      m = pool[Math.floor(Math.random() * pool.length)];
+      if (m.key !== state.lastRandom || pool.length === 1) break;
+    }
+    state.lastRandom = m.key;
+    return m;
+  }
+
+  // ── 아래 탭 (§5.1) ──
+  var TABS = [
+    { id: 'stats', label: '인원 통계', admin: true, icon: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
+    { id: 'groups', label: '활동 단체', icon: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/>' },
+    { id: 'search', label: '교우 검색', icon: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>' },
+    { id: 'care', label: '돌봄 필요', admin: true, icon: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>' },
+    { id: 'random', label: '랜덤 교우', icon: '<path d="M12 3l2.2 6.8H21l-5.5 4 2.1 6.7L12 16.4 6.4 20.5l2.1-6.7L3 9.8h6.8z"/>' },
+  ];
+
+  function iconSearch(px) {
+    return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = TABS.filter(function (t) { return ADMIN || !t.admin; }).map(function (t) {
+      return '<button class="tab' + (state.tab === t.id ? ' on' : '') + '" data-tab="' + t.id + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + t.icon + '</svg>' +
+        t.label + '</button>';
+    }).join('');
+  }
+
+  // ════════════════════════════════════════════
+  // 단체 (§5.4) · 섬기는 이들 (§5.5)
+  // ════════════════════════════════════════════
+
+  function attending() { return D.members.filter(function (m) { return !ADMIN || m.status === '출석'; }); }
+  function alias(name) { return name === '교회위원회' ? '교회위원' : name; }
+  function shown(name) { return name === '교회위원회' ? '교회위원' : name; }
+
+  function inGroup(m, name) {
+    var n = alias(name);
+    return m.ageGroup === n || m.service.indexOf(n) >= 0 || m.small.indexOf(n) >= 0 || m.cecil === n;
+  }
+
+  function groupInfo(name) {
+    var n = alias(name);
+    for (var i = 0; i < D.groups.length; i++) {
+      if (alias(D.groups[i].name) === n) return D.groups[i];
+    }
+    return null;
+  }
+
+  /** 구분별 단체 목록. 단체상태 + 실제 자료에 있는 이름을 합쳐, §4.2 순서로. */
+  function groupsOf(kind) {
+    var names = [];
+    D.groups.forEach(function (g) {
+      if (g.kind === kind && g.name !== '직책 섬김이') names.push(alias(g.name));
+    });
+    attending().forEach(function (m) {
+      var vals = kind === '연령단체' ? [m.ageGroup] : kind === '봉사단체' ? m.service : kind === '소그룹' ? m.small : [m.cecil];
+      vals.forEach(function (v) { if (v && names.indexOf(v) < 0) names.push(v); });
+    });
+    var order = kind === '연령단체' ? AGE_ORDER : kind === '봉사단체' ? SERVICE_ORDER : kind === '세실대' ? CECIL_ORDER : null;
+    return names.sort(function (a, b) {
+      return order ? idxIn(order, a) - idxIn(order, b) || a.localeCompare(b, 'ko') : a.localeCompare(b, 'ko');
+    });
+  }
+
+  function countIn(name) { return attending().filter(function (m) { return inGroup(m, name); }).length; }
+
+  function heroBack(title, sub) {
+    return '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
+      '<div class="sub-title">' + esc(title) + '</div>' + (sub ? '<div class="sub-note">' + esc(sub) + '</div>' : '') + '</header>';
+  }
+
+  function heroTop(title) {
+    return '<header class="hero">' + brand(title) + '</header>';
+  }
+
+  var KINDS = ['연령단체', '봉사단체', '소그룹', '세실대'];
+
+  /** 활동 단체 첫 화면: 묶음마다 단체 타일(이름 + 출석 인원). 한 번 누르면 바로 명단 (2026-11-02) */
+  function renderGroupsHome() {
+    var html = heroTop('활동 단체');
+    var sg = servantGroups();
+    var count = function (k) { return sg[k].sections.reduce(function (t, x) { return t + x[1].length; }, 0); };
+    html += tileSection('섬기는 이들', ['clergy', 'council', 'titled'].map(function (k) {
+      return '<button class="tile" data-servants="' + k + '"><span class="t-name">' + sg[k].title + '</span>' +
+        '<span class="t-num">' + count(k) + '명</span></button>';
+    }));
+    kindCards().forEach(function (c) {
+      if (!c.names.length) return;
+      html += tileSection(c.kind, c.names.map(function (n) {
+        var g = groupInfo(n);
+        var dormant = g && g.state === '휴면';
+        return '<button class="tile' + (dormant ? ' dormant' : '') + '" data-group="' + esc(n) + '">' +
+          '<span class="t-name">' + esc(shown(n)) + '</span>' +
+          '<span class="t-num">' + (dormant ? '휴면' : countIn(n) + '명') + '</span></button>';
+      }));
+    });
+    screen.innerHTML = html;
+  }
+
+  function tileSection(title, tiles) {
+    while (tiles.length % 3) tiles.push('<div class="tile filler"></div>');  // 줄 끝 빈칸을 흰색으로 채움
+    return '<section class="tile-sec"><div class="tile-title">' + esc(title) + '</div>' +
+      '<div class="tiles">' + tiles.join('') + '</div></section>';
+  }
+
+  function groupLine(name) {
+    var g = groupInfo(name);
+    var dormant = g && g.state === '휴면';
+    return '<button class="row" data-group="' + esc(name) + '"><div class="row-main">' +
+      '<div class="row-name">' + esc(shown(name)) + (dormant ? ' <span class="status-tag">휴면</span>' : '') + '</div>' +
+      (g && g.leader ? '<div class="row-sub"><span class="txt">' + esc(g.leader) + '</span></div>' : '') +
+      '</div><div class="row-tail"><span class="row-count">' + countIn(name) + '명</span>' + chevron() + '</div></button>';
+  }
+
+  /** 활동단체 카드: 연령단체는 남성·여성·기타로 나눈다 (2026-11-02 Francis님) */
+  function kindCards() {
+    var ages = groupsOf('연령단체');
+    var known = {};
+    var cards = AGE_GROUP_SECTIONS.map(function (sec) {
+      var ns = ages.filter(function (n) { return sec.names.indexOf(n) >= 0; });
+      ns.forEach(function (n) { known[n] = 1; });
+      return { kind: '연령단체(' + sec.label + ')', names: ns };
+    });
+    var rest = ages.filter(function (n) { return !known[n]; });
+    cards[cards.length - 1].names = cards[cards.length - 1].names.concat(rest); // 목록에 없는 연령단체는 기타로
+    // 사목단·교회위원은 「섬기는 이들」에서 보므로 봉사단체 목록에서는 뺀다 (2026-11-02 Francis님)
+    var SERVANT_GROUPS = ['사목단', '교회위원'];
+    var service = groupsOf('봉사단체').filter(function (n) { return SERVANT_GROUPS.indexOf(n) < 0; });
+    return cards.concat([{ kind: '봉사단체', names: service }],
+      ['소그룹', '세실대'].map(function (k) { return { kind: k, names: groupsOf(k) }; }));
+  }
+
+  function renderKind(kind) {
+    var c = kindCards().filter(function (x) { return x.kind === kind; })[0];
+    var names = c ? c.names : [];
+    screen.innerHTML = heroBack(kind) + '<div class="list">' +
+      (names.length ? names.map(groupLine).join('') : '<div class="empty">단체가 없습니다.</div>') + '</div>';
+  }
+
+  function renderGroup(name) {
+    var g = groupInfo(name);
+    var leader = g ? g.leader : '';
+    var ms = attending().filter(function (m) { return inGroup(m, name); }).sort(function (a, b) {
+      return isLeader(b, leader, name) - isLeader(a, leader, name) || byName(a, b);
+    });
+    var leadLabel = g && g.kind === '소그룹' ? '리더' : '회장';
+    var sub = (g && g.state === '휴면' ? '휴면 · ' : '') + '출석 ' + ms.length + '명';
+    var html = heroBack(shown(name), sub);
+    html += '<div class="list">' + (ms.length ? ms.map(function (m) {
+      // 직책 표시가 없는 회장·리더에게는 「회장」(소그룹은 「리더」) 표시를 붙여 맨 위에 보이게 한다
+      if (!isLeader(m, leader, name) || m.title) return rowHtml(m);
+      return rowHtml(Object.assign({}, m, { title: leadLabel }));
+    }).join('') : '<div class="empty">출석 교우가 없습니다.</div>') + '</div>';
+    screen.innerHTML = html;
+    wirePhotos();
+  }
+
+  var AGE_GROUP_SECTIONS = [
+    { label: '남성', names: ['니콜라회', '라자로회', '바울로회'] },
+    { label: '여성', names: ['미리암회', '모니카회', '에스더회', '베로니카회'] },
+    { label: '기타', names: ['그라티아회', '주일학교'] },
+  ];
+
+  /** 섬기는 이들 (§5.5): 사목단 · 교회위원회 · 직책 섬김이를 각각 따로 연다 */
+  function servantGroups() {
+    var att = attending();
+    var byRank = function (a, b) { return titleRank(a) - titleRank(b) || byName(a, b); };
+    var council = att.filter(function (m) { return m.service.indexOf('교회위원') >= 0; });
+    var heads = council.filter(function (m) { return titleRank(m) <= 6; }).sort(byRank);
+    var exOfficio = council.filter(function (m) { return titleRank(m) === 8; }).sort(byName);
+    var elected = council.filter(function (m) { return heads.indexOf(m) < 0 && exOfficio.indexOf(m) < 0; }).sort(byRank);
+    return {
+      clergy: { title: '사목단', sections: [['', att.filter(function (m) { return m.service.indexOf('사목단') >= 0; }).sort(byRank)]] },
+      council: { title: '교회위원회', sections: [['사제·회장', heads], ['선출직', elected], ['당연직', exOfficio]] },
+      // 직책 섬김이: 사목단 → 교회위원(회장·분과위원 → 당연직) → 감사 → 기타 단체장
+      titled: (function () {
+        var all = att.filter(function (m) { return m.title; }).sort(byRank);
+        var band = function (lo, hi) { return all.filter(function (m) { var r = titleRank(m); return r >= lo && r <= hi; }); };
+        return { title: '직책 섬김이', sections: [['사목단', band(1, 4)], ['교회위원', band(5, 8)], ['감사', band(9, 9)], ['기타 단체장', band(10, 10)]] };
+      })(),
+    };
+  }
+
+  function renderServants(which) {
+    var sg = servantGroups();
+    var g = sg[which];
+    if (!g) {
+      var html = heroBack('섬기는 이들') + '<div class="list">' + ['clergy', 'council', 'titled'].map(function (k) {
+        var n = sg[k].sections.reduce(function (t, x) { return t + x[1].length; }, 0);
+        return '<button class="row" data-servants="' + k + '"><div class="row-main"><div class="row-name">' + sg[k].title + '</div></div>' +
+          '<div class="row-tail"><span class="row-count">' + n + '명</span>' + chevron() + '</div></button>';
+      }).join('') + '</div>';
+      screen.innerHTML = html;
+      return;
+    }
+    var total = g.sections.reduce(function (t, x) { return t + x[1].length; }, 0);
+    screen.innerHTML = heroBack(g.title, total + '명') + g.sections.map(function (x) {
+      return x[1].length ? '<div class="list">' + (x[0] ? '<div class="section-title">' + esc(x[0]) + '</div>' : '') +
+        x[1].map(rowHtml).join('') + '</div>' : '';
+    }).join('');
+    wirePhotos();
+  }
+
+  function section(title, ms) {
+    if (!ms.length) return '';
+    return '<div class="list"><div class="section-title">' + esc(title) + '</div>' + ms.map(rowHtml).join('') + '</div>';
+  }
+
+  // ════════════════════════════════════════════
+  // 인원통계 (§5.6) — 가로 막대, 누르면 명단
+  // ════════════════════════════════════════════
+
+  function note(name) { var g = groupInfo(name); return g ? g.note : ''; }
+
+  /** 차트 정의: 각 칸 = {label, test(m)} */
+  function charts() {
+    var att = D.members.filter(function (m) { return !ADMIN || m.status === '출석'; });
+    var list = [];
+    // 원 그래프 색: 색맹 검사(dataviz validate_palette) 통과한 조합
+    if (ADMIN) list.push({ id: 'status', type: 'donut', title: '출석상태', base: D.members, den: D.members.length, note: '전체 교적 기준', items: [
+      { label: '출석', color: '#2E86C1', test: function (m) { return m.status === '출석'; } },
+      { label: '비출석', color: '#C0392B', test: function (m) { return m.status === '비출석'; } },
+      { label: '확인필요', color: '#D4A017', test: function (m) { return m.status !== '출석' && m.status !== '비출석'; } },
+    ] });
+    list.push({ id: 'sex', type: 'donut', title: '성별 현황 (출석 기준)', items: [
+      { label: '남성 교우', color: '#2E86C1', test: function (m) { return m.sex === '남'; } },
+      { label: '여성 교우', color: '#E08E3C', test: function (m) { return m.sex === '여'; } },
+      { label: '성별 미상', color: '#C0392B', test: function (m) { return m.sex !== '남' && m.sex !== '여'; } },
+    ] });
+    // 단체별 인원은 활동단체 화면에 있으므로 여기서는 「어디에 속해 있는가」만 본다 (2026-11-02 결정)
+    var none = function (m) { return !m.service.length && !m.small.length && !m.cecil; };
+    list.push({ id: 'belong', title: '소속 현황', note: '한 사람이 여러 곳에 해당', items: [
+      { label: '연령단체 미지정', tone: 'red', test: function (m) { return !m.ageGroup; } },
+      { label: '연령단체 외 소속 없음', tone: 'red', test: none },
+      { label: '봉사단체 1곳 이상', test: function (m) { return m.service.length > 0; } },
+      { label: '소그룹 1곳 이상', test: function (m) { return m.small.length > 0; } },
+      { label: '세실대 수료', test: function (m) { return !!m.cecil; } },
+    ] });
+    if (ADMIN) list.push({ id: 'recent', title: '최근 3개월 출석 횟수', items: [
+      // 13주 기준 (2026-11-02 Francis님: 3·6·9회로 나눔)
+      { label: '3회 이하', tone: 'red', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      { label: '4~6회', test: function (m) { return m.recent >= 4 && m.recent <= 6; } },
+      { label: '7~9회', test: function (m) { return m.recent >= 7 && m.recent <= 9; } },
+      { label: '10회 이상', test: function (m) { return m.recent >= 10; } },
+    ] });
+    list.push({ id: 'family', title: '함께 출석하는 가족', items: [
+      { label: '혼자 출석', tone: 'red', test: function (m) { return (m.famCount || 1) <= 1; } },
+      { label: '2인 가족', test: function (m) { return m.famCount === 2; } },
+      { label: '3인 이상', test: function (m) { return m.famCount >= 3; } },
+    ] });
+    // 기준 문장은 Francis님 문안 (2026-11-02)
+    if (ADMIN) list.push({ id: 'network', title: '공동체 연결 정도',
+      desc: '기준: 직계 가족 1명 1점, 소속 단체마다 1점 (단 연령단체는 제외)',
+      items: [
+        { label: '매우 약함 (끈 0개)', tone: 'red', test: function (m) { return m.network === 0; } },
+        { label: '조금 약함 (끈 1개)', tone: 'amber', test: function (m) { return m.network === 1; } },
+        { label: '보통 (끈 2~3개)', test: function (m) { return m.network >= 2 && m.network <= 3; } },
+        { label: '강함 (끈 4개 이상)', test: function (m) { return m.network >= 4; } },
+      ] });
+    list.forEach(function (c) {
+      c.base = c.base || att;
+      c.den = c.den || att.length;
+    });
+    return list;
+  }
+
+  /** 원 그래프(도넛) + 누르는 범례. 조각 사이 2px 틈, 가운데 합계 */
+  function donutCard(c, rows) {
+    var total = rows.reduce(function (t, r) { return t + r.n; }, 0) || 1;
+    var R = 38, C = 2 * Math.PI * R, gap = rows.filter(function (r) { return r.n; }).length > 1 ? 2 : 0, off = 0;
+    var segs = rows.map(function (r) {
+      if (!r.n) return '';
+      var len = r.n / total * C;
+      var seg = '<circle r="' + R + '" cx="50" cy="50" fill="none" stroke="' + r.color + '" stroke-width="16"' +
+        ' stroke-dasharray="' + Math.max(len - gap, 0.5).toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '"' +
+        ' transform="rotate(-90 50 50)"><title>' + esc(r.label) + ' ' + r.n + '명</title></circle>';
+      off += len;
+      return seg;
+    }).join('');
+    var legend = rows.map(function (r) {
+      return '<button class="lg-row" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
+        '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
+    }).join('');
+    return '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+      '<div class="donut-wrap"><svg class="donut" viewBox="0 0 100 100" role="img" aria-label="' + esc(c.title) + '">' + segs +
+      '<text x="50" y="49" text-anchor="middle" class="d-total">' + total + '</text><text x="50" y="62" text-anchor="middle" class="d-unit">명</text></svg>' +
+      '<div class="legend">' + legend + '</div></div></section>';
+  }
+
+  function pct(n, den) { return den ? Math.round(n / den * 100) : 0; }
+
+  function renderStats() {
+    var att = attending();
+    var html = heroTop('인원 통계') + '<div class="count">비율은 출석 교우 ' + att.length + '명 기준</div>';
+    charts().forEach(function (c) {
+      var rows = c.items.map(function (it, i) {
+        var n = c.base.filter(it.test).length;
+        return { label: it.label, n: n, i: i, note: it.note, tone: it.tone || '', color: it.color };
+      });
+      if (c.type === 'donut') { html += donutCard(c, rows); return; }
+      var max = Math.max.apply(null, rows.map(function (r) { return r.n; }).concat([1]));
+      html += '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+        (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
+        rows.map(function (r) {
+          return '<button class="bar-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '">' +
+            '<div class="bar-head"><span class="bar-label">' + esc(r.label) + '</span>' +
+            '<span class="bar-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></div>' +
+            '<div class="bar-track"><div class="bar-fill" style="width:' + (r.n / max * 100) + '%"></div></div>' +
+            (r.note ? '<div class="bar-note">' + esc(r.note) + '</div>' : '') + '</button>';
+        }).join('') + '</section>';
+    });
+    screen.innerHTML = html;
+  }
+
+  function renderStatList(key) {
+    var p = key.split(':');
+    var c = charts().filter(function (x) { return x.id === p[0]; })[0];
+    var it = c && c.items[Number(p[1])];
+    if (!it) return renderStats();
+    var ms = c.base.filter(it.test).sort(byName);
+    screen.innerHTML = heroBack(c.title + ' · ' + it.label, ms.length + '명 (' + pct(ms.length, c.den) + '%)') +
+      '<div class="list">' + (ms.length ? ms.map(rowHtml).join('') : '<div class="empty">해당 교우가 없습니다.</div>') + '</div>';
+    wirePhotos();
+  }
+
+  // ════════════════════════════════════════════
+  // 돌봄 필요 (§5.7) — 관리자만 (열람자에게는 자료 자체가 오지 않음)
+  // ════════════════════════════════════════════
+
+  var YEAR = 365 * 24 * 3600 * 1000;
+  function careGroups() {
+    var att = D.members.filter(function (m) { return m.status === '출석'; });
+    return [
+      // 새교우 = 새교우 교육 또는 전입식 이후 1년 미만 (2026-11-02 Francis님). 날짜는 교적부 「등록일」을 쓴다.
+      { name: '새교우', fixedNote: '새교우 교육 또는 전입식 이후 1년 미만', test: function (m) { return (m.regTime && Date.now() - m.regTime <= YEAR) || /새교우/.test(m.memo || ''); } },
+      // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
+      { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
+      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개 (연령단체 소속은 산입 제외)', test: function (m) { return m.network === 0; } },
+      { name: '초고령층', test: function (m) { return m.age >= 80; } },
+    ].map(function (g, i) {
+      g.i = i;
+      g.note = g.fixedNote || note(g.name);
+      g.members = att.filter(g.test).sort(byName);
+      return g;
+    });
+  }
+
+  function careRow(m) {
+    var extra = '최근 3개월 ' + (m.recent == null ? '—' : m.recent + '회') + ' · 네트웍 ' + (m.network == null ? '—' : m.network);
+    var html = rowHtml(m);
+    var at = html.lastIndexOf('</div></button>');
+    return html.slice(0, at) + '<div class="row-sub"><span class="txt care-extra">' + esc(extra) + '</span></div>' + html.slice(at);
+  }
+
+  /** 돌봄 필요: 네 묶음을 2×2 타일로 한 화면에 (2026-11-02 Francis님) */
+  function renderCare() {
+    var html = heroTop('돌봄 필요') + '<div class="care-grid">';
+    careGroups().forEach(function (g) {
+      html += '<button class="care-tile" data-care="' + g.i + '">' +
+        '<div class="care-name">' + esc(g.name) + '</div>' +
+        '<div class="care-num">' + g.members.length + '<span>명</span></div>' +
+        (g.note ? '<div class="care-note">' + esc(g.note.replace(/^기준:\s*/, '')) + '</div>' : '') + '</button>';
+    });
+    screen.innerHTML = html + '</div>';
+  }
+
+  function renderCareList(i) {
+    var g = careGroups()[Number(i)];
+    if (!g) return renderCare();
+    screen.innerHTML = heroBack(g.name, g.members.length + '명' + (g.note ? ' · ' + g.note : '')) +
+      '<div class="list">' + (g.members.length ? g.members.map(careRow).join('') : '<div class="empty">해당 교우가 없습니다.</div>') + '</div>';
+    wirePhotos();
+  }
+
+  // ── 화면 고르기와 뒤로 가기 (F-06) ──
+  // view: list(탭 첫 화면) · detail · kind · group · servants · stat · care
+  function render() {
+    renderTabs();
+    if (!D) return;
+    var v = state.view, k = state.key;
+    if (v === 'detail' && byKey[k]) return renderDetail(byKey[k]);
+    if (v === 'kind') return renderKind(k);
+    if (v === 'group') return renderGroup(k);
+    if (v === 'servants') return renderServants(k);
+    if (v === 'stat') return renderStatList(k);
+    if (v === 'care' && ADMIN) return renderCareList(k);
+    if (state.tab === 'search') return renderList();
+    if (state.tab === 'groups') return renderGroupsHome();
+    if (state.tab === 'stats' && ADMIN) return renderStats();
+    if (state.tab === 'care' && ADMIN) return renderCare();
+    if (state.tab === 'random') {
+      var pick = byKey[state.lastRandom] || pickRandom();
+      if (pick) return renderDetail(pick, { random: true });
+      screen.innerHTML = '<div class="soon">출석 교우가 없습니다.</div>';
+      return;
+    }
+    state.tab = 'search';
+    renderList();
+  }
+
+  var scrolls = {};
+  function where() { return state.tab + '|' + state.view + '|' + state.key; }
+  function go(patch, push) {
+    scrolls[where()] = window.scrollY;
+    Object.assign(state, patch);
+    if (push !== false) {
+      try {
+        google.script.history.push({ tab: state.tab, view: state.view, key: state.key }, null, state.tab + '/' + (state.key || ''));
+      } catch (e) {}
+    }
+    render();
+    window.scrollTo(0, push === false ? (scrolls[where()] || 0) : 0);
+  }
+
+  try {
+    google.script.history.setChangeHandler(function (e) {
+      var s = e.state || { tab: 'groups', view: 'list', key: '' };
+      go({ tab: s.tab || 'groups', view: s.view || 'list', key: s.key || '' }, false);
+    });
+  } catch (e) {}
+
+  document.addEventListener('click', function (ev) {
+    var el = ev.target.closest('button');
+    if (!el) return;
+    var ds = el.dataset;
+    if (ds.go) go({ view: 'detail', key: ds.go });
+    else if (ds.back) history.back();
+    else if (ds.tab) { if (ds.tab === 'random') state.lastRandom = ''; go({ tab: ds.tab, view: 'list', key: '' }); }
+    else if (ds.cond) { var kv = ds.cond.split('='); state[kv[0]] = kv[1]; renderList(); }
+    else if (ds.picker) openPicker();
+    else if (ds.reset) { state.q = ''; state.sex = '전체'; state.group = ''; renderList(); }
+    else if (ds.clear) { state.q = ''; renderList(); document.getElementById('q').focus(); }
+    else if (ds.refresh) load(true);
+    else if (ds.random) { pickRandom(); go({ view: 'list', key: '' }, false); }
+    else if (ds.servants) go({ view: 'servants', key: ds.servants === '1' ? '' : ds.servants });
+    else if (ds.kind) go({ view: 'kind', key: ds.kind });
+    else if (ds.group) go({ tab: state.tab === 'search' || state.tab === 'random' ? 'groups' : state.tab, view: 'group', key: ds.group });
+    else if (ds.stat) go({ view: 'stat', key: ds.stat });
+    else if (ds.care) go({ view: 'care', key: ds.care });
+  });
+
+  renderTabs();
+  load(false);
+})();
+
+  }
+})();
+</script>
 </body>
 </html>
