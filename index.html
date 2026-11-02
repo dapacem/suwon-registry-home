@@ -300,6 +300,7 @@ a { color: inherit; }
 .msg-body { font-size: .9375rem; margin: 0 0 .8rem; }
 .msg-email { font-size: .8125rem; color: var(--sub); margin: 0 0 1rem; word-break: break-all; }
 .btn-primary { display: inline-block; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; padding: .7rem 1.4rem; border-radius: .7rem; font-size: .9375rem; }
+  .fam-none { color: var(--sub); padding: 6px 2px; }
 </style>
 <style>.hero + .list, .sub-hero + .list, .count + .list { margin-top: .9rem; } .count + .list { margin-top: 0; }</style>
 <style>.detail-hero.random { padding-top: 3.4rem; } .detail-hero.random .again { top: .7rem; }</style>
@@ -350,7 +351,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '573c38c77f';
+  var UI_VERSION = '0979f6964f';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -941,7 +942,7 @@ a { color: inherit; }
       return f.key
         ? '<button class="fam' + (f.attending ? '' : ' off') + '" data-go="' + f.key + '">' + inner + '<span class="row-tail">' + chevron() + '</span></button>'
         : '<div class="fam off">' + inner + '</div>';
-    }).join('');
+    }).join('') || '<div class="fam-none">등록된 가족 없음</div>';  // 가족이 없어도 칸은 보인다 (2026-11-02 Francis님)
     html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '');
 
     // 신앙
