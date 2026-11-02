@@ -216,7 +216,7 @@ a { color: inherit; }
 .care-name { font-size: 1.0625rem; font-weight: 700; color: var(--text); }
 .care-num { font-size: 2.1rem; font-weight: 700; color: var(--primary); line-height: 1.1; }
 .care-num span { font-size: 1rem; margin-left: .15rem; }
-.care-note { font-size: .78rem; color: var(--sub); line-height: 1.45; word-break: keep-all; }
+.care-note { font-size: .78rem; color: var(--sub); line-height: 1.45; word-break: keep-all; white-space: pre-line; }
 .care-card h3 { font-size: 1.25rem; }
 .care-card h3 .muted { font-size: 1.0625rem; font-weight: 700; color: var(--primary); }
 .care-card .card-desc { font-size: .9375rem; }
@@ -841,14 +841,19 @@ a { color: inherit; }
       }).join('');
   }
 
-  /** 회장·리더인가: ① 단체상태 「단체장」 칸의 이름(띄어쓰기 무시) ② 직책에 「○○회 회장」이 있으면 */
+  /** 단체 이름이 들어 있지 않은 단체 고유 직책 (2026-11-02: 성가대 지휘자·반주자) */
+  var TITLE_GROUP = { '지휘자': '성가대', '반주자': '성가대', '교회위원(교육)': '교육부' };
+
+  /** 회장·리더인가: ① 단체상태 「단체장」 칸의 이름(띄어쓰기 무시) ② 그 단체 직책 */
   function isLeader(m, leaderText, groupName) {
     var full = norm(m.name + m.saint), name = norm(m.name);
     var byList = (leaderText || '').split('·').some(function (s) {
       var t = norm(s);
       return t && (t === full || t === name);
     });
-    var byTitle = !!groupName && !!m.title && m.title.indexOf(alias(groupName)) >= 0 && /회장|리더/.test(m.title);
+    // 직책에 단체 이름이 들어 있거나(「라자로회 회장」, 「수지구역 구역장」), 그 단체 고유 직책이면(지휘자·반주자 → 성가대)
+    var byTitle = !!groupName && !!m.title &&
+      (m.title.indexOf(alias(groupName)) >= 0 || TITLE_GROUP[m.title] === alias(groupName));
     return byList || byTitle ? 1 : 0;
   }
 
@@ -1282,7 +1287,7 @@ a { color: inherit; }
       // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
       { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
       // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
-      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개 (연령단체 소속은 산입 제외)', test: function (m) { return m.network === 0; } },
+      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.network === 0; } },
       { name: '초고령층', test: function (m) { return m.age >= 80; } },
     ].map(function (g, i) {
       g.i = i;
