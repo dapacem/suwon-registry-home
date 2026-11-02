@@ -1204,9 +1204,9 @@ a { color: inherit; }
       desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
       items: [
         { label: '매우 약함 (끈 0개)', tone: 'red', test: function (m) { return m.network === 0; } },
-        { label: '조금 약함 (끈 1개)', tone: 'amber', test: function (m) { return m.network === 1; } },
+        { label: '약함 (끈 1개)', tone: 'amber', test: function (m) { return m.network === 1; } },
         { label: '보통 (끈 2~3개)', test: function (m) { return m.network >= 2 && m.network <= 3; } },
-        { label: '조금 강함 (끈 4개)', test: function (m) { return m.network === 4; } },
+        { label: '강함 (끈 4개)', test: function (m) { return m.network === 4; } },
         { label: '매우 강함 (끈 5개 이상)', test: function (m) { return m.network >= 5; } },
       ] });
     list.forEach(function (c) {
