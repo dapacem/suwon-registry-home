@@ -341,6 +341,22 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
+  var UI_VERSION = '8c21e6ff07';
+
+  // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
+  function checkUpdate() {
+    fetch('version.json?ts=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (v) {
+      if (v && v.ui && v.ui !== UI_VERSION) {
+        var tried = '';
+        try { tried = sessionStorage.getItem('suwon-ui-reload') || ''; } catch (e) {}
+        if (tried === v.ui) return;  // 한 번만 시도 (무한 새로 고침 방지)
+        try { sessionStorage.setItem('suwon-ui-reload', v.ui); } catch (e) {}
+        location.replace(location.pathname + '?v=' + v.ui);
+      }
+    }).catch(function () {});
+  }
+  checkUpdate();
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) checkUpdate(); });
   var KEY = 'suwon-registry-pass';
 
   // ── 출입증: 이 기기에만 보관 ──
