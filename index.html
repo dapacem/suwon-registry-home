@@ -350,7 +350,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '4ea1c9c24c';
+  var UI_VERSION = '573c38c77f';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -952,7 +952,6 @@ a { color: inherit; }
     if (ADMIN) {
       var tel = m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^0-9+]/g, '')) + '">' + esc(m.phone) + '</a>' : '';
       html += card('연락', grid(kv('휴대폰', tel, true) + kv('카톡 등록', m.kakao) + kv('이메일', m.email) + kv('주소', m.address)));
-      html += contactCard(m);
       html += card('관리', grid(
         kv('교적번호', m.id) + kv('성별', m.sex) + kv('생년', m.birthYear) + kv('생년월일', m.birthDate) +
         kv('만 나이', m.age) + kv('출석 상태', m.status) + kv('교적 등재', m.registered) +
