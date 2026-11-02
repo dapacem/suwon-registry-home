@@ -247,7 +247,7 @@ a { color: inherit; }
 .sw { flex: none; width: .75rem; height: .75rem; border-radius: 3px; }
 .lg-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .lg-val { flex: none; color: var(--sub); font-size: .75rem; }
-.chart-desc { font-size: .8125rem; color: var(--sub); margin: -.2rem 0 .6rem; line-height: 1.5; word-break: keep-all; }
+.chart-desc { font-size: .8125rem; color: var(--sub); margin: -.2rem 0 .6rem; line-height: 1.5; word-break: keep-all; white-space: pre-line; }
 .bar-note { font-size: .6875rem; color: var(--sub); margin-top: .3rem; line-height: 1.45; }
 
 /* ── 상세 항목 두 칸 격자 ── */
@@ -1201,7 +1201,7 @@ a { color: inherit; }
     ] });
     // 기준 문장은 Francis님 문안 (2026-11-02)
     if (ADMIN) list.push({ id: 'network', title: '공동체 연결 정도',
-      desc: '기준: 직계 가족 1명 1점, 소속 단체마다 1점 (단 연령단체는 제외)',
+      desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
       items: [
         { label: '매우 약함 (끈 0개)', tone: 'red', test: function (m) { return m.network === 0; } },
         { label: '조금 약함 (끈 1개)', tone: 'amber', test: function (m) { return m.network === 1; } },
