@@ -1203,11 +1203,12 @@ a { color: inherit; }
     if (ADMIN) list.push({ id: 'network', title: '공동체 연결 정도',
       desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
       items: [
-        { label: '매우 약함 (끈 0개)', tone: 'red', test: function (m) { return m.network === 0; } },
-        { label: '약함 (끈 1개)', tone: 'amber', test: function (m) { return m.network === 1; } },
-        { label: '보통 (끈 2~3개)', test: function (m) { return m.network >= 2 && m.network <= 3; } },
-        { label: '강함 (끈 4개)', test: function (m) { return m.network === 4; } },
-        { label: '매우 강함 (끈 5개 이상)', test: function (m) { return m.network >= 5; } },
+        // 빨·주·노·녹·파 5단계 (2026-11-02 Francis님). 색맹 검사로 이웃 색끼리 구별되는 값으로 고름
+        { label: '매우 약함 (끈 0개)', tone: 'red', color: '#B03A2E', test: function (m) { return m.network === 0; } },
+        { label: '약함 (끈 1개)', color: '#E8762C', test: function (m) { return m.network === 1; } },
+        { label: '보통 (끈 2~3개)', color: '#EDC53A', test: function (m) { return m.network >= 2 && m.network <= 3; } },
+        { label: '강함 (끈 4개)', color: '#2E9E5B', test: function (m) { return m.network === 4; } },
+        { label: '매우 강함 (끈 5개 이상)', color: '#2E6FB5', test: function (m) { return m.network >= 5; } },
       ] });
     list.forEach(function (c) {
       c.base = c.base || att;
@@ -1257,7 +1258,7 @@ a { color: inherit; }
           return '<button class="bar-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '">' +
             '<div class="bar-head"><span class="bar-label">' + esc(r.label) + '</span>' +
             '<span class="bar-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></div>' +
-            '<div class="bar-track"><div class="bar-fill" style="width:' + (r.n / max * 100) + '%"></div></div>' +
+            '<div class="bar-track"><div class="bar-fill" style="width:' + (r.n / max * 100) + '%' + (r.color ? ';background:' + r.color : '') + '"></div></div>' +
             (r.note ? '<div class="bar-note">' + esc(r.note) + '</div>' : '') + '</button>';
         }).join('') + '</section>';
     });
