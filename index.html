@@ -247,6 +247,12 @@ a { color: inherit; }
 .sw { flex: none; width: .75rem; height: .75rem; border-radius: 3px; }
 .lg-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .lg-val { flex: none; color: var(--sub); font-size: .75rem; }
+.strip { display: flex; height: 2rem; border-radius: .5rem; overflow: hidden; gap: 2px; background: var(--card); }
+.st-seg { display: flex; align-items: center; justify-content: center; min-width: 3px; }
+.st-seg span { color: #fff; font-size: .75rem; font-weight: 700; text-shadow: 0 0 2px rgba(0,0,0,.35); }
+.st-ends { display: flex; justify-content: space-between; font-size: .6875rem; color: var(--sub); margin-bottom: .25rem; }
+.st-legend { margin-top: .5rem; }
+.tone-red .lg-label, .tone-red .lg-val { color: var(--warn); font-weight: 700; }
 .chart-desc { font-size: .8125rem; color: var(--sub); margin: -.2rem 0 .6rem; line-height: 1.5; word-break: keep-all; white-space: pre-line; }
 .bar-note { font-size: .6875rem; color: var(--sub); margin-top: .3rem; line-height: 1.45; }
 
@@ -341,7 +347,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '452929a5be';
+  var UI_VERSION = 'd9798923af';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1217,7 +1223,7 @@ a { color: inherit; }
       { label: '3인 이상 출석', test: function (m) { return m.famCount >= 3; } },
     ] });
     // 기준 문장은 Francis님 문안 (2026-11-02)
-    if (ADMIN) list.push({ id: 'network', title: '공동체 연결 정도',
+    if (ADMIN) list.push({ id: 'network', type: 'strip', title: '공동체 연결 정도',
       desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
       items: [
         // 빨·주·노·녹·파 5단계 (2026-11-02 Francis님). 색맹 검사로 이웃 색끼리 구별되는 값으로 고름
@@ -1252,9 +1258,30 @@ a { color: inherit; }
         '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
     }).join('');
     return '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+      (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
       '<div class="donut-wrap"><svg class="donut" viewBox="0 0 100 100" role="img" aria-label="' + esc(c.title) + '">' + segs +
       '<text x="50" y="49" text-anchor="middle" class="d-total">' + total + '</text><text x="50" y="62" text-anchor="middle" class="d-unit">명</text></svg>' +
       '<div class="legend">' + legend + '</div></div></section>';
+  }
+
+  /** 한 줄 띠 그래프: 약함 → 강함을 왼쪽에서 오른쪽으로. 칸 안에는 %(넓을 때만), 아래 범례는 눌러서 명단 */
+  function stripCard(c, rows) {
+    var total = rows.reduce(function (t, r) { return t + r.n; }, 0) || 1;
+    var strip = rows.map(function (r) {
+      if (!r.n) return '';
+      var w = r.n / total * 100;
+      return '<div class="st-seg" style="width:' + w + '%;background:' + r.color + '">' +
+        (w >= 9 ? '<span>' + pct(r.n, c.den) + '%</span>' : '') + '</div>';
+    }).join('');
+    var legend = rows.map(function (r) {
+      return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
+        '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
+    }).join('');
+    return '<section class="card"><h3>' + esc(c.title) + '</h3>' +
+      (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
+      '<div class="st-ends"><span>← 약함</span><span>강함 →</span></div>' +
+      '<div class="strip">' + strip + '</div>' +
+      '<div class="legend st-legend">' + legend + '</div></section>';
   }
 
   function pct(n, den) { return den ? Math.round(n / den * 100) : 0; }
@@ -1268,6 +1295,7 @@ a { color: inherit; }
         return { label: it.label, n: n, i: i, note: it.note, tone: it.tone || '', color: it.color };
       });
       if (c.type === 'donut') { html += donutCard(c, rows); return; }
+      if (c.type === 'strip') { html += stripCard(c, rows); return; }
       var max = Math.max.apply(null, rows.map(function (r) { return r.n; }).concat([1]));
       html += '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
         (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
