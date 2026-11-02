@@ -303,18 +303,35 @@ a { color: inherit; }
   #splash img { width: 112px; height: 112px; border-radius: 24px; border: 3px solid rgba(255,255,255,.9); object-fit: cover; }
   #splash .church { margin-top: 1rem; font-size: .9rem; opacity: .85; }
   #splash h1 { margin: .3rem 0 1.4rem; font-size: 1.4rem; }
-  #splash .go { display: inline-block; background: #fff; color: #1A5276; font-weight: 700; padding: .8rem 1.6rem; border-radius: .8rem; font-size: 1rem; }
-  #splash .note { margin-top: 1rem; font-size: .8rem; opacity: .8; line-height: 1.6; }
+  #splash .sp-box { width: 100%; max-width: 20rem; }
+  #splash input { display: block; width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05rem; padding: .8rem .9rem;
+                  border: 0; border-radius: .7rem; margin: 0 0 .6rem; text-align: center; color: #1C2430; }
+  #code { letter-spacing: .4em; font-size: 1.3rem !important; }
+  #splash .go { display: block; width: 100%; background: #fff; color: #1A5276; font-weight: 700; padding: .8rem 1rem; border-radius: .7rem; font-size: 1rem; }
+  #splash .link { margin-top: .7rem; color: #fff; opacity: .85; text-decoration: underline; font-size: .85rem; }
+  #splash .sent { font-size: .9rem; margin-bottom: .6rem; opacity: .9; }
+  #splash .msg { min-height: 1.3rem; margin-top: .8rem; font-size: .9rem; color: #FFE08A; }
+  #splash .note { margin-top: .6rem; font-size: .78rem; opacity: .75; line-height: 1.6; }
 </style>
 </head>
 <body>
   <div id="splash">
-    <div>
+    <div class="sp-box">
       <img src="apple-touch-icon.png" alt="수원교회">
       <div class="church">대한성공회 수원교회</div>
       <h1>교적부 G</h1>
-      <button class="go" id="loginBtn">교적부 열기</button>
-      <div class="note" id="splashNote">허락된 구글 계정으로만 들어갈 수 있습니다.<br>처음 한 번, 이 화면에서 「홈 화면에 추가」를 해 두십시오.</div>
+      <div id="stepEmail">
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="등록된 이메일 주소">
+        <button class="go" id="sendBtn">인증번호 받기</button>
+      </div>
+      <div id="stepCode" hidden>
+        <div class="sent" id="sentTo"></div>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="인증번호 6자리">
+        <button class="go" id="verifyBtn">확인</button>
+        <button class="link" id="backBtn">이메일 다시 입력</button>
+      </div>
+      <div class="msg" id="spMsg"></div>
+      <div class="note">처음 한 번 인증하면, 이 휴대폰에서는 계속 바로 열립니다.<br>(30일 넘게 열지 않으면 다시 인증)</div>
     </div>
   </div>
   <div id="screen" class="screen"></div>
@@ -323,8 +340,8 @@ a { color: inherit; }
 <script>
 (function () {
   'use strict';
-  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec', GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
-  var KEY = 'suwon-registry-pass', NKEY = 'suwon-registry-nonce';
+  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
+  var KEY = 'suwon-registry-pass';
 
   // ── 출입증: 이 기기에만 보관 ──
   function get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
@@ -345,34 +362,44 @@ a { color: inherit; }
     return fetch(MAIN + '?' + q, { credentials: 'omit' }).then(function (r) { return r.json(); });
   }
 
-  // ── 처음 화면(로그인) ──
+  // ── 처음 화면: 이메일 → 인증번호 ──
   var splash = document.getElementById('splash');
+  var $ = function (id) { return document.getElementById(id); };
+  function msg(t) { $('spMsg').textContent = t || ''; }
   function showSplash(note) {
     splash.classList.add('on');
-    if (note) document.getElementById('splashNote').innerHTML = note;
+    $('email').value = get('suwon-registry-email');
+    msg(note || '');
   }
-  document.getElementById('loginBtn').addEventListener('click', function () {
-    var a = new Uint8Array(18); crypto.getRandomValues(a);
-    var n = btoa(String.fromCharCode.apply(null, a)).replace(/[+/=]/g, function (c) { return c === '+' ? '-' : c === '/' ? '_' : ''; });
-    put(NKEY, n);
-    location.href = GATE + '?n=' + encodeURIComponent(n);
+  function stepCode(on) { $('stepEmail').hidden = on; $('stepCode').hidden = !on; if (on) $('code').focus(); }
+  $('sendBtn').addEventListener('click', function () {
+    var email = $('email').value.trim().toLowerCase();
+    if (!email) { msg('이메일 주소를 넣어 주십시오.'); return; }
+    msg('보내는 중…');
+    api({ api: 'sendcode', email: email }).then(function (j) {
+      if (j.ok) {
+        put('suwon-registry-email', email);
+        $('sentTo').textContent = email + ' 로 보낸 번호를 넣어 주십시오.';
+        msg(j.again ? '방금 보낸 번호를 그대로 쓰십시오.' : '');
+        stepCode(true);
+      } else if (j.error === 'NOT_REGISTERED') msg('등록되지 않은 이메일입니다. 주재성 위원에게 문의하십시오.');
+      else if (j.error === 'BAD_EMAIL') msg('이메일 주소를 다시 확인해 주십시오.');
+      else msg('잠시 후 다시 시도해 주십시오.');
+    }).catch(function () { msg('연결이 원활하지 않습니다. 잠시 후 다시 시도해 주십시오.'); });
   });
-
-  // 로그인 창을 닫고 돌아오면, 맡겨 둔 출입증을 찾아온다
-  var claiming = false;
-  function tryClaim() {
-    var n = get(NKEY);
-    if (!n || claiming || pass()) return;
-    claiming = true;
-    api({ api: 'claim', n: n }).then(function (j) {
-      claiming = false;
-      if (j && j.t) { put(KEY, j.t); del(NKEY); location.replace(location.pathname); }
-    }).catch(function () { claiming = false; });
-  }
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) tryClaim(); });
-  window.addEventListener('focus', tryClaim);
-  window.addEventListener('pageshow', tryClaim);
-  setInterval(function () { if (splash.classList.contains('on')) tryClaim(); }, 2500);
+  $('verifyBtn').addEventListener('click', function () {
+    var code = $('code').value.replace(/D/g, '');
+    if (code.length !== 6) { msg('숫자 6자리를 넣어 주십시오.'); return; }
+    msg('확인 중…');
+    api({ api: 'verify', email: get('suwon-registry-email'), code: code }).then(function (j) {
+      if (j.ok && j.t) { put(KEY, j.t); location.replace(location.pathname); }
+      else if (j.error === 'WRONG') msg('번호가 맞지 않습니다. 다시 넣어 주십시오.');
+      else if (j.error === 'NO_CODE') { msg('번호가 만료되었습니다. 다시 받아 주십시오.'); stepCode(false); }
+      else msg('등록되지 않은 이메일입니다. 주재성 위원에게 문의하십시오.');
+    }).catch(function () { msg('연결이 원활하지 않습니다.'); });
+  });
+  $('code').addEventListener('input', function () { if (this.value.replace(/D/g, '').length === 6) $('verifyBtn').click(); });
+  $('backBtn').addEventListener('click', function () { stepCode(false); msg(''); });
 
   // ── 화면 코드가 쓰는 google.script.run / history 를 자료 창구로 바꿔 끼움 ──
   var preload = null;
@@ -384,6 +411,7 @@ a { color: inherit; }
       apiData: function (token, refresh) {
         if (preload && !refresh) { var d = preload; preload = null; setTimeout(function () { ok(JSON.stringify(d)); }, 0); return; }
         api({ api: 'data', t: token, refresh: refresh ? 1 : '' }).then(function (d) {
+          if (d.renew) put(KEY, d.renew);
           if (d.error) { onApiError(d.error); fail(new Error(d.error)); } else ok(JSON.stringify(d));
         }).catch(function (e) { fail(e); });
       },
@@ -415,10 +443,11 @@ a { color: inherit; }
 
   // ── 시작 ──
   var t = pass();
-  if (!t) { del(KEY); showSplash(); tryClaim(); return; }
+  if (!t) { del(KEY); showSplash(); return; }
   document.getElementById('screen').innerHTML = '<div class="loading">교우 자료를 불러오는 중입니다…</div>';
   api({ api: 'data', t: t }).then(function (d) {
     if (d.error) { onApiError(d.error); return; }
+    if (d.renew) put(KEY, d.renew);  // 열 때마다 30일 연장
     var boot = document.getElementById('boot');
     boot.dataset.token = t;
     boot.dataset.role = d.role;
