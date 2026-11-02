@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="교적부 G">
+<meta name="apple-mobile-web-app-title" content="수원교회 교적부 G">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1A5276">
 <meta property="og:type" content="website">
@@ -384,6 +384,7 @@ a { color: inherit; }
         stepCode(true);
       } else if (j.error === 'NOT_REGISTERED') msg('등록되지 않은 이메일입니다. 주재성 위원에게 문의하십시오.');
       else if (j.error === 'BAD_EMAIL') msg('이메일 주소를 다시 확인해 주십시오.');
+      else if (j.error === 'LOCKED') msg('여러 번 틀려 잠시 잠겼습니다. 몇 시간 뒤 다시 시도하십시오.');
       else msg('잠시 후 다시 시도해 주십시오.');
     }).catch(function () { msg('연결이 원활하지 않습니다. 잠시 후 다시 시도해 주십시오.'); });
   });
@@ -395,6 +396,7 @@ a { color: inherit; }
       if (j.ok && j.t) { put(KEY, j.t); location.replace(location.pathname); }
       else if (j.error === 'WRONG') msg('번호가 맞지 않습니다. 다시 넣어 주십시오.');
       else if (j.error === 'NO_CODE') { msg('번호가 만료되었습니다. 다시 받아 주십시오.'); stepCode(false); }
+      else if (j.error === 'LOCKED') msg('여러 번 틀려 잠시 잠겼습니다. 몇 시간 뒤 다시 시도하십시오.');
       else msg('등록되지 않은 이메일입니다. 주재성 위원에게 문의하십시오.');
     }).catch(function () { msg('연결이 원활하지 않습니다.'); });
   });
