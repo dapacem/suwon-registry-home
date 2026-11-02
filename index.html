@@ -478,7 +478,7 @@ a { color: inherit; }
     var boot = document.getElementById('boot');
     boot.dataset.token = t;
     boot.dataset.role = d.role;
-    boot.dataset.build = d.build || '';
+    boot.dataset.build = (d.build || '') + ' · 화면 ' + UI_VERSION.slice(0, 4);
     preload = d;
     startApp();
   }).catch(function () {
