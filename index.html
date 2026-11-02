@@ -253,6 +253,9 @@ a { color: inherit; }
 .st-ends { display: flex; justify-content: space-between; font-size: .6875rem; color: var(--sub); margin-bottom: .25rem; }
 .st-legend { margin-top: .5rem; }
 .tone-red .lg-label, .tone-red .lg-val { color: var(--warn); font-weight: 700; }
+.msg-btns { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+.msg-btn { display: block; text-align: center; text-decoration: none; background: var(--chip); color: var(--primary); font-weight: 700; font-size: .875rem; padding: .6rem .4rem; border-radius: .6rem; }
+.msg-btn.mail { background: #EEF0F3; color: var(--text); }
 .chart-desc { font-size: .8125rem; color: var(--sub); margin: -.2rem 0 .6rem; line-height: 1.5; word-break: keep-all; white-space: pre-line; }
 .bar-note { font-size: .6875rem; color: var(--sub); margin-top: .3rem; line-height: 1.45; }
 
@@ -347,7 +350,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '46e9a0f9c4';
+  var UI_VERSION = 'd3ebaa0e6d';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -949,6 +952,7 @@ a { color: inherit; }
     if (ADMIN) {
       var tel = m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^0-9+]/g, '')) + '">' + esc(m.phone) + '</a>' : '';
       html += card('연락', grid(kv('휴대폰', tel, true) + kv('카톡 등록', m.kakao) + kv('이메일', m.email) + kv('주소', m.address)));
+      html += contactCard(m);
       html += card('관리', grid(
         kv('교적번호', m.id) + kv('성별', m.sex) + kv('생년', m.birthYear) + kv('생년월일', m.birthDate) +
         kv('만 나이', m.age) + kv('출석 상태', m.status) + kv('교적 등재', m.registered) +
@@ -959,6 +963,26 @@ a { color: inherit; }
     }
     screen.innerHTML = html;
     wirePhotos();
+  }
+
+  /** 반자동 문자·메일: 문구를 채워 폰의 문자 앱(메일 앱)을 연다. 보내기는 사람이 누른다 (2026-11-02) */
+  function contactCard(m) {
+    var digits = (m.phone || '').replace(/[^0-9+]/g, '');
+    if (!digits && !m.email) return '';
+    var who = m.name + (m.saint ? ' ' + m.saint : '') + '님';
+    var me = D.me ? '수원교회 ' + D.me + '입니다.' : '수원교회입니다.';
+    var msgs = [
+      ['안부', who + ', ' + me + ' 요즘 어떻게 지내시는지 안부 여쭙습니다. 늘 함께 기도하고 있습니다. 평안하시길 빕니다.'],
+      ['새교우 환영', who + ', ' + me + ' 수원교회에 오신 것을 진심으로 환영합니다. 궁금하신 점이나 도움이 필요하시면 언제든 연락 주십시오.'],
+      ['생일 축하', who + ', ' + me + ' 생일을 축하드립니다. 하느님의 은총과 평화가 늘 함께하시길 빕니다.'],
+    ];
+    var btns = msgs.map(function (x) {
+      return digits ? '<a class="msg-btn" href="sms:' + esc(digits) + '?&body=' + encodeURIComponent(x[1]) + '">' + x[0] + ' 문자</a>' : '';
+    }).join('');
+    if (m.email) btns += '<a class="msg-btn mail" href="mailto:' + esc(m.email) + '?subject=' + encodeURIComponent('수원교회에서 안부 드립니다') +
+      '&body=' + encodeURIComponent(msgs[0][1]) + '">이메일</a>';
+    return '<section class="card"><h3>연락하기<span class="muted">문구를 고쳐 보내셔도 됩니다</span></h3>' +
+      '<div class="msg-btns">' + btns + '</div></section>';
   }
 
   function tag(s, group) {
