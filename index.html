@@ -467,6 +467,25 @@ textarea.ef-in { resize: vertical; }
 .hero-actions .edit-btn { position: static; white-space: nowrap; font-size: .78rem; padding: .32rem .6rem; gap: .25rem; }
 .hero-actions .edit-btn svg { width: 13px; height: 13px; }
 </style>
+<style>
+/* 폰 편집: 아래 탭 숨김, 저장 줄은 맨 아래에 그냥 두고(자판 위로 떠오르지 않게), 위쪽에도 저장 단추 (2026-11-03) */
+body.editing .tabs { display: none; }
+body.editing .screen { padding-bottom: 1.5rem; }
+.ef-top-save { position: absolute; right: .75rem; top: 1rem; font-size: .8125rem; font-weight: 700; color: var(--primary); background: #fff; border-radius: 999px; padding: .4rem .85rem; }
+.ef-top-save:disabled { background: rgba(255,255,255,.35); color: rgba(255,255,255,.85); }
+.ef-famv { word-break: keep-all; overflow-wrap: anywhere; }
+@media (max-width: 899px) {
+  .edit-bar { position: static; }
+  .ef.famf { grid-column: 1 / -1; }
+}
+</style>
+<style>
+/* 컴퓨터: 카드 아래·오른쪽 테두리를 굵게 + 오른쪽 아래 그림자로 떠 보이게 (2026-11-03 Francis님) */
+@media (min-width: 900px) {
+  .card { border: 1px solid #C3CEDB; border-right: 3px solid #9FB0C4; border-bottom: 3px solid #9FB0C4; box-shadow: 3px 4px 10px rgba(20, 45, 70, .14); }
+  .tile { border-right-width: 2px; border-bottom-width: 2px; border-right-color: #A9B9CB; border-bottom-color: #A9B9CB; box-shadow: 2px 3px 6px rgba(20, 45, 70, .10); }
+}
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -514,7 +533,7 @@ textarea.ef-in { resize: vertical; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'dd16c2313c';
+  var UI_VERSION = 'e66b3b1514';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1650,8 +1669,9 @@ textarea.ef-in { resize: vertical; }
   function renderEdit(m) {
     var head = '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
       '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
-      '<div class="sub-title">교우 카드 편집</div><div class="sub-note">' + esc(m.name) + (m.saint ? ' ' + esc(m.saint) : '') + ' · ' + esc(m.id) + '</div></header>';
-    if (EDIT && EDIT.key === m.key && EDIT.raw) { screen.innerHTML = head + editForm(); return; }
+      '<div class="sub-title">교우 카드 편집</div><div class="sub-note">' + esc(m.name) + (m.saint ? ' ' + esc(m.saint) : '') + ' · ' + esc(m.id) + '</div>' +
+      '<button class="ef-top-save" data-save="1" disabled>저장</button></header>';
+    if (EDIT && EDIT.key === m.key && EDIT.raw) { screen.innerHTML = head + editForm(); syncSave(); return; }
     screen.innerHTML = head + '<div class="loading">시트에서 지금 값을 읽는 중입니다…</div>';
     EDIT = { key: m.key, id: m.id, raw: null, vals: {} };
     google.script.run.withSuccessHandler(function (r) {
@@ -1661,6 +1681,7 @@ textarea.ef-in { resize: vertical; }
       EDIT.raw = r.fields;
       Object.keys(r.fields).forEach(function (k) { EDIT.vals[k] = r.fields[k].v; });
       screen.innerHTML = head + editForm();
+      syncSave();
     }).withFailureHandler(function () {
       screen.innerHTML = head + '<div class="loading">시트를 읽지 못했습니다. 잠시 후 다시 해 주십시오.</div>';
     }).apiRaw(TOKEN, m.id);
@@ -1679,7 +1700,7 @@ textarea.ef-in { resize: vertical; }
     var v = EDIT.vals[k] || '';
     var changed = v !== EDIT.raw[k].v;
     var wrap = function (inner, wide) {
-      return '<div class="ef' + (wide ? ' wide' : '') + (changed ? ' changed' : '') + '"><label class="ef-k">' + esc(label) + (changed ? ' <span class="ef-mark">고침</span>' : '') + '</label>' + inner + '</div>';
+      return '<div class="ef' + (wide ? ' wide' : '') + (type === 'fam' ? ' famf' : '') + (changed ? ' changed' : '') + '"><label class="ef-k">' + esc(label) + (changed ? ' <span class="ef-mark">고침</span>' : '') + '</label>' + inner + '</div>';
     };
     if (EDIT.raw[k].auto) return wrap('<div class="ef-auto">' + (v ? esc(v) : '—') + ' <span>(자동 계산)</span></div>');
     if (Array.isArray(type)) return wrap('<select class="ef-in" data-f="' + k + '">' + optList(type, v) + '</select>');
@@ -1729,6 +1750,12 @@ textarea.ef-in { resize: vertical; }
       '<button type="button" class="ef-save" data-save="1"' + (n ? '' : ' disabled') + '>' + (n ? n + '칸 저장' : '바뀐 칸 없음') + '</button></div>';
   }
 
+  function syncSave() {
+    var n = EDIT && EDIT.raw ? Object.keys(editChanges()).length : 0;
+    var btn = document.querySelector('.ef-save'), top = document.querySelector('.ef-top-save');
+    if (btn) { btn.disabled = !n; btn.textContent = n ? n + '칸 저장' : '바뀐 칸 없음'; }
+    if (top) { top.disabled = !n; top.textContent = n ? n + '칸 저장' : '저장'; }
+  }
   function redrawEdit() {
     var y = window.scrollY;
     var m = byKey[EDIT.key];
@@ -1744,8 +1771,7 @@ textarea.ef-in { resize: vertical; }
     var wrapEl = el.closest('.ef');
     var changed = el.value.trim() !== String(EDIT.raw[el.dataset.f].v || '').trim();
     if (wrapEl) wrapEl.classList.toggle('changed', changed);
-    var n = Object.keys(editChanges()).length, btn = document.querySelector('.ef-save');
-    if (btn) { btn.disabled = !n; btn.textContent = n ? n + '칸 저장' : '바뀐 칸 없음'; }
+    syncSave();
   });
   document.addEventListener('change', function (ev) {
     if (EDIT && ev.target.dataset && ev.target.dataset.f && ev.target.tagName === 'SELECT') redrawEdit();
@@ -1811,11 +1837,10 @@ textarea.ef-in { resize: vertical; }
   function saveEdit(btn) {
     var changes = editChanges();
     if (!Object.keys(changes).length) return;
-    btn.disabled = true;
-    btn.textContent = '저장하는 중…';
+    document.querySelectorAll('[data-save]').forEach(function (b) { b.disabled = true; b.textContent = '저장하는 중…'; });
     google.script.run.withSuccessHandler(function (r) {
       if (typeof r === 'string') r = JSON.parse(r);
-      if (!r || !r.ok) { btn.disabled = false; btn.textContent = '다시 저장'; alert('저장하지 못했습니다: ' + (r && r.error || '오류')); return; }
+      if (!r || !r.ok) { syncSave(); alert('저장하지 못했습니다: ' + (r && r.error || '오류')); return; }
       var msg = [];
       if (r.saved.length) msg.push('저장했습니다: ' + r.saved.join(', '));
       if (r.conflicts.length) msg.push('그사이 시트에서 다른 분이 고친 칸이라 저장하지 않았습니다: ' + r.conflicts.join(', '));
@@ -1826,7 +1851,7 @@ textarea.ef-in { resize: vertical; }
       state.view = 'detail'; state.key = key;
       load(true);
     }).withFailureHandler(function () {
-      btn.disabled = false; btn.textContent = '다시 저장';
+      syncSave();
       alert('연결이 원활하지 않아 저장하지 못했습니다. 잠시 후 다시 해 주십시오.');
     }).apiSave(TOKEN, EDIT.id, changes);
   }
@@ -1835,8 +1860,10 @@ textarea.ef-in { resize: vertical; }
   // ── 랜덤 교우에게 기도 문자 (2026-11-03 Francis님) ──
   // 문구를 고칠 수 있고, 「보내시겠습니까?」 확인 뒤 폰의 문자 앱을 연다. 실제 보내기는 문자 앱에서 한 번 더 누른다.
   function prayText(m, pray) {
-    if (!pray) return m.name + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 주님 안에서 늘 평안하시길 빕니다.';
-    return m.name + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 교우님을 잠시 떠올리며 하느님께 기도드렸습니다. 주님 안에서 늘 평안하시길 빕니다.';
+    // 받는 분도 「성명 신명님」으로 부른다 (2026-11-03 Francis님)
+    var who = m.name + (m.saint ? ' ' + m.saint : '');
+    if (!pray) return who + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 주님 안에서 늘 평안하시길 빕니다.';
+    return who + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 교우님을 잠시 떠올리며 하느님께 기도드렸습니다. 주님 안에서 늘 평안하시길 빕니다.';
   }
   function openPrayMsg(m, pray) {
     var tel = String(m.phone || '').replace(/[^0-9+]/g, '');
@@ -1873,6 +1900,7 @@ textarea.ef-in { resize: vertical; }
   // view: list(탭 첫 화면) · detail · kind · group · servants · stat · care
   function render() {
     renderTabs();
+    document.body.classList.toggle('editing', state.view === 'edit');  // 편집 중에는 아래 탭을 숨김 (폰 자판이 가리지 않게)
     if (!D) return;
     var v = state.view, k = state.key;
     if (v === 'detail' && byKey[k]) return renderDetail(byKey[k]);
