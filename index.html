@@ -454,6 +454,14 @@ textarea.ef-in { resize: vertical; }
   .pray-bar .again:first-of-type { margin-left: 0; }
 }
 </style>
+<style>
+/* 단체 조건: 목록을 여는 단추 (2026-11-03) */
+.grp-btn { flex: 1; min-width: 0; display: flex; align-items: center; gap: .5rem; font-size: .875rem; font-weight: 700; color: var(--primary); background: var(--chip); border: 1px solid #C7D9EE; border-radius: .6rem; padding: .5rem .75rem; text-align: left; }
+.grp-btn span:nth-of-type(1) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grp-btn.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.grp-more { flex: none; font-size: .8125rem; font-weight: 400; opacity: .85; }
+.grp-x { flex: none; width: 2.2rem; height: 2.2rem; border-radius: .6rem; border: 1px solid var(--line); background: #fff; color: var(--sub); }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -501,7 +509,7 @@ textarea.ef-in { resize: vertical; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'eec2f3d1c9';
+  var UI_VERSION = '1eda4cc371';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -936,6 +944,7 @@ textarea.ef-in { resize: vertical; }
   }
 
   /** 검색창은 한 번만 그리고, 글자를 칠 때는 아래 결과만 바꾼다 (한글 조합이 끊기지 않게). */
+  var LIST_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>';
   function renderList() {
     var html = '<header class="hero">' + brand('교우 검색') +
       '<label class="search">' + iconSearch(18) +
@@ -952,7 +961,12 @@ textarea.ef-in { resize: vertical; }
     if (ADMIN) html += segRow('출결', 'status', ['전체', '출석', '비출석', '확인필요']);
     html += segRow('성별', 'sex', ['전체', '남성', '여성', '확인필요']);
     html += '<div class="seg-row"><span class="seg-label">단체</span>' +
-      '<button class="sel" data-picker="1">' + esc(groupLabel(state.group)) + '</button></div>';
+      // 2026-11-03 Francis님: 「전체」만 보이면 고를 게 없어 보인다 → 목록을 여는 단추로
+      (state.group
+        ? '<button class="grp-btn on" data-picker="1">' + LIST_ICON + '<span>' + esc(groupLabel(state.group)) + '</span><span class="grp-more">바꾸기</span></button>' +
+          '<button class="grp-x" data-grpx="1" aria-label="단체 조건 풀기">✕</button>'
+        : '<button class="grp-btn" data-picker="1">' + LIST_ICON + '<span>단체 목록에서 고르기</span><span class="grp-more">›</span></button>') +
+      '</div>';
     html += '</div>';
 
     html += '<div id="results">' + resultsHtml() + '</div>';
@@ -1909,6 +1923,7 @@ textarea.ef-in { resize: vertical; }
     else if (ds.cond) { var kv = ds.cond.split('='); state[kv[0]] = kv[1]; renderList(); }
     else if (ds.share) shareText(ds.share);
     else if (ds.picker) openPicker();
+    else if (ds.grpx) { state.group = ''; renderList(); }
     else if (ds.reset) { state.q = ''; state.sex = '전체'; state.group = ''; renderList(); }
     else if (ds.clear) { state.q = ''; renderList(); document.getElementById('q').focus(); }
     else if (ds.refresh) load(true);
