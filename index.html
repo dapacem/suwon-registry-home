@@ -625,6 +625,7 @@ body:has(.boot-load) .tabs { display: none; }
 <style>
 .tag.talent { background: #FBF3DF; color: #8A6508; }
 </style>
+<style>.seg-label { width: 3.1rem; white-space: nowrap; }</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -672,7 +673,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '429d6d7ed9';
+  var UI_VERSION = '4ed0d1d64d';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -847,7 +848,7 @@ body:has(.boot-load) .tabs { display: none; }
   var D = null;           // 서버 자료
   var byKey = {};
   var photos = {};        // photoId -> dataUrl (메모리에만, 휴대폰에 남기지 않음)
-  var state = { tab: 'groups', q: '', sex: '전체', group: '', status: '전체', view: 'list', key: '', lastRandom: '' };
+  var state = { tab: 'groups', q: '', sex: '전체', group: '', talent: '', status: '전체', view: 'list', key: '', lastRandom: '' };
   var screen = document.getElementById('screen');
   var tabsEl = document.getElementById('tabs');
 
@@ -1055,9 +1056,36 @@ body:has(.boot-load) .tabs { display: none; }
       if (state.group === TITLED) { if (!m.title) return false; }
       else if (state.group === NOGROUP) { if (m.service.length || m.small.length || m.cecil) return false; }
       else if (state.group && !inGroup(m, state.group)) return false;
+      if (state.talent && !(m.talent || []).some(function (t) { return talentField(t) === state.talent; })) return false;
       if (!q) return true;
       return cho ? m._cho.indexOf(q) >= 0 : m._hay.indexOf(q) >= 0;
     });
+  }
+
+  function talentField(t) { return String(t || '').replace(/\(.*\)/, '').trim(); }
+  /** 달란트 분야 목록과 인원 (많은 순) */
+  function talentFields() {
+    var c = {};
+    D.members.forEach(function (m) {
+      var seen = {};
+      (m.talent || []).forEach(function (t) { var f = talentField(t); if (f && !seen[f]) { seen[f] = 1; c[f] = (c[f] || 0) + 1; } });
+    });
+    return Object.keys(c).sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, 'ko'); }).map(function (f) { return [f, c[f]]; });
+  }
+  function openTalentPicker() {
+    var el = document.createElement('div');
+    el.className = 'sheet-back';
+    el.innerHTML = '<div class="sheet" role="dialog" aria-label="달란트 고르기">' +
+      '<div class="sheet-head"><span>달란트 나눔에서 고르기</span><button class="sheet-close" data-close="1" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-body"><div class="sheet-chips">' + talentFields().map(function (f) {
+        return '<button class="pick' + (state.talent === f[0] ? ' on' : '') + '" data-tpick="' + esc(f[0]) + '">' + esc(f[0]) + ' ' + f[1] + '</button>';
+      }).join('') + '</div></div></div>';
+    el.addEventListener('click', function (ev) {
+      var t = ev.target.closest('[data-tpick],[data-close]');
+      if (ev.target === el || (t && t.dataset.close)) { el.remove(); return; }
+      if (t && t.dataset.tpick) { ev.stopPropagation(); state.talent = t.dataset.tpick; el.remove(); renderList(); }
+    });
+    document.body.appendChild(el);
   }
 
   /** 단체 고르기 판 (아이폰 기본 펼침 목록 대신, 묶음 제목을 잘 보이게) */
@@ -1131,6 +1159,13 @@ body:has(.boot-load) .tabs { display: none; }
           '<button class="grp-x" data-grpx="1" aria-label="단체 조건 풀기">✕</button>'
         : '<button class="grp-btn" data-picker="1">' + LIST_ICON + '<span>단체 목록에서 고르기</span><span class="grp-more">›</span></button>') +
       '</div>';
+    // 달란트 조건 (관리자만, 2026-11-03 Francis님): 「음악(기타)」은 분야 「음악」으로 묶어 고른다
+    if (ADMIN && talentFields().length) html += '<div class="seg-row"><span class="seg-label">달란트</span>' +
+      (state.talent
+        ? '<button class="grp-btn on" data-tpicker="1">' + LIST_ICON + '<span>' + esc(state.talent) + '</span><span class="grp-more">바꾸기</span></button>' +
+          '<button class="grp-x" data-tx="1" aria-label="달란트 조건 풀기">✕</button>'
+        : '<button class="grp-btn" data-tpicker="1">' + LIST_ICON + '<span>달란트 나눔에서 고르기</span><span class="grp-more">›</span></button>') +
+      '</div>';
     html += '</div>';
 
     html += '<div id="results">' + resultsHtml() + '</div>';
@@ -1158,7 +1193,7 @@ body:has(.boot-load) .tabs { display: none; }
   function resultsHtml() {
     var list = filtered();
     var label = state.status === '출석' || !ADMIN ? '출석 교우' : (state.status === '전체' ? '교적 전체' : state.status + ' 교우');
-    var narrowed = state.q || state.sex !== '전체' || state.group;
+    var narrowed = state.q || state.sex !== '전체' || state.group || state.talent;
     var html = '<div class="count">' + (narrowed ? '조건에 맞는 ' : '') + label + ' ' + list.length + '명' +
       (narrowed ? ' <button class="reset" data-reset="1">조건 지우기</button>' : '') + '</div>';
     if (!list.length) return html + '<div class="list"><div class="empty">조건에 맞는 교우가 없습니다.</div></div>';
@@ -2126,7 +2161,9 @@ body:has(.boot-load) .tabs { display: none; }
     else if (ds.share) shareText(ds.share);
     else if (ds.picker) openPicker();
     else if (ds.grpx) { state.group = ''; renderList(); }
-    else if (ds.reset) { state.q = ''; state.sex = '전체'; state.group = ''; renderList(); }
+    else if (ds.reset) { state.q = ''; state.sex = '전체'; state.group = ''; state.talent = ''; renderList(); }
+    else if (ds.tx) { state.talent = ''; renderList(); }
+    else if (ds.tpicker) openTalentPicker();
     else if (ds.clear) { state.q = ''; renderList(); document.getElementById('q').focus(); }
     else if (ds.refresh) load(true);
     else if (ds.random) { pickRandom(); go({ view: 'list', key: '' }, false); }
