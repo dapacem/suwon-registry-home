@@ -570,6 +570,20 @@ body.editing .screen { padding-bottom: 1.5rem; }
 .t-num { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-lead { color: var(--gold); font-weight: 700; }
 </style>
+<style>
+/* 처음 불러오는 화면 (2026-11-03 Francis님: 큰 글씨, 가운데, 교회 사진) */
+.boot-load { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 1rem; }
+.bl-photo { width: 9rem; height: 9rem; border-radius: 1.6rem; object-fit: cover; border: 4px solid #fff; box-shadow: 0 6px 18px rgba(20, 45, 70, .22); margin-bottom: 1.2rem; }
+.bl-church { font-size: 1rem; color: var(--sub); margin-bottom: .4rem; }
+.bl-text { font-size: 1.2rem; font-weight: 700; color: var(--primary); word-break: keep-all; }
+@media (min-width: 900px) { .bl-text { font-size: 1.4rem; } }
+.bl-dots { margin-top: 1rem; display: flex; gap: .45rem; }
+.bl-dots i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--primary); opacity: .25; animation: bldot 1.2s infinite ease-in-out; }
+.bl-dots i:nth-child(2) { animation-delay: .2s; }
+.bl-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes bldot { 0%, 100% { opacity: .25; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }
+body:has(.boot-load) .tabs { display: none; }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -617,7 +631,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'fb7153e8b0';
+  var UI_VERSION = '6dc567c35e';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -751,7 +765,8 @@ body.editing .screen { padding-bottom: 1.5rem; }
   // ── 시작 ──
   var t = pass();
   if (!t) { del(KEY); showSplash(); return; }
-  document.getElementById('screen').innerHTML = '<div class="loading">교우 자료를 불러오는 중입니다…</div>';
+  // 불러오는 동안: 교회 사진과 큰 글씨를 화면 가운데에 (2026-11-03 Francis님)
+  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">교우 자료를 불러오는 중입니다…</div><div class="bl-dots"><i></i><i></i><i></i></div></div>';
   api({ api: 'data', t: t }).then(function (d) {
     if (d.error) { onApiError(d.error); return; }
     if (d.renew) put(KEY, d.renew);  // 열 때마다 30일 연장
