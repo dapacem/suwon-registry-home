@@ -687,7 +687,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '26d83cf3c7';
+  var UI_VERSION = '92b387339e';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1070,12 +1070,14 @@ body:has(.boot-load) .tabs { display: none; }
       if (state.group === TITLED) { if (!m.title) return false; }
       else if (state.group === NOGROUP) { if (m.service.length || m.small.length || m.cecil) return false; }
       else if (state.group && !inGroup(m, state.group)) return false;
-      if (state.talent && !(m.talent || []).some(function (t) { return talentField(t) === state.talent; })) return false;
+      if (state.talent === TALENT_ALL) { if (!(m.talent || []).length) return false; }
+      else if (state.talent && !(m.talent || []).some(function (t) { return talentField(t) === state.talent; })) return false;
       if (!q) return true;
       return cho ? m._cho.indexOf(q) >= 0 : m._hay.indexOf(q) >= 0;
     });
   }
 
+  var TALENT_ALL = '달란트 보유자 전체';
   function talentField(t) { return String(t || '').replace(/\(.*\)/, '').trim(); }
   /** 달란트 분야 목록과 인원 (많은 순) */
   function talentFields() {
@@ -1091,7 +1093,10 @@ body:has(.boot-load) .tabs { display: none; }
     el.className = 'sheet-back';
     el.innerHTML = '<div class="sheet" role="dialog" aria-label="달란트 고르기">' +
       '<div class="sheet-head"><span>달란트 나눔에서 고르기</span><button class="sheet-close" data-close="1" aria-label="닫기">✕</button></div>' +
-      '<div class="sheet-body"><div class="sheet-chips">' + talentFields().map(function (f) {
+      '<div class="sheet-body"><div class="sheet-chips">' +
+      '<button class="pick' + (state.talent === TALENT_ALL ? ' on' : '') + '" data-tpick="' + TALENT_ALL + '">' + TALENT_ALL + ' ' +
+        D.members.filter(function (m) { return (m.talent || []).length; }).length + '</button></div>' +
+      '<div class="sheet-title">분야</div><div class="sheet-chips">' + talentFields().map(function (f) {
         return '<button class="pick' + (state.talent === f[0] ? ' on' : '') + '" data-tpick="' + esc(f[0]) + '">' + esc(f[0]) + ' ' + f[1] + '</button>';
       }).join('') + '</div></div></div>';
     el.addEventListener('click', function (ev) {
