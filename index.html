@@ -486,6 +486,85 @@ body.editing .screen { padding-bottom: 1.5rem; }
   .tile { border-right-width: 2px; border-bottom-width: 2px; border-right-color: #A9B9CB; border-bottom-color: #A9B9CB; box-shadow: 2px 3px 6px rgba(20, 45, 70, .10); }
 }
 </style>
+<style>
+/* 교우 카드 가독성 (2026-11-03): 글자 크기는 그대로, 색·굵기·줄만 조정 */
+.kv2 { padding-bottom: .45rem; border-bottom: 1px solid #EDF1F5; }
+.kv2 .k { color: #4F5D6E; font-weight: 700; }
+.kv2 .v { color: #111A24; font-weight: 600; }
+.kv2 .v .v-empty { color: #C2CAD3; font-weight: 400; }
+.kv2.memo .v { color: #C2610C; }
+.kv2.alert .v { color: var(--warn); }
+</style>
+<style>
+/* 컴퓨터 글자 크기 (2026-11-03 Francis님 승인) — 폰은 그대로.
+   위계: 교우 이름 > 카드 제목 > 값 > 항목 이름·보조 글자 */
+@media (min-width: 900px) {
+  html { font-size: 112.5%; }
+  .tab { font-size: 1rem; }
+  .tabs::before { font-size: 1.15rem; }
+  .hero-title, .sub-title { font-size: 1.5rem; }
+  .hero-church { font-size: .9rem; }
+  .prayer, .pray-bar .prayer { font-size: 1.25rem; }
+  .detail-name { font-size: 1.85rem; }
+  .detail-saint { font-size: 1.2rem; }
+  .detail-hero .title-tag { font-size: .95rem; }
+  .hero-actions .edit-btn { font-size: .9rem; padding: .4rem .85rem; }
+  .card h3, .card > h3 { font-size: 1.2rem; }
+  .card h3 .muted { font-size: .9rem; }
+  .kv2 .k { font-size: .875rem; }
+  .kv2 .v { font-size: 1.0625rem; }
+  .tag { font-size: .9375rem; padding: .4rem .9rem; }
+  .fam-name { font-size: 1.15rem; }
+  .fam-rel { font-size: .95rem; }
+  .fam-none { font-size: 1rem; }
+  .row-name { font-size: 1.05rem; }
+  .row-saint { font-size: .85rem; }
+  .row-sub { font-size: .9rem; }
+  .tile-title { font-size: 1.15rem; }
+  .t-name { font-size: 1rem; }
+  .t-num { font-size: .875rem; }
+  .lg-row, .bar-head { font-size: .95rem; }
+  .lg-val { font-size: .875rem; }
+  .care-name { font-size: 1.15rem; }
+  .care-note { font-size: .875rem; }
+  .seg button, .seg-label, .grp-btn, .count { font-size: .9rem; }
+  .ef-k { font-size: .85rem; }
+  .ef-in, .ef-famv { font-size: 1rem; }
+}
+</style>
+<style>
+/* 소그룹: 큰 제목 아래 주제별 작은 제목 — 왼쪽 세로줄로 한 묶음임을 보인다 (2026-11-03) */
+.tile-count { font-size: .8125rem; font-weight: 400; color: var(--sub); margin-left: .45rem; }
+.tile-group-body { margin: .1rem 0 0 .6rem; padding-left: .8rem; border-left: 3px solid #C9D6E5; }
+.tile-sub { margin: 0 0 .7rem; }
+.tile-sub:last-child { margin-bottom: .2rem; }
+.tile-subtitle { font-size: .875rem; font-weight: 700; color: var(--gold); padding: .1rem 0 .35rem; }
+@media (min-width: 900px) {
+  .tile-group-body { margin-left: .3rem; padding-left: 1.1rem; }
+  .tile-subtitle { font-size: .95rem; }
+  .tile-count { font-size: .875rem; }
+}
+</style>
+<style>
+/* 돌봄 필요 네 칸을 따로 떨어진 카드로 (2026-11-03 Francis님): 간격, 그림자, 위쪽 색 띠 */
+@media (min-width: 900px) {
+  .care-grid { gap: 1rem; background: none; border: 0; box-shadow: none; overflow: visible; margin-top: 1.1rem; }
+  .care-tile { border: 1px solid #C3CEDB; border-right: 3px solid #9FB0C4; border-bottom: 3px solid #9FB0C4; border-top: 6px solid var(--primary);
+    border-radius: .9rem; box-shadow: 3px 4px 10px rgba(20, 45, 70, .14); padding: 1.1rem 1.1rem 1.2rem; }
+  .care-tile:nth-child(1) { border-top-color: #2E9E5B; }
+  .care-tile:nth-child(2) { border-top-color: #B03A2E; }
+  .care-tile:nth-child(3) { border-top-color: #E07B24; }
+  .care-tile:nth-child(4) { border-top-color: #6C5BA8; }
+  .care-tile:hover { background: #F7FAFD; transform: translateY(-1px); }
+}
+</style>
+<style>
+/* 컴퓨터: 카드 단추를 머리 오른쪽 위에 세로로 (폰은 이름 아래 한 줄 그대로) (2026-11-03) */
+@media (min-width: 900px) {
+  .hero-actions { position: absolute; top: 1.2rem; right: 1.3rem; margin: 0; flex-direction: column; align-items: stretch; gap: .5rem; }
+  .hero-actions .edit-btn { justify-content: flex-start; min-width: 8.2rem; }
+}
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -533,7 +612,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'e66b3b1514';
+  var UI_VERSION = 'bf38ccbb71';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -875,7 +954,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
 
   function statusTag(m) {
     if (!ADMIN || !m.status || m.status === '출석') return '';
-    return '<span class="status-tag' + (m.status === '확인필요' ? ' check' : '') + '">' + esc(m.status) + '</span>';
+    return '<span class="status-tag' + (m.status === '확인필요' ? ' check' : '') + '">' + esc(m.status === '확인필요' ? '출석 확인필요' : m.status) + '</span>';
   }
 
   /** 목록 한 줄: AS Ver1처럼 「성명 신명 · 직책」을 크게, 둘째 줄에 소속 (§5.2) */
@@ -1111,7 +1190,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
     if (v === null || v === undefined || String(v).trim() === '') { v = '<span class="v-empty">미입력</span>'; raw = true; }
     // 메모는 주황, 확인필요는 빨강 (2026-11-03 Francis님)
     var tone = raw && String(v).indexOf('v-empty') >= 0 ? '' :
-      k === '메모' ? ' memo' : (k === '출석 상태' && v === '확인필요') || (k === '확인필요성' && Number(v) > 0) ? ' alert' : '';
+      k === '메모' ? ' memo' : (k === '출석 상태' && v === '확인필요') || (k === 'DB 빈칸' && Number(v) > 0) ? ' alert' : '';
     return '<div class="kv2' + (WIDE.indexOf(k) >= 0 ? ' wide' : '') + tone + '"><div class="k">' + esc(k) + '</div><div class="v">' + (raw ? v : esc(v)) + '</div></div>';
   }
   function grid(body) { return body ? '<div class="kv-grid">' + body + '</div>' : ''; }
@@ -1185,7 +1264,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
         kv('사진사용 동의', m.photoOk) + kv('연락 동의', m.contactOk) +
         kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
         kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
-        kv('확인필요성', m.checkScore) + kv('메모', m.memo)));
+        kv('DB 빈칸', m.checkScore) + kv('메모', m.memo)));
     }
     screen.innerHTML = html;
     wirePhotos();
@@ -1318,17 +1397,34 @@ body.editing .screen { padding-bottom: 1.5rem; }
       return '<button class="tile" data-servants="' + k + '"><span class="t-name">' + sg[k].title + '</span>' +
         '<span class="t-num">' + count(k) + '명</span></button>';
     }));
+    var tileOf = function (n) {
+      var g = groupInfo(n);
+      var dormant = g && g.state === '휴면';
+      return '<button class="tile' + (dormant ? ' dormant' : '') + '" data-group="' + esc(n) + '">' +
+        '<span class="t-name">' + esc(shown(n)) + '</span>' +
+        '<span class="t-num">' + (dormant ? '휴면' : countIn(n) + '명') + '</span></button>';
+    };
+    // 소그룹은 「소그룹」 큰 제목 하나 아래에 주제별 작은 제목으로 묶는다 (2026-11-03 Francis님)
+    var smallSubs = [];
     kindCards().forEach(function (c) {
       if (!c.names.length) return;
-      html += tileSection(c.kind, c.names.map(function (n) {
-        var g = groupInfo(n);
-        var dormant = g && g.state === '휴면';
-        return '<button class="tile' + (dormant ? ' dormant' : '') + '" data-group="' + esc(n) + '">' +
-          '<span class="t-name">' + esc(shown(n)) + '</span>' +
-          '<span class="t-num">' + (dormant ? '휴면' : countIn(n) + '명') + '</span></button>';
-      }));
+      if (c.kind.indexOf('소그룹 · ') === 0) { smallSubs.push(c); return; }
+      if (smallSubs.length && !smallSubs.done) { html += smallSection(smallSubs, tileOf); smallSubs.done = true; }
+      html += tileSection(c.kind, c.names.map(tileOf));
     });
+    if (smallSubs.length && !smallSubs.done) html += smallSection(smallSubs, tileOf);
     screen.innerHTML = html;
+  }
+
+  function smallSection(subs, tileOf) {
+    var n = subs.reduce(function (t, c) { return t + c.names.length; }, 0);
+    return '<section class="tile-sec tile-group"><div class="tile-title">소그룹<span class="tile-count">' + n + '개 모임</span></div><div class="tile-group-body">' +
+      subs.map(function (c) {
+        var tiles = c.names.map(tileOf);
+        while (tiles.length % 3) tiles.push('<div class="tile filler"></div>');
+        return '<div class="tile-sub"><div class="tile-subtitle">' + esc(c.kind.replace('소그룹 · ', '')) + '</div>' +
+          '<div class="tiles">' + tiles.join('') + '</div></div>';
+      }).join('') + '</div></section>';
   }
 
   function tileSection(title, tiles) {
