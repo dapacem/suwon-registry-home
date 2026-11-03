@@ -690,7 +690,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'fa3cb5d703';
+  var UI_VERSION = '497412edd8';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1379,8 +1379,8 @@ body:has(.boot-load) .tabs { display: none; }
         kv('사진사용 동의', m.photoOk) + kv('연락 동의', m.contactOk)));
       // 신앙 + 신앙관리를 한 칸으로, 관리자만 (2026-11-03 Francis님). 교적·성사 → 관리 순
       html += card('신앙관리', grid(
-        kv('교적 등재', yn(m.registered)) + kv('교적번호', m.id) + kv('등록일', m.regDate) + kv('세례일', m.baptism) +
-        kv('견진일', m.confirm) + kv('출신교파', m.origin) + kv('후견인', m.sponsor || '없음 (확인 필요)') + kv('출석 상태', m.status) +
+        kv('교적 등재', yn(m.registered)) + kv('교적번호', m.id) + kv('출신교파', m.origin) + kv('등록일', m.regDate) +
+        kv('세례일', m.baptism) + kv('견진일', m.confirm) + kv('후견인', m.sponsor || '없음 (확인 필요)') + kv('출석 상태', m.status) +
         kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
         kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
         kv('DB 빈칸', m.checkScore) + kv('메모', m.memo)));
