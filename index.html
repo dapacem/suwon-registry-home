@@ -439,6 +439,21 @@ textarea.ef-in { resize: vertical; }
   .tile, .list, .care-grid { border-color: #C9D3DF; box-shadow: 0 1px 4px rgba(20, 45, 70, .06); }
 }
 </style>
+<style>
+/* 사진 양옆 위 단추 (2026-11-03) */
+.hero-photo-wrap { position: relative; width: fit-content; margin: 0 auto; }
+.hero-photo-wrap .edit-btn { position: absolute; bottom: auto; top: .9rem; white-space: nowrap; }
+.hero-photo-wrap .hp-left { right: calc(100% + .9rem); left: auto; }
+.hero-photo-wrap .hp-right { left: calc(100% + .9rem); right: auto; }
+.hero-photo-wrap .hp-right-low { left: calc(100% + .9rem); right: auto; top: auto; bottom: .9rem; }
+.pray-bar { justify-content: center; }
+.pray-bar .prayer { flex: none; text-align: center; }
+@media (max-width: 899px) {
+  .pray-bar { flex-direction: column; row-gap: .45rem; }
+  .pray-bar .prayer { flex-basis: auto; }
+  .pray-bar .again:first-of-type { margin-left: 0; }
+}
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -486,7 +501,7 @@ textarea.ef-in { resize: vertical; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'bd9a2a4e14';
+  var UI_VERSION = 'eec2f3d1c9';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1072,22 +1087,22 @@ textarea.ef-in { resize: vertical; }
    *  랜덤 교우는 카드 위에 기도 띠만 따로 얹고, 카드 자체는 바꾸지 않는다. */
   function renderDetail(m, opts) {
     opts = opts || {};
-    var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div>' +
-        '<button class="again" data-random="1">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>' +
-        '다른 교우</button>' +
-        (ADMIN ? '<button class="again pray-msg" data-pray="' + m.key + '">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자</button>' : '') +
-        '</div>' : '') +
+    // 2026-11-03 Francis님: 「편집」은 사진 왼쪽 위, 「다른 교우」는 사진 오른쪽 위. 기도 띠에는 문구와 「문자」만.
+    var editBtn = D.canEdit && m.id ? '<button class="edit-btn hp-left" data-edit="' + m.key + '">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>편집</button>' : '';
+    var againBtn = opts.random ? '<button class="edit-btn hp-right" data-random="1">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>다른 교우</button>' : '';
+    // 문자: 모든 교우 카드에서 (관리자), 사진 오른쪽 아래 (2026-11-03 Francis님)
+    var msgBtn = ADMIN ? '<button class="edit-btn hp-right-low" data-pray="' + m.key + '"' + (opts.random ? ' data-kind-msg="pray"' : '') + '>' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자</button>' : '';
+    var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div></div>' : '') +
       '<header class="detail-hero">' +
       '<button class="back" data-back="1" aria-label="뒤로"' + (opts.random ? ' style="visibility:hidden" tabindex="-1"' : '') + '>' +
         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
-      avatar(m.name, m.photoId, 'lg', 'lg') +
+      '<div class="hero-photo-wrap">' + editBtn + avatar(m.name, m.photoId, 'lg', 'lg') + againBtn + msgBtn + '</div>' +
       '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
       // 직책이 없어도 같은 자리를 비워 두어, 교우마다 머리 높이가 달라지지 않게 (2026-11-03 Francis님)
       (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '<span class="title-tag blank" aria-hidden="true">&nbsp;</span>') +
-      (D.canEdit && m.id ? '<button class="edit-btn" data-edit="' + m.key + '">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>편집</button>' : '') +
       '</header>';
 
     // 소속
@@ -1798,10 +1813,11 @@ textarea.ef-in { resize: vertical; }
 
   // ── 랜덤 교우에게 기도 문자 (2026-11-03 Francis님) ──
   // 문구를 고칠 수 있고, 「보내시겠습니까?」 확인 뒤 폰의 문자 앱을 연다. 실제 보내기는 문자 앱에서 한 번 더 누른다.
-  function prayText(m) {
+  function prayText(m, pray) {
+    if (!pray) return m.name + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 주님 안에서 늘 평안하시길 빕니다.';
     return m.name + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 교우님을 잠시 떠올리며 하느님께 기도드렸습니다. 주님 안에서 늘 평안하시길 빕니다.';
   }
-  function openPrayMsg(m) {
+  function openPrayMsg(m, pray) {
     var tel = String(m.phone || '').replace(/[^0-9+]/g, '');
     var el = document.createElement('div');
     el.className = 'sheet-back';
@@ -1809,7 +1825,7 @@ textarea.ef-in { resize: vertical; }
       '<div class="sheet-head"><span>' + esc(m.name) + '님께 문자</span><button class="sheet-close" data-prayclose="1" aria-label="닫기">✕</button></div>' +
       '<div class="sheet-body">' +
       '<div class="pm-to">' + (tel ? '받는 번호: <b>' + esc(m.phone) + '</b>' : '<span class="pm-warn">교적부에 휴대폰 번호가 없습니다. 「다른 앱으로 보내기」로 카톡 등에 보낼 수 있습니다.</span>') + '</div>' +
-      '<textarea class="ef-in pm-text" rows="6">' + esc(prayText(m)) + '</textarea>' +
+      '<textarea class="ef-in pm-text" rows="6">' + esc(prayText(m, pray)) + '</textarea>' +
       '<div class="pm-note">문구는 자유롭게 고치셔도 됩니다.</div>' +
       '<div class="pm-btns"><button class="ef-cancel" data-prayclose="1">취소</button>' +
       (tel ? '<button class="ef-save" data-praysend="' + esc(tel) + '">문자 보내기</button>' : '<button class="ef-save" data-prayshare="1">다른 앱으로 보내기</button>') +
@@ -1818,7 +1834,7 @@ textarea.ef-in { resize: vertical; }
     el.addEventListener('click', function (ev) { if (ev.target === el) el.remove(); });
   }
   function prayClick(el, ds) {
-    if (ds.pray) { var m = byKey[ds.pray]; if (m) openPrayMsg(m); return true; }
+    if (ds.pray) { var m = byKey[ds.pray]; if (m) openPrayMsg(m, ds.kindMsg === 'pray'); return true; }
     if (ds.prayclose) { el.closest('.sheet-back').remove(); return true; }
     if (ds.praysend || ds.prayshare) {
       var back = el.closest('.sheet-back'), text = back.querySelector('.pm-text').value.trim();
