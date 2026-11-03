@@ -175,6 +175,7 @@ a { color: inherit; }
 .detail-hero .avatar.lg { margin: .5rem auto .6rem; }
 .detail-name { font-size: 1.375rem; font-weight: 700; }
 .detail-saint { font-size: 1rem; font-weight: 400; opacity: .85; margin-left: .35rem; }
+.detail-hero .title-tag.blank { visibility: hidden; }
 .detail-hero .title-tag { font-size: .8125rem; padding: .25rem .75rem; margin-top: .6rem; border-radius: 999px; }
 .prayer { margin-top: .6rem; font-size: 1.125rem; line-height: 1.5; opacity: .95; word-break: keep-all; text-wrap: balance; }
 .again {
@@ -309,7 +310,8 @@ a { color: inherit; }
 /* ── 컴퓨터 화면 (가로 900px 이상): 왼쪽 메뉴 + 가운데 넓은 본문 (2026-11-03 Francis님: 「PC·웹처럼」) ──
    폰 화면에는 영향 없음 */
 @media (min-width: 900px) {
-  html { font-size: 106.25%; }
+  /* 스크롤 막대 자리를 늘 비워 둬서, 내용 길이가 바뀔 때 화면이 좌우로 흔들리지 않게 (2026-11-03) */
+  html { font-size: 106.25%; overflow-y: scroll; scrollbar-gutter: stable; }
   body { background: #EDF1F6; }
   .tabs { top: 0; bottom: 0; right: auto; width: 14rem; flex-direction: column; gap: .25rem; padding: 1.4rem .9rem; }
   .tabs::before { content: "수원교회 교적부 G"; color: #fff; font-weight: 700; font-size: 1.05rem; padding: .2rem .8rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); }
@@ -340,9 +342,9 @@ a { color: inherit; }
   .donut { width: 7.5rem; height: 7.5rem; }
   /* 교우 상세·통계: 카드 두 줄 배치 */
   .screen:has(> .detail-hero:not(.sub-hero)), .screen:has(> .card .donut-wrap) {
-    display: grid; grid-template-columns: repeat(2, minmax(0, 35.5rem)); justify-content: center; column-gap: 1rem; align-content: start; align-items: start;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 35.5rem)); justify-content: center; gap: 1rem; align-content: start; align-items: stretch;
   }
-  .screen:has(> .detail-hero:not(.sub-hero)) > *, .screen:has(> .card .donut-wrap) > * { max-width: none; margin-left: 0; margin-right: 0; }
+  .screen:has(> .detail-hero:not(.sub-hero)) > *, .screen:has(> .card .donut-wrap) > * { max-width: none; margin: 0; }
   .screen > .detail-hero, .screen > .hero, .screen > .sub-hero, .screen > .refresh-line, .screen > .warn-box, .screen > .tile-sec { grid-column: 1 / -1; }
   /* 단체 고르기 창: 아래에서 올라오는 대신 가운데 창 */
   .sheet-back { align-items: center; justify-content: center; }
@@ -396,7 +398,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'aaea615458';
+  var UI_VERSION = '49458e0a18';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -962,7 +964,8 @@ a { color: inherit; }
         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>') +
       avatar(m.name, m.photoId, 'lg', 'lg') +
       '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
-      (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '') +
+      // 직책이 없어도 같은 자리를 비워 두어, 교우마다 머리 높이가 달라지지 않게 (2026-11-03 Francis님)
+      (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '<span class="title-tag blank" aria-hidden="true">&nbsp;</span>') +
       (opts.random ? '<div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div>' : '') +
       '</header>';
 
