@@ -584,6 +584,28 @@ body.editing .screen { padding-bottom: 1.5rem; }
 @keyframes bldot { 0%, 100% { opacity: .25; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }
 body:has(.boot-load) .tabs { display: none; }
 </style>
+<style>
+/* 폰: 리더 이름 때문에 칸이 화면 밖으로 밀리지 않게 — 칸 폭 고정, 리더는 아랫줄 (2026-11-03) */
+.tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }  /* 폰은 두 칸 (2026-11-03 Francis님) */
+.tile { min-width: 0; justify-content: flex-start; }
+.t-num { white-space: normal; }
+.t-lead { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .75rem; }
+.t-dot { display: none; }
+@media (min-width: 900px) {
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
+  .t-num { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-lead { display: inline; font-size: inherit; }
+  .t-dot { display: inline; color: var(--gold); }
+}
+</style>
+<style>
+/* 폰: 이름 ↔ 직책 자리 ↔ 단추 사이 간격 줄임 (2026-11-03 Francis님) */
+@media (max-width: 899px) {
+  .detail-hero .title-tag { margin-top: .3rem; padding: .15rem .7rem; }
+  .hero-actions { margin-top: .45rem; }
+  .detail-hero { padding-bottom: .8rem; }
+}
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -631,7 +653,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '6dc567c35e';
+  var UI_VERSION = '97ca2cee84';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1416,7 +1438,7 @@ body:has(.boot-load) .tabs { display: none; }
     // 리더(단체장)는 「단체상태」 단체장 칸에서 (2026-11-03 Francis님)
     var lead = function (name) {
       var g = groupInfo(name);
-      return g && g.leader ? '<span class="t-lead"> · ' + esc(g.leader) + '</span>' : '';
+      return g && g.leader ? '<span class="t-dot"> · </span><span class="t-lead">' + esc(g.leader) + '</span>' : '';
     };
     var SERVANT_NAME = { clergy: '사목단', council: '교회위원회' };
     html += tileSection('섬기는 이들', ['clergy', 'council', 'titled'].map(function (k) {
@@ -1447,14 +1469,14 @@ body:has(.boot-load) .tabs { display: none; }
     return '<section class="tile-sec tile-group"><div class="tile-title">소그룹<span class="tile-count">' + n + '개 모임</span></div><div class="tile-group-body">' +
       subs.map(function (c) {
         var tiles = c.names.map(tileOf);
-        while (tiles.length % 3) tiles.push('<div class="tile filler"></div>');
+        while (tiles.length % 2) tiles.push('<div class="tile filler"></div>');
         return '<div class="tile-sub"><div class="tile-subtitle">' + esc(c.kind.replace('소그룹 · ', '')) + '</div>' +
           '<div class="tiles">' + tiles.join('') + '</div></div>';
       }).join('') + '</div></section>';
   }
 
   function tileSection(title, tiles) {
-    while (tiles.length % 3) tiles.push('<div class="tile filler"></div>');  // 줄 끝 빈칸을 흰색으로 채움
+    while (tiles.length % 2) tiles.push('<div class="tile filler"></div>');  // 줄 끝 빈칸을 흰색으로 채움
     return '<section class="tile-sec"><div class="tile-title">' + esc(title) + '</div>' +
       '<div class="tiles">' + tiles.join('') + '</div></section>';
   }
