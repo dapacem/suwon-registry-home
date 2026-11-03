@@ -462,6 +462,11 @@ textarea.ef-in { resize: vertical; }
 .grp-more { flex: none; font-size: .8125rem; font-weight: 400; opacity: .85; }
 .grp-x { flex: none; width: 2.2rem; height: 2.2rem; border-radius: .6rem; border: 1px solid var(--line); background: #fff; color: var(--sub); }
 </style>
+<style>
+.hero-actions { display: flex; justify-content: center; gap: .4rem; margin-top: .8rem; flex-wrap: wrap; }
+.hero-actions .edit-btn { position: static; white-space: nowrap; font-size: .78rem; padding: .32rem .6rem; gap: .25rem; }
+.hero-actions .edit-btn svg { width: 13px; height: 13px; }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -509,7 +514,7 @@ textarea.ef-in { resize: vertical; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '1eda4cc371';
+  var UI_VERSION = 'dd16c2313c';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1108,15 +1113,17 @@ textarea.ef-in { resize: vertical; }
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>다른 교우</button>' : '';
     // 문자: 모든 교우 카드에서 (관리자), 사진 오른쪽 아래 (2026-11-03 Francis님)
     var msgBtn = ADMIN ? '<button class="edit-btn hp-right-low" data-pray="' + m.key + '"' + (opts.random ? ' data-kind-msg="pray"' : '') + '>' +
-      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자</button>' : '';
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자 안부</button>' : '';
     var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div></div>' : '') +
       '<header class="detail-hero">' +
       '<button class="back" data-back="1" aria-label="뒤로"' + (opts.random ? ' style="visibility:hidden" tabindex="-1"' : '') + '>' +
         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
-      '<div class="hero-photo-wrap">' + editBtn + avatar(m.name, m.photoId, 'lg', 'lg') + againBtn + msgBtn + '</div>' +
+      avatar(m.name, m.photoId, 'lg', 'lg') +
       '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
       // 직책이 없어도 같은 자리를 비워 두어, 교우마다 머리 높이가 달라지지 않게 (2026-11-03 Francis님)
       (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '<span class="title-tag blank" aria-hidden="true">&nbsp;</span>') +
+      // 2026-11-03: 단추는 이름 아래 한 줄에 모아 화면 밖으로 넘치지 않게 (글자를 크게 쓰는 폰에서도)
+      (editBtn || msgBtn || againBtn ? '<div class="hero-actions">' + editBtn + msgBtn + againBtn + '</div>' : '') +
       '</header>';
 
     // 소속
@@ -1835,8 +1842,8 @@ textarea.ef-in { resize: vertical; }
     var tel = String(m.phone || '').replace(/[^0-9+]/g, '');
     var el = document.createElement('div');
     el.className = 'sheet-back';
-    el.innerHTML = '<div class="sheet" role="dialog" aria-label="기도 문자">' +
-      '<div class="sheet-head"><span>' + esc(m.name) + '님께 문자</span><button class="sheet-close" data-prayclose="1" aria-label="닫기">✕</button></div>' +
+    el.innerHTML = '<div class="sheet" role="dialog" aria-label="문자 안부">' +
+      '<div class="sheet-head"><span>' + esc(m.name) + '님께 문자 안부</span><button class="sheet-close" data-prayclose="1" aria-label="닫기">✕</button></div>' +
       '<div class="sheet-body">' +
       '<div class="pm-to">' + (tel ? '받는 번호: <b>' + esc(m.phone) + '</b>' : '<span class="pm-warn">교적부에 휴대폰 번호가 없습니다. 「다른 앱으로 보내기」로 카톡 등에 보낼 수 있습니다.</span>') + '</div>' +
       '<textarea class="ef-in pm-text" rows="6">' + esc(prayText(m, pray)) + '</textarea>' +
