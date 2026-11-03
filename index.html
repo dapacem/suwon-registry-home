@@ -641,6 +641,8 @@ body:has(.boot-load) .tabs { display: none; }
 }
 </style>
 
+<style>.sub-note { word-break: keep-all; }</style>
+
 <style>
   body { padding-top: env(safe-area-inset-top); }
   #splash { position: fixed; inset: 0; z-index: 100; background: #1A5276; color: #fff; display: none;
@@ -687,7 +689,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'f6d97588ca';
+  var UI_VERSION = 'b5ca831b67';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1602,6 +1604,17 @@ body:has(.boot-load) .tabs { display: none; }
       (names.length ? names.map(groupLine).join('') : '<div class="empty">단체가 없습니다.</div>') + '</div>';
   }
 
+  // 연령단체 나이 기준: 단체 화면에만 보이고 교우 카드에는 보이지 않는다 (2026-11-03 Francis님)
+  var AGE_DESC = {
+    '베로니카회': '36~45세 여성 교우들의 봉사와 친교 모임',
+    '그라티아회': '18~35세 청년 교우들의 봉사와 친교 모임',
+    '에스더회': '46~55세 여성 교우들의 봉사와 친교 모임',
+    '모니카회': '56~69세 여성 교우들의 봉사와 친교 모임',
+    '미리암회': '70세 이상 여성 교우들의 봉사와 친교 모임',
+    '바울로회': '36~50세 남성 교우들의 봉사와 친교 모임',
+    '라자로회': '51~65세 남성 교우들의 봉사와 친교 모임',
+    '니콜라회': '66세 이상 남성 교우들의 봉사와 친교 모임',
+  };
   function renderGroup(name) {
     var g = groupInfo(name);
     var leader = g ? g.leader : '';
@@ -1609,7 +1622,7 @@ body:has(.boot-load) .tabs { display: none; }
       return isLeader(b, leader, name) - isLeader(a, leader, name) || byName(a, b);
     });
     var leadLabel = g && g.kind === '소그룹' ? '리더' : '회장';
-    var sub = (g && g.state === '휴면' ? '휴면 · ' : '') + '출석 ' + ms.length + '명';
+    var sub = (AGE_DESC[name] ? AGE_DESC[name] + ' · ' : '') + (g && g.state === '휴면' ? '휴면 · ' : '') + '출석 ' + ms.length + '명';
     var html = heroBack(shown(name), sub);
     html += '<div class="list">' + (ms.length ? ms.map(function (m) {
       // 직책 표시가 없는 회장·리더에게는 「회장」(소그룹은 「리더」) 표시를 붙여 맨 위에 보이게 한다
