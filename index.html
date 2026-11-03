@@ -642,6 +642,7 @@ body:has(.boot-load) .tabs { display: none; }
 </style>
 
 <style>.sub-note { word-break: keep-all; }</style>
+<style>.t-age { font-weight: 400; font-size: .78em; color: var(--sub); margin-left: .35rem; white-space: nowrap; }</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -689,7 +690,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'b5ca831b67';
+  var UI_VERSION = '3ed93b58d1';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1527,7 +1528,7 @@ body:has(.boot-load) .tabs { display: none; }
       var g = groupInfo(n);
       var dormant = g && g.state === '휴면';
       return '<button class="tile' + (dormant ? ' dormant' : '') + '" data-group="' + esc(n) + '">' +
-        '<span class="t-name">' + esc(shown(n)) + '</span>' +
+        '<span class="t-name">' + esc(shown(n)) + (ageShort(n) ? '<span class="t-age">' + esc(ageShort(n)) + '</span>' : '') + '</span>' +
         '<span class="t-num">' + (dormant ? '휴면' : countIn(n) + '명' + lead(n)) + '</span></button>';
     };
     // 소그룹은 「소그룹」 큰 제목 하나 아래에 주제별 작은 제목으로 묶는다 (2026-11-03 Francis님)
@@ -1615,6 +1616,8 @@ body:has(.boot-load) .tabs { display: none; }
     '라자로회': '51~65세 남성 교우들의 봉사와 친교 모임',
     '니콜라회': '66세 이상 남성 교우들의 봉사와 친교 모임',
   };
+  // 상자에 짧게: 「36~45세」
+  function ageShort(name) { var m = (AGE_DESC[name] || '').match(/^(\S+세(?: 이상)?)/); return m ? m[1] : ''; }
   function renderGroup(name) {
     var g = groupInfo(name);
     var leader = g ? g.leader : '';
