@@ -416,6 +416,29 @@ textarea.ef-in { resize: vertical; }
   .avatar.md { width: 3.4rem; height: 3.4rem; }
 }
 </style>
+<style>
+.pray-bar .pray-msg { margin-left: 0; }
+@media (max-width: 899px) {
+  .pray-bar { flex-wrap: wrap; row-gap: .5rem; }
+  .pray-bar .prayer { flex-basis: 100%; }
+  .pray-bar .again:first-of-type { margin-left: auto; }
+}
+.pm-text { word-break: keep-all; }
+.pm-to { font-size: .875rem; margin: .2rem 0 .6rem; }
+.pm-warn { color: var(--warn); }
+.pm-text { font-size: 1rem; line-height: 1.6; }
+.pm-note { font-size: .75rem; color: var(--sub); margin: .35rem 0 .8rem; }
+.pm-btns { display: flex; gap: .6rem; }
+@media (min-width: 900px) { .sheet .pm-btns .ef-cancel, .sheet .pm-btns .ef-save { padding: .7rem; } }
+</style>
+<style>
+/* 컴퓨터: 카드 구분을 또렷하게 — 진한 테두리, 옅은 그림자, 제목 아래 줄 (2026-11-03 Francis님) */
+@media (min-width: 900px) {
+  .card { border: 1px solid #C9D3DF; box-shadow: 0 2px 6px rgba(20, 45, 70, .08); }
+  .card > h3 { padding-bottom: .55rem; margin-bottom: .75rem; border-bottom: 2px solid #E1E8F0; }
+  .tile, .list, .care-grid { border-color: #C9D3DF; box-shadow: 0 1px 4px rgba(20, 45, 70, .06); }
+}
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -463,7 +486,7 @@ textarea.ef-in { resize: vertical; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '68eeb34327';
+  var UI_VERSION = 'bd9a2a4e14';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1052,7 +1075,10 @@ textarea.ef-in { resize: vertical; }
     var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div>' +
         '<button class="again" data-random="1">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>' +
-        '다른 교우</button></div>' : '') +
+        '다른 교우</button>' +
+        (ADMIN ? '<button class="again pray-msg" data-pray="' + m.key + '">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자</button>' : '') +
+        '</div>' : '') +
       '<header class="detail-hero">' +
       '<button class="back" data-back="1" aria-label="뒤로"' + (opts.random ? ' style="visibility:hidden" tabindex="-1"' : '') + '>' +
         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
@@ -1097,11 +1123,11 @@ textarea.ef-in { resize: vertical; }
 
     if (ADMIN) {
       var tel = m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^0-9+]/g, '')) + '">' + esc(m.phone) + '</a>' : '';
-      html += card('연락', grid(kv('휴대폰', tel, true) + kv('카톡 등록', m.kakao) + kv('이메일', m.email) + kv('주소', m.address)));
+      html += card('연락', grid(kv('휴대폰', tel, true) + kv('카톡 등록', yn(m.kakao)) + kv('이메일', m.email) + kv('주소', m.address)));
       html += card('관리', grid(
         kv('교적번호', m.id) + kv('성별', m.sex) + kv('생년', m.birthYear) + kv('생년월일', m.birthDate) +
-        kv('만 나이', m.age) + kv('출석 상태', m.status) + kv('교적 등재', m.registered) +
-        kv('사진 동의', m.photoOk) + kv('연락 동의', m.contactOk) +
+        kv('만 나이', m.age) + kv('출석 상태', m.status) + kv('교적 등재', yn(m.registered)) +
+        kv('사진사용 동의', m.photoOk) + kv('연락 동의', m.contactOk) +
         kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
         kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
         kv('확인필요성', m.checkScore) + kv('메모', m.memo)));
@@ -1570,11 +1596,11 @@ textarea.ef-in { resize: vertical; }
   var EDIT = null;
   var EDIT_SECTIONS = [
     { title: '기본', fields: [['name', '성명'], ['saint', '신명'], ['sex', '성별', 'sex'], ['birthYear', '생년'], ['birthDate', '생년월일', '', '19650301'], ['title', '직책']] },
-    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', 'N']], ['recent', '최근 3개월 출석', '', '7']] },
+    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', '?', 'N']], ['recent', '최근 3개월 출석', '', '7']] },
     { title: '소속', fields: [['ageGroup', '연령단체', 'age'], ['service', '봉사단체', 'multi:봉사단체'], ['small', '소그룹', 'multi:소그룹'], ['cecil', '세실대', 'one:세실대']] },
     { title: '신앙', fields: [['origin', '출신교파'], ['regDate', '등록일', '', '2018. 3. 14.'], ['baptism', '세례일', '', '2019. 4. 21.'], ['confirm', '견진일', '', '2020. 5. 3.'], ['sponsor', '후견인']] },
     { title: '가족', fields: [['father', '부', 'fam'], ['mother', '모', 'fam'], ['husband', '남편', 'fam'], ['wife', '아내', 'fam'], ['child1', '자녀1', 'fam'], ['child2', '자녀2', 'fam'], ['child3', '자녀3', 'fam'], ['siblings', '형제자매', 'sibs']] },
-    { title: '연락', fields: [['phone', '휴대폰', '', '010-0000-0000'], ['kakao', '카톡 등록', ['', 'Y', 'N']], ['email', '이메일'], ['address', '주소'], ['photoOk', '사진 동의', ['', 'Y', 'N']], ['contactOk', '연락 동의', ['', 'Y', 'N']]] },
+    { title: '연락', fields: [['phone', '휴대폰', '', '010-0000-0000'], ['kakao', '카톡 등록', ['', 'Y', 'N', '확인필요']], ['email', '이메일'], ['address', '주소'], ['photoOk', '사진사용 동의', ['', '예', '아니오']], ['contactOk', '연락 동의', ['', '예', '아니오']]] },
     { title: '메모', fields: [['memo', '메모', 'area']] },
   ];
 
@@ -1604,9 +1630,11 @@ textarea.ef-in { resize: vertical; }
     }).apiRaw(TOKEN, m.id);
   }
 
+  // 시트의 Y·N을 화면에서는 「예·아니오」로 보인다 (시트 값은 그대로, 2026-11-03 Francis님)
+  function yn(v) { return v === 'Y' ? '예' : v === 'N' ? '아니오' : v; }
   function optList(opts, v) {
     if (v && opts.indexOf(v) < 0) opts = opts.concat([v]);
-    return opts.map(function (o) { return '<option' + (o === v ? ' selected' : '') + ' value="' + esc(o) + '">' + (o ? esc(o) : '— 비움 —') + '</option>'; }).join('');
+    return opts.map(function (o) { return '<option' + (o === v ? ' selected' : '') + ' value="' + esc(o) + '">' + (o ? esc(yn(o)) : '— 비움 —') + '</option>'; }).join('');
   }
 
   function editField(f) {
@@ -1767,6 +1795,43 @@ textarea.ef-in { resize: vertical; }
     }).apiSave(TOKEN, EDIT.id, changes);
   }
 
+
+  // ── 랜덤 교우에게 기도 문자 (2026-11-03 Francis님) ──
+  // 문구를 고칠 수 있고, 「보내시겠습니까?」 확인 뒤 폰의 문자 앱을 연다. 실제 보내기는 문자 앱에서 한 번 더 누른다.
+  function prayText(m) {
+    return m.name + '님, 안녕하세요? ' + (D.me || '수원교회') + '입니다. 교우님을 잠시 떠올리며 하느님께 기도드렸습니다. 주님 안에서 늘 평안하시길 빕니다.';
+  }
+  function openPrayMsg(m) {
+    var tel = String(m.phone || '').replace(/[^0-9+]/g, '');
+    var el = document.createElement('div');
+    el.className = 'sheet-back';
+    el.innerHTML = '<div class="sheet" role="dialog" aria-label="기도 문자">' +
+      '<div class="sheet-head"><span>' + esc(m.name) + '님께 문자</span><button class="sheet-close" data-prayclose="1" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-body">' +
+      '<div class="pm-to">' + (tel ? '받는 번호: <b>' + esc(m.phone) + '</b>' : '<span class="pm-warn">교적부에 휴대폰 번호가 없습니다. 「다른 앱으로 보내기」로 카톡 등에 보낼 수 있습니다.</span>') + '</div>' +
+      '<textarea class="ef-in pm-text" rows="6">' + esc(prayText(m)) + '</textarea>' +
+      '<div class="pm-note">문구는 자유롭게 고치셔도 됩니다.</div>' +
+      '<div class="pm-btns"><button class="ef-cancel" data-prayclose="1">취소</button>' +
+      (tel ? '<button class="ef-save" data-praysend="' + esc(tel) + '">문자 보내기</button>' : '<button class="ef-save" data-prayshare="1">다른 앱으로 보내기</button>') +
+      '</div></div></div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', function (ev) { if (ev.target === el) el.remove(); });
+  }
+  function prayClick(el, ds) {
+    if (ds.pray) { var m = byKey[ds.pray]; if (m) openPrayMsg(m); return true; }
+    if (ds.prayclose) { el.closest('.sheet-back').remove(); return true; }
+    if (ds.praysend || ds.prayshare) {
+      var back = el.closest('.sheet-back'), text = back.querySelector('.pm-text').value.trim();
+      if (!text) return true;
+      if (!confirm(ds.praysend ? '문자를 보내시겠습니까?' : '다른 앱으로 보내시겠습니까?')) return true;
+      back.remove();
+      if (ds.praysend) location.href = 'sms:' + ds.praysend + '?&body=' + encodeURIComponent(text);
+      else shareText(text);
+      return true;
+    }
+    return false;
+  }
+
   // ── 화면 고르기와 뒤로 가기 (F-06) ──
   // view: list(탭 첫 화면) · detail · kind · group · servants · stat · care
   function render() {
@@ -1820,6 +1885,7 @@ textarea.ef-in { resize: vertical; }
     if (!el) return;
     var ds = el.dataset;
     if (ds.edit) go({ view: 'edit', key: ds.edit });
+    else if (prayClick(el, ds)) return;
     else if (editClick(el, ds)) return;
     else if (ds.go) go({ view: 'detail', key: ds.go });
     else if (ds.back) history.back();
