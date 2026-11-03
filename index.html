@@ -687,7 +687,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '92b387339e';
+  var UI_VERSION = 'f6d97588ca';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1092,7 +1092,7 @@ body:has(.boot-load) .tabs { display: none; }
     var el = document.createElement('div');
     el.className = 'sheet-back';
     el.innerHTML = '<div class="sheet" role="dialog" aria-label="달란트 고르기">' +
-      '<div class="sheet-head"><span>달란트 나눔에서 고르기</span><button class="sheet-close" data-close="1" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-head"><span>달란트 목록에서 고르기</span><button class="sheet-close" data-close="1" aria-label="닫기">✕</button></div>' +
       '<div class="sheet-body"><div class="sheet-chips">' +
       '<button class="pick' + (state.talent === TALENT_ALL ? ' on' : '') + '" data-tpick="' + TALENT_ALL + '">' + TALENT_ALL + ' ' +
         D.members.filter(function (m) { return (m.talent || []).length; }).length + '</button></div>' +
@@ -1183,7 +1183,7 @@ body:has(.boot-load) .tabs { display: none; }
       (state.talent
         ? '<button class="grp-btn on" data-tpicker="1">' + LIST_ICON + '<span>' + esc(state.talent) + '</span><span class="grp-more">바꾸기</span></button>' +
           '<button class="grp-x" data-tx="1" aria-label="달란트 조건 풀기">✕</button>'
-        : '<button class="grp-btn" data-tpicker="1">' + LIST_ICON + '<span>달란트 나눔에서 고르기</span><span class="grp-more">›</span></button>') +
+        : '<button class="grp-btn" data-tpicker="1">' + LIST_ICON + '<span>달란트 목록에서 고르기</span><span class="grp-more">›</span></button>') +
       '</div>';
     html += '</div>';
 
@@ -1380,9 +1380,9 @@ body:has(.boot-load) .tabs { display: none; }
         kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
         kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
         kv('DB 빈칸', m.checkScore) + kv('메모', m.memo)));
-      // 달란트 나눔: 관리 옆(컴퓨터)·아래(폰). 관리자(교역자·교회위원)만 (2026-11-03 Francis님)
+      // 달란트 보유 (나눔 의사는 아직 받지 않아 「보유」로, 2026-11-03): 관리 옆(컴퓨터)·아래(폰). 관리자(교역자·교회위원)만 (2026-11-03 Francis님)
       var tal = (m.talent || []);
-      html += card('달란트 나눔', tal.length ? '<div class="chips">' + tal.map(function (x) { return '<span class="tag talent">' + esc(x) + '</span>'; }).join('') + '</div>' : '<div class="fam-none">미입력</div>');
+      html += card('달란트 보유', tal.length ? '<div class="chips">' + tal.map(function (x) { return '<span class="tag talent">' + esc(x) + '</span>'; }).join('') + '</div>' : '<div class="fam-none">미입력</div>');
     }
     screen.innerHTML = html;
     wirePhotos();
@@ -1876,7 +1876,7 @@ body:has(.boot-load) .tabs { display: none; }
     { title: '신앙', fields: [['origin', '출신교파'], ['regDate', '등록일', '', '2018. 3. 14.'], ['baptism', '세례일', '', '2019. 4. 21.'], ['confirm', '견진일', '', '2020. 5. 3.'], ['sponsor', '후견인']] },
     { title: '가족', fields: [['father', '부', 'fam'], ['mother', '모', 'fam'], ['husband', '남편', 'fam'], ['wife', '아내', 'fam'], ['child1', '자녀1', 'fam'], ['child2', '자녀2', 'fam'], ['child3', '자녀3', 'fam'], ['siblings', '형제자매', 'sibs']] },
     { title: '연락', fields: [['phone', '휴대폰', '', '010-0000-0000'], ['kakao', '카톡 등록', ['', 'Y', 'N', '확인필요']], ['email', '이메일'], ['address', '주소'], ['photoOk', '사진사용 동의', ['', '예', '아니오']], ['contactOk', '연락 동의', ['', '예', '아니오']]] },
-    { title: '달란트 나눔', fields: [['talent', '달란트 (쉼표로 여러 개)', '', '피아노 반주, 사진, 요리']] },
+    { title: '달란트 보유', fields: [['talent', '달란트 (쉼표로 여러 개)', '', '피아노 반주, 사진, 요리']] },
     { title: '메모', fields: [['memo', '메모', 'area']] },
   ];
 
