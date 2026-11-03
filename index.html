@@ -267,6 +267,7 @@ a { color: inherit; }
 .kv2 .k { font-size: .75rem; color: var(--sub); }
 .kv2 .v { font-size: .9375rem; margin-top: .05rem; word-break: keep-all; overflow-wrap: anywhere; white-space: pre-wrap; }
 .kv2 a { color: var(--primary); font-weight: 700; }
+.v-empty { color: var(--faint); }
 
 /* ── 준비 중 ── */
 .soon { margin: 2rem .9rem; text-align: center; color: var(--sub); font-size: .8125rem; }
@@ -304,7 +305,13 @@ a { color: inherit; }
   .fam-none { color: var(--sub); padding: 6px 2px; }
 </style>
 <style>.hero + .list, .sub-hero + .list, .count + .list { margin-top: .9rem; } .count + .list { margin-top: 0; }</style>
-<style>.detail-hero.random { padding-top: 3.4rem; } .detail-hero.random .again { top: .7rem; }</style>
+<style>
+/* 랜덤 교우: 교우 카드 위의 기도 띠 (카드 모양은 표준 그대로) */
+.pray-bar { display: flex; align-items: center; gap: .6rem; background: #FBF6EA; border-bottom: 1px solid #EFE3C4; padding: .7rem .6rem; }
+.pray-bar .prayer { flex: 1; margin: 0; font-size: 1.0625rem; color: #6B4E06; opacity: 1; text-align: left; }
+.pray-bar .again { position: static; flex: none; color: var(--primary); border-color: var(--primary); background: #fff; }
+@media (min-width: 900px) { .pray-bar { border: 1px solid #EFE3C4; border-radius: .9rem; padding: .8rem 1.2rem; } .screen > .pray-bar { grid-column: 1 / -1; } }
+</style>
 
 <style>
 /* ── 컴퓨터 화면 (가로 900px 이상): 왼쪽 메뉴 + 가운데 넓은 본문 (2026-11-03 Francis님: 「PC·웹처럼」) ──
@@ -349,6 +356,64 @@ a { color: inherit; }
   /* 단체 고르기 창: 아래에서 올라오는 대신 가운데 창 */
   .sheet-back { align-items: center; justify-content: center; }
   .sheet { max-width: 44rem; max-height: 80vh; border-radius: 1rem; }
+}
+</style>
+
+<style>
+/* ── 2026-11-03 추가 ── */
+.kv2.memo .v { color: #C2610C; }
+.kv2.alert .v { color: var(--warn); font-weight: 700; }
+.seg-hit { cursor: pointer; }
+.seg-hit:hover { opacity: .8; }
+button.st-seg { border: 0; padding: 0; height: 100%; cursor: pointer; }
+button.st-seg:hover { filter: brightness(1.08); }
+/* 활동 단체: 갈래가 바뀌는 곳에 연한 줄 */
+.tile-sec + .tile-sec { border-top: 1px solid #D5DDE7; margin-top: .9rem; padding-top: .7rem; }
+/* 가족 목록 */
+.fam-list > .fam:first-child { border-top: 0; padding-top: 0; }
+/* 교우 카드 편집 단추 (이름 아래 오른쪽) */
+.edit-btn { position: absolute; right: .75rem; bottom: .8rem; display: flex; align-items: center; gap: .3rem; font-size: .8125rem; font-weight: 700; color: #fff; border: 1px solid rgba(255,255,255,.6); border-radius: 999px; padding: .35rem .8rem; }
+.edit-btn:hover { background: rgba(255,255,255,.12); }
+/* 편집 화면 */
+.edit-note { font-size: .8125rem; color: var(--sub); padding: .8rem .6rem .2rem; line-height: 1.5; }
+.ef-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem .8rem; }
+.ef { min-width: 0; }
+.ef.wide { grid-column: 1 / -1; }
+.ef-k { display: block; font-size: .75rem; color: var(--sub); margin-bottom: .25rem; }
+.ef-mark { color: var(--gold); font-weight: 700; }
+.ef-in { width: 100%; font: inherit; font-size: .9375rem; color: var(--text); background: #fff; border: 1px solid var(--line); border-radius: .55rem; padding: .5rem .65rem; }
+.ef-in::placeholder { color: #B4BDC8; }
+.ef-in:focus { outline: 2px solid #9CC3E6; border-color: var(--primary); }
+.ef.changed .ef-in { border-color: var(--gold); background: #FFFBF0; }
+textarea.ef-in { resize: vertical; }
+.ef-auto { font-size: .9375rem; color: var(--sub); padding: .5rem 0; }
+.ef-auto span { font-size: .75rem; color: var(--faint); }
+.ef-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ef-chips .pick { font-size: .875rem; }
+.ef-fam { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; padding: .15rem 0; }
+.ef-famv { font-size: .9375rem; flex: 1; min-width: 0; }
+.ef-sibs { display: flex; flex-direction: column; gap: .3rem; align-items: flex-start; }
+.ef-sibs .ef-fam { width: 100%; }
+.ef-btn { flex: none; font-size: .8125rem; font-weight: 700; color: var(--primary); background: var(--chip); border-radius: .5rem; padding: .35rem .7rem; }
+.ef-btn.ghost { background: #F1F3F6; color: var(--sub); }
+.edit-bar { position: sticky; bottom: calc(4.6rem + env(safe-area-inset-bottom)); display: flex; gap: .6rem; padding: .7rem .6rem; background: rgba(244,246,249,.96); border-top: 1px solid var(--line); z-index: 5; }
+.ef-cancel { flex: 1; padding: .75rem; border-radius: .7rem; background: #fff; border: 1px solid var(--line); font-weight: 700; color: var(--sub); }
+.ef-save { flex: 2; padding: .75rem; border-radius: .7rem; background: var(--primary); color: #fff; font-weight: 700; }
+.ef-save:disabled { background: #B8C4D0; }
+.fam-q { margin: .3rem 0 .6rem; }
+.fam-results .row { border-top: 1px solid var(--line); }
+@media (min-width: 900px) {
+  .screen > .wide-card { grid-column: 1 / -1; }
+  .fam-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); column-gap: 1.4rem; }
+  .fam-list > .fam { border-top: 0; border-bottom: 1px solid var(--line); padding: .55rem 0; }
+  .edit-bar { bottom: 0; border-radius: .9rem; border: 1px solid var(--line); }
+  .screen > .edit-bar, .screen > .edit-note { grid-column: 1 / -1; }
+  .ef-grid { grid-template-columns: repeat(3, 1fr); }
+  .wide-card .ef-grid { grid-template-columns: repeat(3, 1fr); }
+  /* 컴퓨터에서는 사진을 더 크게 (2026-11-03 Francis님) */
+  .avatar.lg { width: 9.5rem; height: 9.5rem; font-size: 3rem; border-width: 4px; }
+  .list .avatar { width: 3.6rem; height: 3.6rem; }
+  .avatar.md { width: 3.4rem; height: 3.4rem; }
 }
 </style>
 
@@ -398,7 +463,7 @@ a { color: inherit; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '49458e0a18';
+  var UI_VERSION = '68eeb34327';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -489,6 +554,19 @@ a { color: inherit; }
           if (d.renew) put(KEY, d.renew);
           if (d.error) { onApiError(d.error); fail(new Error(d.error)); } else ok(JSON.stringify(d));
         }).catch(function (e) { fail(e); });
+      },
+      apiRaw: function (token, id) {
+        api({ api: 'raw', t: token, id: id }).then(function (d) {
+          if (d.error === 'EXPIRED' || d.error === 'NO_ACCESS') { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
+        }).catch(function (e) { fail(e); });
+      },
+      apiSave: function (token, id, changes) {
+        // 저장은 POST (내용이 길 수 있음). text/plain이라 사전 확인 요청 없이 간다.
+        fetch(MAIN, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ api: 'save', t: token, id: id, changes: changes }) })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            if (d.error === 'EXPIRED' || d.error === 'NO_ACCESS') { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
+          }).catch(function (e) { fail(e); });
       },
       apiPhotos: function (token, ids, size) {
         api({ api: 'photos', t: token, ids: ids.join(','), size: size || 'sm' }).then(function (d) {
@@ -671,6 +749,13 @@ a { color: inherit; }
       el.classList.remove('is-loading');
       var img = el.querySelector('img');
       if (img && img.getAttribute('src') === url) return;
+      if (img) {
+        // 이미 작은 사진이 보이면 새로 그리지 않고, 큰 사진을 다 받은 뒤 조용히 바꾼다 (깜빡임 없앰, 2026-11-03)
+        var pre = new Image();
+        pre.onload = function () { img.src = url; };
+        pre.src = url;
+        return;
+      }
       el.innerHTML = '<img alt="" class="fade" src="' + url + '">';
     });
   }
@@ -756,6 +841,7 @@ a { color: inherit; }
       if (ADMIN && state.status !== '전체' && m.status !== state.status) return false;
       if (state.sex === '남성' && m.sex !== '남') return false;
       if (state.sex === '여성' && m.sex !== '여') return false;
+      if (state.sex === '확인필요' && (m.sex === '남' || m.sex === '여')) return false;  // 성별이 비었거나 남·여가 아닌 분
       if (state.group === TITLED) { if (!m.title) return false; }
       else if (state.group === NOGROUP) { if (m.service.length || m.small.length || m.cecil) return false; }
       else if (state.group && !inGroup(m, state.group)) return false;
@@ -826,7 +912,7 @@ a { color: inherit; }
     // 조건 (모두 AND): 출결 · 성별 · 직책 · 단체
     html += '<div class="conds">';
     if (ADMIN) html += segRow('출결', 'status', ['전체', '출석', '비출석', '확인필요']);
-    html += segRow('성별', 'sex', ['전체', '남성', '여성']);
+    html += segRow('성별', 'sex', ['전체', '남성', '여성', '확인필요']);
     html += '<div class="seg-row"><span class="seg-label">단체</span>' +
       '<button class="sel" data-picker="1">' + esc(groupLabel(state.group)) + '</button></div>';
     html += '</div>';
@@ -945,28 +1031,37 @@ a { color: inherit; }
   /** 상세 항목: 두 칸 격자에 「이름 위, 값 아래」로 촘촘히. 긴 값은 한 줄 전체 (2026-11-02 화면 압축) */
   var WIDE = ['후견인', '이메일', '주소', '메모'];
   function kv(k, v, raw) {
-    if (v === null || v === undefined || v === '') return '';
-    return '<div class="kv2' + (WIDE.indexOf(k) >= 0 ? ' wide' : '') + '"><div class="k">' + esc(k) + '</div><div class="v">' + (raw ? v : esc(v)) + '</div></div>';
+    // 비어 있어도 항목은 늘 보인다 — 무엇이 비었는지 알 수 있게 (2026-11-03 Francis님)
+    if (v === null || v === undefined || String(v).trim() === '') { v = '<span class="v-empty">미입력</span>'; raw = true; }
+    // 메모는 주황, 확인필요는 빨강 (2026-11-03 Francis님)
+    var tone = raw && String(v).indexOf('v-empty') >= 0 ? '' :
+      k === '메모' ? ' memo' : (k === '출석 상태' && v === '확인필요') || (k === '확인필요성' && Number(v) > 0) ? ' alert' : '';
+    return '<div class="kv2' + (WIDE.indexOf(k) >= 0 ? ' wide' : '') + tone + '"><div class="k">' + esc(k) + '</div><div class="v">' + (raw ? v : esc(v)) + '</div></div>';
   }
   function grid(body) { return body ? '<div class="kv-grid">' + body + '</div>' : ''; }
 
-  function card(title, body, extra) {
+  function card(title, body, extra, cls) {
     if (!body) return '';
-    return '<section class="card"><h3>' + title + (extra ? '<span class="muted">' + extra + '</span>' : '') + '</h3>' + body + '</section>';
+    return '<section class="card' + (cls ? ' ' + cls : '') + '"><h3>' + title + (extra ? '<span class="muted">' + extra + '</span>' : '') + '</h3>' + body + '</section>';
   }
 
+  /** 교우 카드 — 어느 화면에서 열어도 같은 표준 모양 (2026-11-03 Francis님).
+   *  랜덤 교우는 카드 위에 기도 띠만 따로 얹고, 카드 자체는 바꾸지 않는다. */
   function renderDetail(m, opts) {
     opts = opts || {};
-    var html = '<header class="detail-hero' + (opts.random ? ' random' : '') + '">' +
-      (opts.random ? '<button class="again" data-random="1">' +
+    var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div>' +
+        '<button class="again" data-random="1">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>' +
-        '다른 교우</button>' : '<button class="back" data-back="1" aria-label="뒤로">' +
-        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>') +
+        '다른 교우</button></div>' : '') +
+      '<header class="detail-hero">' +
+      '<button class="back" data-back="1" aria-label="뒤로"' + (opts.random ? ' style="visibility:hidden" tabindex="-1"' : '') + '>' +
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
       avatar(m.name, m.photoId, 'lg', 'lg') +
       '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
       // 직책이 없어도 같은 자리를 비워 두어, 교우마다 머리 높이가 달라지지 않게 (2026-11-03 Francis님)
       (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '<span class="title-tag blank" aria-hidden="true">&nbsp;</span>') +
-      (opts.random ? '<div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div>' : '') +
+      (D.canEdit && m.id ? '<button class="edit-btn" data-edit="' + m.key + '">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>편집</button>' : '') +
       '</header>';
 
     // 소속
@@ -976,7 +1071,7 @@ a { color: inherit; }
       .forEach(function (s) { if (m.service.indexOf(s) >= 0) chips.push(tag(s)); });
     m.small.slice().sort(function (a, b) { return a.localeCompare(b, 'ko'); }).forEach(function (s) { chips.push(tag(s)); });
     if (m.cecil) chips.push(tag('세실대 ' + m.cecil, m.cecil));
-    html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '');
+    html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '<div class="fam-none">소속 없음</div>', '', 'wide-card');
 
     // 가족: 출석 가족 먼저
     var fam = m.family.slice().sort(function (a, b) {
@@ -991,8 +1086,9 @@ a { color: inherit; }
       return f.key
         ? '<button class="fam' + (f.attending ? '' : ' off') + '" data-go="' + f.key + '">' + inner + '<span class="row-tail">' + chevron() + '</span></button>'
         : '<div class="fam off">' + inner + '</div>';
-    }).join('') || '<div class="fam-none">등록된 가족 없음</div>';  // 가족이 없어도 칸은 보인다 (2026-11-02 Francis님)
-    html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '');
+    }).join('');
+    famHtml = famHtml ? '<div class="fam-list">' + famHtml + '</div>' : '<div class="fam-none">등록된 가족 없음</div>';  // 가족이 없어도 칸은 보인다 (2026-11-02 Francis님)
+    html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '', 'wide-card');
 
     // 신앙
     html += card('신앙', grid(
@@ -1183,8 +1279,19 @@ a { color: inherit; }
     // 사목단·교회위원은 「섬기는 이들」에서 보므로 봉사단체 목록에서는 뺀다 (2026-11-02 Francis님)
     var SERVANT_GROUPS = ['사목단', '교회위원'];
     var service = groupsOf('봉사단체').filter(function (n) { return SERVANT_GROUPS.indexOf(n) < 0; });
+    // 소그룹은 「단체상태」 주제 열로 나눈다 (2026-11-03 Francis님). 주제가 없으면 「기타」
+    var TOPICS = ['기도', '말씀·독서', '손길 봉사', '지역 구역', '친교·나눔'];
+    var small = groupsOf('소그룹'), byTopic = {};
+    small.forEach(function (n) {
+      var g = groupInfo(n), t = (g && g.topic) || '기타';
+      (byTopic[t] = byTopic[t] || []).push(n);
+    });
+    var topics = TOPICS.filter(function (t) { return byTopic[t]; })
+      .concat(Object.keys(byTopic).filter(function (t) { return TOPICS.indexOf(t) < 0 && t !== '기타'; }))
+      .concat(byTopic['기타'] ? ['기타'] : []);
     return cards.concat([{ kind: '봉사단체', names: service }],
-      ['소그룹', '세실대'].map(function (k) { return { kind: k, names: groupsOf(k) }; }));
+      topics.map(function (t) { return { kind: '소그룹 · ' + t, names: byTopic[t] }; }),
+      [{ kind: '세실대', names: groupsOf('세실대') }]);
   }
 
   function renderKind(kind) {
@@ -1335,7 +1442,7 @@ a { color: inherit; }
       var len = r.n / total * C;
       var seg = '<circle r="' + R + '" cx="50" cy="50" fill="none" stroke="' + r.color + '" stroke-width="16"' +
         ' stroke-dasharray="' + Math.max(len - gap, 0.5).toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '"' +
-        ' transform="rotate(-90 50 50)"><title>' + esc(r.label) + ' ' + r.n + '명</title></circle>';
+        ' transform="rotate(-90 50 50)" class="seg-hit" data-stat="' + c.id + ':' + r.i + '"><title>' + esc(r.label) + ' ' + r.n + '명</title></circle>';
       off += len;
       return seg;
     }).join('');
@@ -1356,8 +1463,8 @@ a { color: inherit; }
     var strip = rows.map(function (r) {
       if (!r.n) return '';
       var w = r.n / total * 100;
-      return '<div class="st-seg" style="width:' + w + '%;background:' + r.color + '">' +
-        (w >= 9 ? '<span>' + pct(r.n, c.den) + '%</span>' : '') + '</div>';
+      return '<button class="st-seg" data-stat="' + c.id + ':' + r.i + '" style="width:' + w + '%;background:' + r.color + '" aria-label="' + esc(r.label) + '">' +
+        (w >= 9 ? '<span>' + pct(r.n, c.den) + '%</span>' : '') + '</button>';
     }).join('');
     var legend = rows.map(function (r) {
       return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
@@ -1457,6 +1564,209 @@ a { color: inherit; }
     wirePhotos();
   }
 
+  // ════════ 교우 카드 편집 (편집자만, 2026-11-03) ════════
+  // 시트에 보이는 그대로의 값을 받아 고치고, 바뀐 칸만 「이전 값」과 함께 보낸다.
+  // 서버가 저장 직전 시트 값과 비교해, 그사이 누가 바꾼 칸은 저장하지 않는다.
+  var EDIT = null;
+  var EDIT_SECTIONS = [
+    { title: '기본', fields: [['name', '성명'], ['saint', '신명'], ['sex', '성별', 'sex'], ['birthYear', '생년'], ['birthDate', '생년월일', '', '19650301'], ['title', '직책']] },
+    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', 'N']], ['recent', '최근 3개월 출석', '', '7']] },
+    { title: '소속', fields: [['ageGroup', '연령단체', 'age'], ['service', '봉사단체', 'multi:봉사단체'], ['small', '소그룹', 'multi:소그룹'], ['cecil', '세실대', 'one:세실대']] },
+    { title: '신앙', fields: [['origin', '출신교파'], ['regDate', '등록일', '', '2018. 3. 14.'], ['baptism', '세례일', '', '2019. 4. 21.'], ['confirm', '견진일', '', '2020. 5. 3.'], ['sponsor', '후견인']] },
+    { title: '가족', fields: [['father', '부', 'fam'], ['mother', '모', 'fam'], ['husband', '남편', 'fam'], ['wife', '아내', 'fam'], ['child1', '자녀1', 'fam'], ['child2', '자녀2', 'fam'], ['child3', '자녀3', 'fam'], ['siblings', '형제자매', 'sibs']] },
+    { title: '연락', fields: [['phone', '휴대폰', '', '010-0000-0000'], ['kakao', '카톡 등록', ['', 'Y', 'N']], ['email', '이메일'], ['address', '주소'], ['photoOk', '사진 동의', ['', 'Y', 'N']], ['contactOk', '연락 동의', ['', 'Y', 'N']]] },
+    { title: '메모', fields: [['memo', '메모', 'area']] },
+  ];
+
+  function famLabel(m) { return (m.id + ' ' + m.name + (m.saint ? ' ' + m.saint : '')).trim(); }
+  function splitList(v) { return String(v || '').split(',').map(function (x) { return x.trim(); }).filter(String); }
+  function groupNames(kind) {
+    return D.groups.filter(function (g) { return g.kind === kind && g.name !== '직책 섬김이'; })
+      .sort(function (a, b) { return (a.order || 99) - (b.order || 99); }).map(function (g) { return g.name; });
+  }
+
+  function renderEdit(m) {
+    var head = '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
+      '<div class="sub-title">교우 카드 편집</div><div class="sub-note">' + esc(m.name) + (m.saint ? ' ' + esc(m.saint) : '') + ' · ' + esc(m.id) + '</div></header>';
+    if (EDIT && EDIT.key === m.key && EDIT.raw) { screen.innerHTML = head + editForm(); return; }
+    screen.innerHTML = head + '<div class="loading">시트에서 지금 값을 읽는 중입니다…</div>';
+    EDIT = { key: m.key, id: m.id, raw: null, vals: {} };
+    google.script.run.withSuccessHandler(function (r) {
+      if (typeof r === 'string') r = JSON.parse(r);
+      if (!EDIT || EDIT.key !== m.key || state.view !== 'edit') return;
+      if (!r || !r.ok) { screen.innerHTML = head + '<div class="loading">편집할 수 없습니다 (' + esc(r && r.error || '오류') + ').</div>'; return; }
+      EDIT.raw = r.fields;
+      Object.keys(r.fields).forEach(function (k) { EDIT.vals[k] = r.fields[k].v; });
+      screen.innerHTML = head + editForm();
+    }).withFailureHandler(function () {
+      screen.innerHTML = head + '<div class="loading">시트를 읽지 못했습니다. 잠시 후 다시 해 주십시오.</div>';
+    }).apiRaw(TOKEN, m.id);
+  }
+
+  function optList(opts, v) {
+    if (v && opts.indexOf(v) < 0) opts = opts.concat([v]);
+    return opts.map(function (o) { return '<option' + (o === v ? ' selected' : '') + ' value="' + esc(o) + '">' + (o ? esc(o) : '— 비움 —') + '</option>'; }).join('');
+  }
+
+  function editField(f) {
+    var k = f[0], label = f[1], type = f[2] || '', ph = f[3] || '';
+    if (!EDIT.raw[k]) return '';
+    var v = EDIT.vals[k] || '';
+    var changed = v !== EDIT.raw[k].v;
+    var wrap = function (inner, wide) {
+      return '<div class="ef' + (wide ? ' wide' : '') + (changed ? ' changed' : '') + '"><label class="ef-k">' + esc(label) + (changed ? ' <span class="ef-mark">고침</span>' : '') + '</label>' + inner + '</div>';
+    };
+    if (EDIT.raw[k].auto) return wrap('<div class="ef-auto">' + (v ? esc(v) : '—') + ' <span>(자동 계산)</span></div>');
+    if (Array.isArray(type)) return wrap('<select class="ef-in" data-f="' + k + '">' + optList(type, v) + '</select>');
+    if (type === 'sex') return wrap('<select class="ef-in" data-f="' + k + '">' + optList(['', '남', '여'], v) + '</select>');
+    if (type === 'age') return wrap('<select class="ef-in" data-f="' + k + '">' + optList([''].concat(groupNames('연령단체')), v) + '</select>');
+    if (type.indexOf('one:') === 0) return wrap('<select class="ef-in" data-f="' + k + '">' + optList([''].concat(groupNames(type.slice(4))), v) + '</select>');
+    if (type.indexOf('multi:') === 0) {
+      var on = splitList(v), names = groupNames(type.slice(6));
+      on.forEach(function (x) { if (names.indexOf(x) < 0) names.push(x); });
+      return wrap('<div class="ef-chips">' + names.map(function (n) {
+        return '<button type="button" class="pick' + (on.indexOf(n) >= 0 ? ' on' : '') + '" data-tog="' + k + '|' + esc(n) + '">' + esc(n) + '</button>';
+      }).join('') + '</div>', true);
+    }
+    if (type === 'fam') {
+      return wrap('<div class="ef-fam">' + (v ? '<span class="ef-famv">' + esc(v) + '</span>' : '<span class="v-empty">비어 있음</span>') +
+        '<button type="button" class="ef-btn" data-famset="' + k + '">' + (v ? '바꾸기' : '넣기') + '</button>' +
+        (v ? '<button type="button" class="ef-btn ghost" data-famclr="' + k + '">빼기</button>' : '') + '</div>');
+    }
+    if (type === 'sibs') {
+      var items = splitList(v);
+      return wrap('<div class="ef-sibs">' + items.map(function (x, i) {
+        return '<div class="ef-fam"><span class="ef-famv">' + esc(x) + '</span><button type="button" class="ef-btn ghost" data-sibdel="' + i + '">빼기</button></div>';
+      }).join('') + '<button type="button" class="ef-btn" data-famset="siblings">형제자매 더하기</button></div>', true);
+    }
+    if (type === 'area') return wrap('<textarea class="ef-in" rows="3" data-f="' + k + '">' + esc(v) + '</textarea>', true);
+    return wrap('<input class="ef-in" data-f="' + k + '" value="' + esc(v) + '" placeholder="' + esc(ph ? '예: ' + ph : '') + '">', ['address', 'email', 'sponsor'].indexOf(k) >= 0);
+  }
+
+  function editChanges() {
+    var out = {};
+    Object.keys(EDIT.raw || {}).forEach(function (k) {
+      if (EDIT.raw[k].auto) return;
+      var a = String(EDIT.raw[k].v || '').trim(), b = String(EDIT.vals[k] || '').trim();
+      if (a !== b) out[k] = { from: a, to: b };
+    });
+    return out;
+  }
+
+  function editForm() {
+    var n = Object.keys(editChanges()).length;
+    return '<div class="edit-note">가족을 넣거나 빼면 상대편 칸도 함께 고쳐집니다. 고친 내역은 모두 「수정 기록」에 남습니다.</div>' +
+      EDIT_SECTIONS.map(function (sec) {
+        return '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.title === '메모' ? ' wide-card' : '') + '"><h3>' + sec.title + '</h3><div class="ef-grid">' +
+          sec.fields.map(editField).join('') + '</div></section>';
+      }).join('') +
+      '<div class="edit-bar"><button type="button" class="ef-cancel" data-back="1">취소</button>' +
+      '<button type="button" class="ef-save" data-save="1"' + (n ? '' : ' disabled') + '>' + (n ? n + '칸 저장' : '바뀐 칸 없음') + '</button></div>';
+  }
+
+  function redrawEdit() {
+    var y = window.scrollY;
+    var m = byKey[EDIT.key];
+    if (m) renderEdit(m);
+    window.scrollTo(0, y);
+  }
+
+  // 입력하면 값만 기억하고, 저장 단추 글자만 바꾼다 (입력 중 화면을 다시 그리지 않음)
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (!EDIT || !el.dataset || !el.dataset.f) return;
+    EDIT.vals[el.dataset.f] = el.value;
+    var wrapEl = el.closest('.ef');
+    var changed = el.value.trim() !== String(EDIT.raw[el.dataset.f].v || '').trim();
+    if (wrapEl) wrapEl.classList.toggle('changed', changed);
+    var n = Object.keys(editChanges()).length, btn = document.querySelector('.ef-save');
+    if (btn) { btn.disabled = !n; btn.textContent = n ? n + '칸 저장' : '바뀐 칸 없음'; }
+  });
+  document.addEventListener('change', function (ev) {
+    if (EDIT && ev.target.dataset && ev.target.dataset.f && ev.target.tagName === 'SELECT') redrawEdit();
+  });
+
+  function openFamPicker(k) {
+    var el = document.createElement('div');
+    el.className = 'sheet-back';
+    el.innerHTML = '<div class="sheet" role="dialog" aria-label="가족 고르기">' +
+      '<div class="sheet-head"><span>가족 고르기</span><button class="sheet-close" data-famclose="1" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-body"><input class="ef-in fam-q" placeholder="이름, 신명, 교적번호로 찾기"><div class="fam-results"></div></div></div>';
+    document.body.appendChild(el);
+    el.dataset.slot = k;
+    var q = el.querySelector('.fam-q'), box = el.querySelector('.fam-results');
+    var draw = function () {
+      var t = norm(q.value);
+      var self = EDIT.id;
+      var hits = D.members.filter(function (m) { return m.id && m.id !== self && (!t || norm(m.name + m.saint + m.id).indexOf(t) >= 0 || m._cho.indexOf(t) === 0); })
+        .sort(byName).slice(0, 60);
+      box.innerHTML = hits.map(function (m) {
+        return '<button class="row" data-pickfam="' + esc(famLabel(m)) + '">' + avatar(m.name, m.photoId, 'md') +
+          '<div class="row-main"><div class="row-name">' + esc(m.name) + (m.saint ? '<span class="row-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
+          '<div class="row-sub"><span class="txt">' + esc(m.id) + (m.status && m.status !== '출석' ? ' · ' + esc(m.status) : '') + '</span></div></div></button>';
+      }).join('') || '<div class="empty">찾는 분이 없습니다.</div>';
+      wirePhotos();
+    };
+    q.addEventListener('input', draw);
+    el.addEventListener('click', function (ev) { if (ev.target === el) el.remove(); });
+    draw();
+    setTimeout(function () { q.focus(); }, 50);
+  }
+
+  function editClick(el, ds) {
+    if (!EDIT) return false;
+    if (ds.tog) {
+      var p = ds.tog.split('|'), k = p[0], n = p.slice(1).join('|');
+      var on = splitList(EDIT.vals[k]);
+      var i = on.indexOf(n);
+      if (i >= 0) on.splice(i, 1); else on.push(n);
+      EDIT.vals[k] = on.join(', ');
+      redrawEdit();
+      return true;
+    }
+    if (ds.famset) { openFamPicker(ds.famset); return true; }
+    if (ds.famclr) { EDIT.vals[ds.famclr] = ''; redrawEdit(); return true; }
+    if (ds.sibdel) { var s = splitList(EDIT.vals.siblings); s.splice(Number(ds.sibdel), 1); EDIT.vals.siblings = s.join(', '); redrawEdit(); return true; }
+    if (ds.famclose) { el.closest('.sheet-back').remove(); return true; }
+    if (ds.pickfam) {
+      var back = el.closest('.sheet-back'), slot = back.dataset.slot;
+      if (slot === 'siblings') {
+        var list = splitList(EDIT.vals.siblings);
+        if (list.indexOf(ds.pickfam) < 0) list.push(ds.pickfam);
+        EDIT.vals.siblings = list.join(', ');
+      } else EDIT.vals[slot] = ds.pickfam;
+      back.remove();
+      redrawEdit();
+      return true;
+    }
+    if (ds.save) { saveEdit(el); return true; }
+    return false;
+  }
+
+  function saveEdit(btn) {
+    var changes = editChanges();
+    if (!Object.keys(changes).length) return;
+    btn.disabled = true;
+    btn.textContent = '저장하는 중…';
+    google.script.run.withSuccessHandler(function (r) {
+      if (typeof r === 'string') r = JSON.parse(r);
+      if (!r || !r.ok) { btn.disabled = false; btn.textContent = '다시 저장'; alert('저장하지 못했습니다: ' + (r && r.error || '오류')); return; }
+      var msg = [];
+      if (r.saved.length) msg.push('저장했습니다: ' + r.saved.join(', '));
+      if (r.conflicts.length) msg.push('그사이 시트에서 다른 분이 고친 칸이라 저장하지 않았습니다: ' + r.conflicts.join(', '));
+      (r.notes || []).forEach(function (x) { msg.push(x); });
+      var key = EDIT.key;
+      EDIT = null;
+      if (msg.length) alert(msg.join('\n\n'));
+      state.view = 'detail'; state.key = key;
+      load(true);
+    }).withFailureHandler(function () {
+      btn.disabled = false; btn.textContent = '다시 저장';
+      alert('연결이 원활하지 않아 저장하지 못했습니다. 잠시 후 다시 해 주십시오.');
+    }).apiSave(TOKEN, EDIT.id, changes);
+  }
+
   // ── 화면 고르기와 뒤로 가기 (F-06) ──
   // view: list(탭 첫 화면) · detail · kind · group · servants · stat · care
   function render() {
@@ -1464,6 +1774,7 @@ a { color: inherit; }
     if (!D) return;
     var v = state.view, k = state.key;
     if (v === 'detail' && byKey[k]) return renderDetail(byKey[k]);
+    if (v === 'edit' && byKey[k] && D.canEdit) return renderEdit(byKey[k]);
     if (v === 'kind') return renderKind(k);
     if (v === 'group') return renderGroup(k);
     if (v === 'servants') return renderServants(k);
@@ -1505,10 +1816,12 @@ a { color: inherit; }
   } catch (e) {}
 
   document.addEventListener('click', function (ev) {
-    var el = ev.target.closest('button');
+    var el = ev.target.closest('button, [data-stat]');  // 그래프 고리·띠도 눌러서 명단 (2026-11-03)
     if (!el) return;
     var ds = el.dataset;
-    if (ds.go) go({ view: 'detail', key: ds.go });
+    if (ds.edit) go({ view: 'edit', key: ds.edit });
+    else if (editClick(el, ds)) return;
+    else if (ds.go) go({ view: 'detail', key: ds.go });
     else if (ds.back) history.back();
     else if (ds.tab) { if (ds.tab === 'random') state.lastRandom = ''; go({ tab: ds.tab, view: 'list', key: '' }); }
     else if (ds.cond) { var kv = ds.cond.split('='); state[kv[0]] = kv[1]; renderList(); }
