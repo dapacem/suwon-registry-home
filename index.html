@@ -565,6 +565,11 @@ body.editing .screen { padding-bottom: 1.5rem; }
   .hero-actions .edit-btn { justify-content: flex-start; min-width: 8.2rem; }
 }
 </style>
+<style>
+/* 단체 상자의 리더 이름 (2026-11-03) */
+.t-num { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-lead { color: var(--gold); font-weight: 700; }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -612,7 +617,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'bf38ccbb71';
+  var UI_VERSION = 'fb7153e8b0';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1231,7 +1236,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
       .forEach(function (s) { if (m.service.indexOf(s) >= 0) chips.push(tag(s)); });
     m.small.slice().sort(function (a, b) { return a.localeCompare(b, 'ko'); }).forEach(function (s) { chips.push(tag(s)); });
     if (m.cecil) chips.push(tag('세실대 ' + m.cecil, m.cecil));
-    html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '<div class="fam-none">소속 없음</div>', '', 'wide-card');
+    html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '<div class="fam-none">소속 없음</div>');
 
     // 가족: 출석 가족 먼저
     var fam = m.family.slice().sort(function (a, b) {
@@ -1248,7 +1253,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
         : '<div class="fam off">' + inner + '</div>';
     }).join('');
     famHtml = famHtml ? '<div class="fam-list">' + famHtml + '</div>' : '<div class="fam-none">등록된 가족 없음</div>';  // 가족이 없어도 칸은 보인다 (2026-11-02 Francis님)
-    html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '', 'wide-card');
+    html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '');
 
     // 신앙
     html += card('신앙', grid(
@@ -1393,16 +1398,22 @@ body.editing .screen { padding-bottom: 1.5rem; }
     var html = heroTop('활동 단체');
     var sg = servantGroups();
     var count = function (k) { return sg[k].sections.reduce(function (t, x) { return t + x[1].length; }, 0); };
+    // 리더(단체장)는 「단체상태」 단체장 칸에서 (2026-11-03 Francis님)
+    var lead = function (name) {
+      var g = groupInfo(name);
+      return g && g.leader ? '<span class="t-lead"> · ' + esc(g.leader) + '</span>' : '';
+    };
+    var SERVANT_NAME = { clergy: '사목단', council: '교회위원회' };
     html += tileSection('섬기는 이들', ['clergy', 'council', 'titled'].map(function (k) {
       return '<button class="tile" data-servants="' + k + '"><span class="t-name">' + sg[k].title + '</span>' +
-        '<span class="t-num">' + count(k) + '명</span></button>';
+        '<span class="t-num">' + count(k) + '명' + (SERVANT_NAME[k] ? lead(SERVANT_NAME[k]) : '') + '</span></button>';
     }));
     var tileOf = function (n) {
       var g = groupInfo(n);
       var dormant = g && g.state === '휴면';
       return '<button class="tile' + (dormant ? ' dormant' : '') + '" data-group="' + esc(n) + '">' +
         '<span class="t-name">' + esc(shown(n)) + '</span>' +
-        '<span class="t-num">' + (dormant ? '휴면' : countIn(n) + '명') + '</span></button>';
+        '<span class="t-num">' + (dormant ? '휴면' : countIn(n) + '명' + lead(n)) + '</span></button>';
     };
     // 소그룹은 「소그룹」 큰 제목 하나 아래에 주제별 작은 제목으로 묶는다 (2026-11-03 Francis님)
     var smallSubs = [];
