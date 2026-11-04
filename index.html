@@ -657,6 +657,11 @@ body:has(.boot-load) .tabs { display: none; }
 .addr-sheet { height: 80vh; display: flex; flex-direction: column; }
 .addr-box { flex: 1; min-height: 420px; }
 </style>
+<style>
+/* 「불러오는 중」은 언제나 화면 한가운데 (2026-11-04 Francis님). 화면 위치·스크롤과 상관없이 고정. 글자 크기는 그대로 */
+.boot-load { position: fixed; inset: 0; min-height: 0; z-index: 50; background: var(--bg); }
+.loading.center { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background: var(--bg); }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -704,7 +709,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '4a4de268ee';
+  var UI_VERSION = '26149684fa';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -935,7 +940,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 자료 불러오기 (F-02, F-03) ──
   function load(refresh) {
-    if (refresh) screen.innerHTML = '<div class="loading">자료를 다시 읽는 중입니다…</div>';
+    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…</div>';
     google.script.run
       .withSuccessHandler(function (json) {
         D = JSON.parse(json);
@@ -1406,11 +1411,13 @@ body:has(.boot-load) .tabs { display: none; }
         kv('사진사용 동의', m.photoOk) + kv('연락 동의', m.contactOk)));
       // 신앙 + 신앙관리를 한 칸으로, 관리자만 (2026-11-03 Francis님). 교적·성사 → 관리 순
       html += card('신앙관리', grid(
-        kv('교적 등재', yn(m.registered)) + kv('교적번호', m.id) + kv('출신교파', m.origin) + kv('등록일', m.regDate) + kv('새교우', m.newbie) +
+        kv('교적 등재', yn(m.registered)) + kv('교적번호', m.id) + kv('출신교파', m.origin) + kv('등록일', m.regDate) +
         kv('세례일', m.baptism) + kv('견진일', m.confirm) + kv('후견인', m.sponsor || '없음 (확인 필요)') + kv('출석 상태', m.status) +
         kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
         kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
         kv('DB 빈칸', m.checkScore) + kv('메모', m.memo)));
+      // 돌봄 대상 (2026-11-04 Francis님): 직접 고른 값. 비어 있으면 「미입력」 (그때는 등록일·나이로 판단)
+      html += card('돌봄 대상', grid(kv('새교우', m.newbie) + kv('초고령자', m.elderly)));
       // 달란트 보유 (나눔 의사는 아직 받지 않아 「보유」로, 2026-11-03): 관리 옆(컴퓨터)·아래(폰). 관리자(교역자·교회위원)만 (2026-11-03 Francis님)
       var tal = (m.talent || []);
       html += card('달란트 보유', tal.length ? '<div class="chips">' + tal.map(function (x) { return '<span class="tag talent">' + esc(x) + '</span>'; }).join('') + '</div>' : '<div class="fam-none">미입력</div>');
@@ -1878,7 +1885,12 @@ body:has(.boot-load) .tabs { display: none; }
       { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
       // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
       { name: '연결 매우 약함', fixedNote: '공동체 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.network === 0; } },
-      { name: '초고령층', test: function (m) { return m.age >= 80; } },
+      // 2026-11-04: 「초고령자」 칸(예/아니오)이 먼저. 비어 있으면 만 80세 이상
+      { name: '초고령층', test: function (m) {
+        if (m.elderly === '예') return true;
+        if (m.elderly === '아니오') return false;
+        return m.age >= 80;
+      } },
     ].map(function (g, i) {
       g.i = i;
       g.note = g.fixedNote || note(g.name);
@@ -1922,7 +1934,9 @@ body:has(.boot-load) .tabs { display: none; }
   var EDIT = null;
   var EDIT_SECTIONS = [
     { title: '기본', fields: [['name', '성명'], ['saint', '신명'], ['sex', '성별', 'sex'], ['birthYear', '생년'], ['birthDate', '생년월일', '', '19650301'], ['title', '직책']] },
-    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', '?', 'N']], ['newbie', '새교우', ['', '예', '아니오']], ['recent', '최근 3개월 출석', '', '7']] },
+    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', '?', 'N']], ['recent', '최근 3개월 출석', '', '7']] },
+    // 돌봄 대상 (2026-11-04 Francis님): 직접 고르는 두 칸. 비워 두면 등록일·나이로 판단
+    { title: '돌봄 대상', fields: [['newbie', '새교우', ['', '예', '아니오']], ['elderly', '초고령자', ['', '예', '아니오']]] },
     { title: '소속', fields: [['ageGroup', '연령단체', 'age'], ['service', '봉사단체', 'multi:봉사단체'], ['small', '소그룹', 'multi:소그룹'], ['cecil', '세실대', 'one:세실대']] },
     { title: '신앙', fields: [['origin', '출신교파', ['', '성공회', '개신교', '가톨릭', '불교', '처음 신앙', '기타']], ['regDate', '등록일', '', '2018. 3. 14.'], ['baptism', '세례일', '', '2019. 4. 21.'], ['confirm', '견진일', '', '2020. 5. 3.'], ['sponsor', '후견인']] },
     { title: '가족', fields: [['father', '부', 'fam'], ['mother', '모', 'fam'], ['husband', '남편', 'fam'], ['wife', '아내', 'fam'], ['child1', '자녀1', 'fam'], ['child2', '자녀2', 'fam'], ['child3', '자녀3', 'fam'], ['siblings', '형제자매', 'sibs']] },
@@ -1978,6 +1992,7 @@ body:has(.boot-load) .tabs { display: none; }
       '<button class="ef-top-save" data-save="1" disabled>등록</button></header>' + editForm();
     syncSave();
   }
+  var SHOW_NEW_PHOTO = false;  // 2026-11-04 Francis님: 사진은 나중에 (폰에서 잘 안 됨). true로 바꾸면 다시 보임
   function photoCard() {
     var ok = EDIT.vals.photoOk === '예';
     return '<section class="card"><h3>사진</h3>' +
@@ -2127,7 +2142,7 @@ body:has(.boot-load) .tabs { display: none; }
     return '<div class="edit-note">' + (EDIT.isNew ? '출석 상태·교적 등재·새교우(예)·등록일은 미리 채워 두었습니다. 가족을 넣으면 상대편 칸도 함께 고쳐집니다. 등록 내역은 「수정 기록」에 남습니다.'
         : '가족을 넣거나 빼면 상대편 칸도 함께 고쳐집니다. 고친 내역은 모두 「수정 기록」에 남습니다.') + '</div>' +
       EDIT_SECTIONS.map(function (sec, si) {
-        return (EDIT.isNew && si === 1 ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.title === '메모' ? ' wide-card' : '') + '"><h3>' + sec.title + '</h3><div class="ef-grid">' +
+        return (EDIT.isNew && si === 1 && SHOW_NEW_PHOTO ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.title === '메모' ? ' wide-card' : '') + '"><h3>' + sec.title + '</h3><div class="ef-grid">' +
           sec.fields.map(editField).join('') + '</div></section>';
       }).join('') +
       '<div class="edit-bar"><button type="button" class="ef-cancel" data-back="1">취소</button>' +
