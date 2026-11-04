@@ -662,6 +662,12 @@ body:has(.boot-load) .tabs { display: none; }
 .boot-load { position: fixed; inset: 0; min-height: 0; z-index: 50; background: var(--bg); }
 .loading.center { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background: var(--bg); }
 </style>
+<style>
+/* 비공개 관리 (운영자만, 2026-11-04 Francis님): 금색 테두리·제목으로 다른 상자와 구별. 글자 크기는 그대로 */
+.card.private { border: 2px solid #B8860B; }
+.priv-tag { color: #B8860B; }
+.priv-tag::before { content: "🔒 "; }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -709,7 +715,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '26149684fa';
+  var UI_VERSION = 'f6a98124c6';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1059,7 +1065,7 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   function statusTag(m) {
-    if (!ADMIN || !m.status || m.status === '출석') return '';
+    if (!m.status || m.status === '출석') return '';  // 2026-11-04: 사람은 모두 보이므로 열람자에게도 표시
     return '<span class="status-tag' + (m.status === '확인필요' ? ' check' : '') + '">' + esc(m.status === '확인필요' ? '출석 확인필요' : m.status) + '</span>';
   }
 
@@ -1093,7 +1099,7 @@ body:has(.boot-load) .tabs { display: none; }
     var q = norm(state.q);
     var cho = isChosungOnly(q);
     return D.members.filter(function (m) {
-      if (ADMIN && state.status !== '전체' && m.status !== state.status) return false;
+      if (state.status !== '전체' && m.status !== state.status) return false;
       if (state.sex === '남성' && m.sex !== '남') return false;
       if (state.sex === '여성' && m.sex !== '여') return false;
       if (state.sex === '확인필요' && (m.sex === '남' || m.sex === '여')) return false;  // 성별이 비었거나 남·여가 아닌 분
@@ -1199,7 +1205,7 @@ body:has(.boot-load) .tabs { display: none; }
 
     // 조건 (모두 AND): 출결 · 성별 · 직책 · 단체
     html += '<div class="conds">';
-    if (ADMIN) html += segRow('출결', 'status', ['전체', '출석', '비출석', '확인필요']);
+    html += segRow('출결', 'status', ['전체', '출석', '비출석', '확인필요']);
     html += segRow('성별', 'sex', ['전체', '남성', '여성', '확인필요']);
     html += '<div class="seg-row"><span class="seg-label">단체</span>' +
       // 2026-11-03 Francis님: 「전체」만 보이면 고를 게 없어 보인다 → 목록을 여는 단추로
@@ -1209,7 +1215,7 @@ body:has(.boot-load) .tabs { display: none; }
         : '<button class="grp-btn" data-picker="1">' + LIST_ICON + '<span>단체 목록에서 고르기</span><span class="grp-more">›</span></button>') +
       '</div>';
     // 달란트 조건 (관리자만, 2026-11-03 Francis님): 「음악(기타)」은 분야 「음악」으로 묶어 고른다
-    if (ADMIN && talentFields().length) html += '<div class="seg-row"><span class="seg-label">달란트</span>' +
+    if (talentFields().length) html += '<div class="seg-row"><span class="seg-label">달란트</span>' +
       (state.talent
         ? '<button class="grp-btn on" data-tpicker="1">' + LIST_ICON + '<span>' + esc(state.talent) + '</span><span class="grp-more">바꾸기</span></button>' +
           '<button class="grp-x" data-tx="1" aria-label="달란트 조건 풀기">✕</button>'
@@ -1241,7 +1247,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   function resultsHtml() {
     var list = filtered();
-    var label = state.status === '출석' || !ADMIN ? '출석 교우' : (state.status === '전체' ? '교적 전체' : state.status + ' 교우');
+    var label = state.status === '출석' ? '출석 교우' : (state.status === '전체' ? '교적 전체' : state.status + ' 교우');
     var narrowed = state.q || state.sex !== '전체' || state.group || state.talent;
     var html = '<div class="count">' + (narrowed ? '조건에 맞는 ' : '') + label + ' ' + list.length + '명' +
       (narrowed ? ' <button class="reset" data-reset="1">조건 지우기</button>' : '') + '</div>';
@@ -1360,8 +1366,8 @@ body:has(.boot-load) .tabs { display: none; }
     var againBtn = opts.random ? '<button class="edit-btn hp-right" data-random="1">' +
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>다른 교우</button>' : '';
     // 문자: 모든 교우 카드에서 (관리자), 사진 오른쪽 아래 (2026-11-03 Francis님)
-    var msgBtn = ADMIN ? '<button class="edit-btn hp-right-low" data-pray="' + m.key + '"' + (opts.random ? ' data-kind-msg="pray"' : '') + '>' +
-      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자 안부</button>' : '';
+    var msgBtn = '<button class="edit-btn hp-right-low" data-pray="' + m.key + '"' + (opts.random ? ' data-kind-msg="pray"' : '') + '>' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자 안부</button>';  // 열람자도 (연락처를 보므로, 2026-11-04)
     var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div></div>' : '') +
       '<header class="detail-hero">' +
       '<button class="back" data-back="1" aria-label="뒤로"' + (opts.random ? ' style="visibility:hidden" tabindex="-1"' : '') + '>' +
@@ -1402,25 +1408,28 @@ body:has(.boot-load) .tabs { display: none; }
     html += card('가족', famHtml, m.famCount ? '함께 출석 ' + m.famCount + '명 (본인 포함)' : '');
 
 
-    if (ADMIN) {
+    // 2026-11-04 Francis님: 열람자도 연락·인적 사항(성별·동의)·신앙관리(교적 정보·출석 상태)·돌봄 대상·달란트를 본다.
+    //   운영자(ADMIN)만: 생년·생년월일·만 나이, 최근 3개월 출석·네트웍 점수·DB 빈칸, 메모
+    {
       var tel = m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^0-9+]/g, '')) + '">' + esc(m.phone) + '</a>' : '';
       html += card('연락', grid(kv('휴대폰', tel, true) + kv('카톡 등록', yn(m.kakao)) + kv('이메일', m.email) + kv('주소', m.address)));
       // 「관리」를 둘로 나눔 (2026-11-03 Francis님): 인적 사항 / 신앙관리. 신앙관리는 사제단·교회위원(관리자)만
-      html += card('인적 사항', grid(
-        kv('성별', m.sex) + kv('생년', m.birthYear) + kv('생년월일', m.birthDate) + kv('만 나이', m.age) +
-        kv('사진사용 동의', m.photoOk) + kv('연락 동의', m.contactOk)));
+      html += card('인적 사항', grid(kv('성별', m.sex) + kv('사진사용 동의', m.photoOk) + kv('연락 동의', m.contactOk)));
       // 신앙 + 신앙관리를 한 칸으로, 관리자만 (2026-11-03 Francis님). 교적·성사 → 관리 순
       html += card('신앙관리', grid(
         kv('교적 등재', yn(m.registered)) + kv('교적번호', m.id) + kv('출신교파', m.origin) + kv('등록일', m.regDate) +
-        kv('세례일', m.baptism) + kv('견진일', m.confirm) + kv('후견인', m.sponsor || '없음 (확인 필요)') + kv('출석 상태', m.status) +
-        kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
-        kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
-        kv('DB 빈칸', m.checkScore) + kv('메모', m.memo)));
+        kv('세례일', m.baptism) + kv('견진일', m.confirm) + kv('출석 상태', m.status) + kv('후견인', m.sponsor || '없음 (확인 필요)')));
       // 돌봄 대상 (2026-11-04 Francis님): 직접 고른 값. 비어 있으면 「미입력」 (그때는 등록일·나이로 판단)
       html += card('돌봄 대상', grid(kv('새교우', m.newbie) + kv('초고령자', m.elderly)));
       // 달란트 보유 (나눔 의사는 아직 받지 않아 「보유」로, 2026-11-03): 관리 옆(컴퓨터)·아래(폰). 관리자(교역자·교회위원)만 (2026-11-03 Francis님)
       var tal = (m.talent || []);
       html += card('달란트 보유', tal.length ? '<div class="chips">' + tal.map(function (x) { return '<span class="tag talent">' + esc(x) + '</span>'; }).join('') + '</div>' : '<div class="fam-none">미입력</div>');
+      // 비공개 관리 (2026-11-04 Francis님): 열람자가 보면 안 되는 것은 이 상자 하나에. 운영자만, 맨 아래
+      if (ADMIN) html += card('<span class="priv-tag">비공개 관리</span>', grid(
+        kv('생년', m.birthYear) + kv('생년월일', m.birthDate) + kv('만 나이', m.age) +
+        kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
+        kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
+        kv('DB 빈칸', m.checkScore) + kv('메모', m.memo)), '', 'private');
     }
     screen.innerHTML = html;
     wirePhotos();
@@ -1461,7 +1470,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 랜덤 교우 (§5.9) ──
   function pickRandom() {
-    var pool = D.members.filter(function (m) { return !ADMIN || m.status === '출석'; });
+    var pool = D.members.filter(function (m) { return m.status === '출석'; });
     if (!pool.length) return null;
     var m;
     for (var i = 0; i < 5; i++) {
@@ -1486,7 +1495,7 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   function renderTabs() {
-    tabsEl.innerHTML = TABS.filter(function (t) { return ADMIN || !t.admin; }).map(function (t) {
+    tabsEl.innerHTML = TABS.map(function (t) {
       return '<button class="tab' + (state.tab === t.id ? ' on' : '') + '" data-tab="' + t.id + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + t.icon + '</svg>' +
         t.label + '</button>';
@@ -1497,7 +1506,7 @@ body:has(.boot-load) .tabs { display: none; }
   // 단체 (§5.4) · 섬기는 이들 (§5.5)
   // ════════════════════════════════════════════
 
-  function attending() { return D.members.filter(function (m) { return !ADMIN || m.status === '출석'; }); }
+  function attending() { return D.members.filter(function (m) { return m.status === '출석'; }); }
   function alias(name) { return name === '교회위원회' ? '교회위원' : name; }
   function shown(name) { return name === '교회위원회' ? '교회위원' : name; }
 
@@ -1731,10 +1740,10 @@ body:has(.boot-load) .tabs { display: none; }
 
   /** 차트 정의: 각 칸 = {label, test(m)} */
   function charts() {
-    var att = D.members.filter(function (m) { return !ADMIN || m.status === '출석'; });
+    var att = D.members.filter(function (m) { return m.status === '출석'; });
     var list = [];
     // 원 그래프 색: 색맹 검사(dataviz validate_palette) 통과한 조합
-    if (ADMIN) list.push({ id: 'status', type: 'donut', title: '출석상태', base: D.members, den: D.members.length, note: '전체 교적 기준', items: [
+    list.push({ id: 'status', type: 'donut', title: '출석상태', base: D.members, den: D.members.length, note: '전체 교적 기준', items: [
       { label: '출석', color: '#2E86C1', test: function (m) { return m.status === '출석'; } },
       { label: '비출석', color: '#C0392B', test: function (m) { return m.status === '비출석'; } },
       { label: '확인필요', color: '#D4A017', test: function (m) { return m.status !== '출석' && m.status !== '비출석'; } },
@@ -1753,22 +1762,23 @@ body:has(.boot-load) .tabs { display: none; }
       { label: '소그룹 1곳 이상', color: '#2E6FB5', test: function (m) { return m.small.length > 0; } },
       { label: '세실대 수료', color: '#2E6FB5', test: function (m) { return !!m.cecil; } },
     ] });
-    // 원그래프 (2026-11-02). 색은 빨·주·노·파 — 이웃 색끼리 색맹 검사 통과
-    if (ADMIN) list.push({ id: 'recent', type: 'donut', title: '최근 3개월 출석 횟수', items: [
-      // 13주 기준 (2026-11-02 Francis님: 3·6·9회로 나눔)
-      { label: '3회 이하', tone: 'red', color: '#B03A2E', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
-      { label: '4~6회', color: '#E8762C', test: function (m) { return m.recent >= 4 && m.recent <= 6; } },
-      { label: '7~9회', color: '#EDC53A', test: function (m) { return m.recent >= 7 && m.recent <= 9; } },
-      { label: '10회 이상', color: '#2E6FB5', test: function (m) { return m.recent >= 10; } },
-    ] });
     list.push({ id: 'family', type: 'donut', title: '함께 출석하는 가족', items: [
       { label: '혼자 출석', tone: 'red', color: '#B03A2E', test: function (m) { return (m.famCount || 1) <= 1; } },
       { label: '2인 출석', color: '#E8762C', test: function (m) { return m.famCount === 2; } },
       // 3인 이상: 녹색(청록빛) — 빨강·주황과 색맹 구별 검사 통과
       { label: '3인 이상 출석', color: '#1E8C7E', test: function (m) { return m.famCount >= 3; } },
     ] });
+    // 비공개 관리 (운영자만, 2026-11-04 Francis님): 점수류 그래프는 맨 아래에 모은다
+    // 원그래프 (2026-11-02). 색은 빨·주·노·파 — 이웃 색끼리 색맹 검사 통과
+    if (ADMIN) list.push({ id: 'recent', type: 'donut', priv: true, title: '최근 3개월 출석 횟수', items: [
+      // 13주 기준 (2026-11-02 Francis님: 3·6·9회로 나눔)
+      { label: '3회 이하', tone: 'red', color: '#B03A2E', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      { label: '4~6회', color: '#E8762C', test: function (m) { return m.recent >= 4 && m.recent <= 6; } },
+      { label: '7~9회', color: '#EDC53A', test: function (m) { return m.recent >= 7 && m.recent <= 9; } },
+      { label: '10회 이상', color: '#2E6FB5', test: function (m) { return m.recent >= 10; } },
+    ] });
     // 기준 문장은 Francis님 문안 (2026-11-02)
-    if (ADMIN) list.push({ id: 'network', type: 'strip', title: '공동체 연결 정도',
+    if (ADMIN) list.push({ id: 'network', type: 'strip', priv: true, title: '공동체 연결 정도',
       desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
       items: [
         // 빨·주·노·녹·파 5단계 (2026-11-02 Francis님). 색맹 검사로 이웃 색끼리 구별되는 값으로 고름
@@ -1802,7 +1812,7 @@ body:has(.boot-load) .tabs { display: none; }
       return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
         '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
     }).join('');
-    return '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+    return '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + (c.priv ? '<span class="priv-tag">비공개 관리</span>' : '') + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
       (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
       '<div class="donut-wrap"><svg class="donut" viewBox="0 0 100 100" role="img" aria-label="' + esc(c.title) + '">' + segs +
       '<text x="50" y="49" text-anchor="middle" class="d-total">' + total + '</text><text x="50" y="62" text-anchor="middle" class="d-unit">명</text></svg>' +
@@ -1822,7 +1832,7 @@ body:has(.boot-load) .tabs { display: none; }
       return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
         '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
     }).join('');
-    return '<section class="card"><h3>' + esc(c.title) + '</h3>' +
+    return '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + (c.priv ? '<span class="priv-tag">비공개 관리</span>' : '') + esc(c.title) + '</h3>' +
       (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
       '<div class="st-ends"><span>← 약함</span><span>강함 →</span></div>' +
       '<div class="strip">' + strip + '</div>' +
@@ -1842,7 +1852,7 @@ body:has(.boot-load) .tabs { display: none; }
       if (c.type === 'donut') { html += donutCard(c, rows); return; }
       if (c.type === 'strip') { html += stripCard(c, rows); return; }
       var max = Math.max.apply(null, rows.map(function (r) { return r.n; }).concat([1]));
-      html += '<section class="card"><h3>' + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+      html += '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + (c.priv ? '<span class="priv-tag">비공개 관리</span>' : '') + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
         (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
         rows.map(function (r) {
           return '<button class="bar-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '">' +
@@ -1882,16 +1892,19 @@ body:has(.boot-load) .tabs { display: none; }
         return (m.regTime && Date.now() - m.regTime <= YEAR) || /새교우/.test(m.memo || '');
       } },
       // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
-      { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.care ? m.care.low : m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
       // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
-      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.network === 0; } },
+      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
       // 2026-11-04: 「초고령자」 칸(예/아니오)이 먼저. 비어 있으면 만 80세 이상
       { name: '초고령층', test: function (m) {
         if (m.elderly === '예') return true;
         if (m.elderly === '아니오') return false;
-        return m.age >= 80;
+        return m.care ? m.care.old : m.age >= 80;
       } },
-    ].map(function (g, i) {
+    ].filter(function (g) {
+      // 최저 출석자·연결 매우 약함은 운영자 전용 (2026-11-04 Francis님). 열람자는 새교우·초고령층만
+      return ADMIN || g.name === '새교우' || g.name === '초고령층';
+    }).map(function (g, i) {
       g.i = i;
       g.note = g.fixedNote || note(g.name);
       g.members = att.filter(g.test).sort(byName);
@@ -1900,6 +1913,7 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   function careRow(m) {
+    if (!ADMIN) return rowHtml(m);  // 출석 횟수·네트웍 점수는 운영자만 (2026-11-04)
     var extra = '최근 3개월 ' + (m.recent == null ? '—' : m.recent + '회') + ' · 네트웍 ' + (m.network == null ? '—' : m.network);
     var html = rowHtml(m);
     var at = html.lastIndexOf('</div></button>');
@@ -1911,7 +1925,7 @@ body:has(.boot-load) .tabs { display: none; }
     var html = heroTop('돌봄 필요') + '<div class="care-grid">';
     careGroups().forEach(function (g) {
       html += '<button class="care-tile" data-care="' + g.i + '">' +
-        '<div class="care-name">' + esc(g.name) + '</div>' +
+        '<div class="care-name">' + (g.name === '최저 출석자' || g.name === '연결 매우 약함' ? '<span class="priv-tag"></span>' : '') + esc(g.name) + '</div>' +
         '<div class="care-num">' + g.members.length + '<span>명</span></div>' +
         (g.note ? '<div class="care-note">' + esc(g.note.replace(/^기준:\s*/, '')) + '</div>' : '') + '</button>';
     });
@@ -1933,8 +1947,8 @@ body:has(.boot-load) .tabs { display: none; }
   // 서버가 저장 직전 시트 값과 비교해, 그사이 누가 바꾼 칸은 저장하지 않는다.
   var EDIT = null;
   var EDIT_SECTIONS = [
-    { title: '기본', fields: [['name', '성명'], ['saint', '신명'], ['sex', '성별', 'sex'], ['birthYear', '생년'], ['birthDate', '생년월일', '', '19650301'], ['title', '직책']] },
-    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', '?', 'N']], ['recent', '최근 3개월 출석', '', '7']] },
+    { title: '기본', fields: [['name', '성명'], ['saint', '신명'], ['sex', '성별', 'sex'], ['title', '직책']] },
+    { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', '?', 'N']]] },
     // 돌봄 대상 (2026-11-04 Francis님): 직접 고르는 두 칸. 비워 두면 등록일·나이로 판단
     { title: '돌봄 대상', fields: [['newbie', '새교우', ['', '예', '아니오']], ['elderly', '초고령자', ['', '예', '아니오']]] },
     { title: '소속', fields: [['ageGroup', '연령단체', 'age'], ['service', '봉사단체', 'multi:봉사단체'], ['small', '소그룹', 'multi:소그룹'], ['cecil', '세실대', 'one:세실대']] },
@@ -1942,7 +1956,8 @@ body:has(.boot-load) .tabs { display: none; }
     { title: '가족', fields: [['father', '부', 'fam'], ['mother', '모', 'fam'], ['husband', '남편', 'fam'], ['wife', '아내', 'fam'], ['child1', '자녀1', 'fam'], ['child2', '자녀2', 'fam'], ['child3', '자녀3', 'fam'], ['siblings', '형제자매', 'sibs']] },
     { title: '연락', fields: [['phone', '휴대폰', '', '010-0000-0000'], ['kakao', '카톡 등록', ['', 'Y', 'N', '확인필요']], ['email', '이메일'], ['address', '주소'], ['photoOk', '사진사용 동의', ['', '예', '아니오']], ['contactOk', '연락 동의', ['', '예', '아니오']]] },
     { title: '달란트 보유', fields: [['talent', '달란트 (쉼표로 여러 개)', '', '피아노 반주, 사진, 요리']] },
-    { title: '메모', fields: [['memo', '메모', 'area']] },
+    // 비공개 관리 (운영자만 보는 칸, 2026-11-04)
+    { title: '비공개 관리', priv: true, fields: [['birthYear', '생년'], ['birthDate', '생년월일', '', '19650301'], ['recent', '최근 3개월 출석', '', '7'], ['memo', '메모', 'area']] },
   ];
 
   function famLabel(m) { return (m.id + ' ' + m.name + (m.saint ? ' ' + m.saint : '')).trim(); }
@@ -2142,7 +2157,7 @@ body:has(.boot-load) .tabs { display: none; }
     return '<div class="edit-note">' + (EDIT.isNew ? '출석 상태·교적 등재·새교우(예)·등록일은 미리 채워 두었습니다. 가족을 넣으면 상대편 칸도 함께 고쳐집니다. 등록 내역은 「수정 기록」에 남습니다.'
         : '가족을 넣거나 빼면 상대편 칸도 함께 고쳐집니다. 고친 내역은 모두 「수정 기록」에 남습니다.') + '</div>' +
       EDIT_SECTIONS.map(function (sec, si) {
-        return (EDIT.isNew && si === 1 && SHOW_NEW_PHOTO ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.title === '메모' ? ' wide-card' : '') + '"><h3>' + sec.title + '</h3><div class="ef-grid">' +
+        return (EDIT.isNew && si === 1 && SHOW_NEW_PHOTO ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.priv ? ' wide-card' : '') + (sec.priv ? ' private' : '') + '"><h3>' + (sec.priv ? '<span class="priv-tag">비공개 관리</span>' : sec.title) + '</h3><div class="ef-grid">' +
           sec.fields.map(editField).join('') + '</div></section>';
       }).join('') +
       '<div class="edit-bar"><button type="button" class="ef-cancel" data-back="1">취소</button>' +
@@ -2332,11 +2347,11 @@ body:has(.boot-load) .tabs { display: none; }
     if (v === 'group') return renderGroup(k);
     if (v === 'servants') return renderServants(k);
     if (v === 'stat') return renderStatList(k);
-    if (v === 'care' && ADMIN) return renderCareList(k);
+    if (v === 'care') return renderCareList(k);
     if (state.tab === 'search') return renderList();
     if (state.tab === 'groups') return renderGroupsHome();
-    if (state.tab === 'stats' && ADMIN) return renderStats();
-    if (state.tab === 'care' && ADMIN) return renderCare();
+    if (state.tab === 'stats') return renderStats();
+    if (state.tab === 'care') return renderCare();
     if (state.tab === 'random') {
       var pick = byKey[state.lastRandom] || pickRandom();
       if (pick) return renderDetail(pick, { random: true });
