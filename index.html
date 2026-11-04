@@ -643,6 +643,14 @@ body:has(.boot-load) .tabs { display: none; }
 
 <style>.sub-note { word-break: keep-all; }</style>
 <style>.t-age { font-weight: 400; font-size: .78em; color: var(--sub); margin-left: .35rem; white-space: nowrap; }</style>
+<style>
+/* 새교우 등록 (2026-11-04) — 글자 크기는 기존 단추 그대로 */
+.new-bar { padding: .75rem 1rem 0; }
+.new-btn { width: 100%; }
+.np-preview { margin: .25rem 0 .75rem; }
+.np-preview img { width: 9rem; height: 9rem; object-fit: cover; border-radius: 50%; border: 3px solid var(--chip); display: block; }
+.np-pick { display: inline-block; cursor: pointer; }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -690,7 +698,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '497412edd8';
+  var UI_VERSION = '06aefad954';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -791,6 +799,14 @@ body:has(.boot-load) .tabs { display: none; }
         // 저장은 POST (내용이 길 수 있음). text/plain이라 사전 확인 요청 없이 간다.
         fetch(MAIN, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ api: 'save', t: token, id: id, changes: changes }) })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            if (d.error === 'EXPIRED' || d.error === 'NO_ACCESS') { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
+          }).catch(function (e) { fail(e); });
+      },
+      apiCreate: function (token, vals, photo, force) {
+        // 새교우 등록도 POST (사진이 들어 있어 김, 2026-11-04)
+        fetch(MAIN, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ api: 'create', t: token, vals: vals, photo: photo || '', force: !!force }) })
           .then(function (r) { return r.json(); }).then(function (d) {
             if (d.error === 'EXPIRED' || d.error === 'NO_ACCESS') { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
           }).catch(function (e) { fail(e); });
@@ -1192,7 +1208,7 @@ body:has(.boot-load) .tabs { display: none; }
 
     html += '<div id="results">' + resultsHtml() + '</div>';
     html += '<div class="refresh-line"><button data-refresh="1">새로 고침</button>' +
-      (ADMIN && bootEl.dataset.build ? '<span class="build">판 ' + esc(bootEl.dataset.build) + '</span>' : '') + '</div>';
+      (ADMIN && bootEl.dataset.build ? '<span class="build">' + esc(verLabel(bootEl.dataset.build)) + '</span>' : '') + '</div>';
     screen.innerHTML = html;
 
     var input = document.getElementById('q');
@@ -1292,7 +1308,11 @@ body:has(.boot-load) .tabs { display: none; }
   // ── 교우 상세 (§5.3) ──
   var REL = { father: '아버지', mother: '어머니', husband: '남편', wife: '아내', sibling: '형제자매',
     wifeFather: '장인', wifeMother: '장모', husbandFather: '시아버지', husbandMother: '시어머니', sonInLaw: '사위', daughterInLaw: '며느리' };
-  var REL_ORDER = ['grandparent', 'grandparentM', 'father', 'mother', 'husband', 'wife', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother', 'child', 'sonInLaw', 'daughterInLaw', 'grandchild', 'sibling'];
+  // 핵가족·직계 먼저, 형제자매, 인척은 맨 아래 (2026-11-04 Francis님): 배우자 → 자녀 → 부모 → 조부모 → 손주 → 형제자매 → 장인·장모·시부모 → 사위·며느리
+  var REL_ORDER = ['husband', 'wife', 'child', 'father', 'mother', 'grandparent', 'grandparentM', 'grandchild', 'sibling', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother', 'sonInLaw', 'daughterInLaw'];
+
+  /** 판 번호 82 → 「Ver 0.82」 (2026-11-04 Francis님). 뒤에 붙은 「· 화면 ○○」는 그대로 */
+  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 0.' + n; }); }
 
   function relLabel(f) {
     if (f.rel === 'child') return f.sex === '남' ? '아들' : f.sex === '여' ? '딸' : '자녀';
@@ -1352,9 +1372,10 @@ body:has(.boot-load) .tabs { display: none; }
     if (m.cecil) chips.push(tag('세실대 ' + m.cecil, m.cecil));
     html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '<div class="fam-none">소속 없음</div>');
 
-    // 가족: 출석 가족 먼저
+    // 가족: 관계 순서(직계 먼저), 같은 관계 안에서 출석 먼저
     var fam = m.family.slice().sort(function (a, b) {
-      return (b.attending ? 1 : 0) - (a.attending ? 1 : 0) || REL_ORDER.indexOf(a.rel) - REL_ORDER.indexOf(b.rel);
+      // 관계 순서가 먼저, 같은 관계 안에서만 출석 가족 먼저 (2026-11-04 Francis님: 비출석이라도 직계는 위로)
+      return REL_ORDER.indexOf(a.rel) - REL_ORDER.indexOf(b.rel) || (b.attending ? 1 : 0) - (a.attending ? 1 : 0);
     });
     var famHtml = fam.map(function (f) {
       var shownName = f.name || f.text;
@@ -1877,7 +1898,9 @@ body:has(.boot-load) .tabs { display: none; }
   function renderCareList(i) {
     var g = careGroups()[Number(i)];
     if (!g) return renderCare();
-    screen.innerHTML = heroBack(g.name, g.members.length + '명' + (g.note ? ' · ' + g.note : '')) +
+    var addBtn = g.name === '새교우' && D.canEdit
+      ? '<div class="new-bar"><button class="ef-save new-btn" data-newmember="1">＋ 새교우 등록</button></div>' : '';  // 2026-11-04 Francis님
+    screen.innerHTML = heroBack(g.name, g.members.length + '명' + (g.note ? ' · ' + g.note : '')) + addBtn +
       '<div class="list">' + (g.members.length ? g.members.map(careRow).join('') : '<div class="empty">해당 교우가 없습니다.</div>') + '</div>';
     wirePhotos();
   }
@@ -1925,6 +1948,79 @@ body:has(.boot-load) .tabs { display: none; }
     }).apiRaw(TOKEN, m.id);
   }
 
+  // ── 새교우 등록 (2026-11-04 Francis님): 편집 화면과 같은 칸을 빈 채로, 사진도 함께 ──
+  function todayText() { var d = new Date(); return d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + '.'; }
+  function nextIdGuess() {
+    var max = 0;
+    D.members.forEach(function (m) { var x = /^SW-(\d{4})$/.exec(m.id || ''); if (x) max = Math.max(max, Number(x[1])); });
+    return 'SW-' + ('000' + (max + 1)).slice(-4);
+  }
+  function renderNew() {
+    if (!EDIT || !EDIT.isNew) {
+      EDIT = { key: '__new', id: '', isNew: true, raw: {}, vals: {}, photo: '' };
+      EDIT_SECTIONS.forEach(function (sec) { sec.fields.forEach(function (f) { EDIT.raw[f[0]] = { v: '', auto: false }; }); });
+      EDIT.vals = { status: '출석', registered: '?', regDate: todayText(), memo: '새교우' };
+    }
+    screen.innerHTML = '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
+      '<div class="sub-title">새교우 등록</div><div class="sub-note">교적번호는 저장할 때 다음 번호로 매겨집니다 (예상 ' + esc(nextIdGuess()) + ')</div>' +
+      '<button class="ef-top-save" data-save="1" disabled>등록</button></header>' + editForm();
+    syncSave();
+  }
+  function photoCard() {
+    var ok = EDIT.vals.photoOk === '예';
+    return '<section class="card"><h3>사진</h3>' +
+      (EDIT.photo ? '<div class="np-preview"><img alt="" src="data:image/jpeg;base64,' + EDIT.photo + '"></div>' : '') +
+      '<label class="ef-btn np-pick">' + (EDIT.photo ? '사진 바꾸기' : '사진 찍기 · 고르기') +
+      '<input type="file" accept="image/*" data-newphoto="1" hidden></label>' +
+      (EDIT.photo ? ' <button type="button" class="ef-btn ghost" data-photoclr="1">사진 빼기</button>' : '') +
+      '<div class="pm-note">' + (ok ? '저장하면 「교인사진」 폴더에 교적번호 이름으로 들어갑니다.' : '<span class="pm-warn">사진사용 동의가 「예」여야 사진을 저장합니다.</span>') + '</div></section>';
+  }
+  // 사진은 폰에서 줄여(긴 쪽 800px) 보낸다
+  document.addEventListener('change', function (ev) {
+    var el = ev.target;
+    if (!EDIT || !EDIT.isNew || !el.dataset || !el.dataset.newphoto || !el.files || !el.files[0]) return;
+    var fr = new FileReader();
+    fr.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var k = Math.min(1, 800 / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        EDIT.photo = c.toDataURL('image/jpeg', 0.85).split(',')[1];
+        redrawEdit();
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(el.files[0]);
+  });
+
+  function saveNew(force) {
+    var vals = {};
+    Object.keys(EDIT.vals).forEach(function (k) { var v = String(EDIT.vals[k] || '').trim(); if (v) vals[k] = v; });
+    if (!vals.name) { alert('성명을 넣어 주십시오.'); return; }
+    if (EDIT.photo && vals.photoOk !== '예') { alert('사진사용 동의가 「예」일 때만 사진을 저장합니다.\n동의를 「예」로 고치시거나 사진을 빼 주십시오.'); return; }
+    if (!force && !confirm(vals.name + (vals.saint ? ' ' + vals.saint : '') + '님을 새교우로 등록하시겠습니까?')) return;
+    document.querySelectorAll('[data-save]').forEach(function (b) { b.disabled = true; b.textContent = '등록하는 중…'; });
+    google.script.run.withSuccessHandler(function (r) {
+      if (typeof r === 'string') r = JSON.parse(r);
+      if (r && r.dup) {
+        syncSave();
+        if (confirm('같은 이름의 교우가 이미 있습니다.\n\n' + r.dup.join('\n') + '\n\n다른 분이 맞으면 「확인」을 눌러 등록합니다.')) saveNew(true);
+        return;
+      }
+      if (!r || !r.ok) { syncSave(); alert('등록하지 못했습니다: ' + (r && r.error || '오류')); return; }
+      EDIT = null;
+      alert(r.id + '로 등록했습니다.' + (r.notes && r.notes.length ? '\n\n' + r.notes.join('\n') : ''));
+      state.view = 'detail'; state.key = r.key;
+      load(true);
+    }).withFailureHandler(function () {
+      syncSave();
+      alert('연결이 원활하지 않아 등록하지 못했습니다. 잠시 후 다시 해 주십시오.');
+    }).apiCreate(TOKEN, vals, EDIT.photo || '', !!force);
+  }
+
   // 시트의 Y·N을 화면에서는 「예·아니오」로 보인다 (시트 값은 그대로, 2026-11-03 Francis님)
   function yn(v) { return v === 'Y' ? '예' : v === 'N' ? '아니오' : v; }
   function optList(opts, v) {
@@ -1936,7 +2032,7 @@ body:has(.boot-load) .tabs { display: none; }
     var k = f[0], label = f[1], type = f[2] || '', ph = f[3] || '';
     if (!EDIT.raw[k]) return '';
     var v = EDIT.vals[k] || '';
-    var changed = v !== EDIT.raw[k].v;
+    var changed = !EDIT.isNew && v !== EDIT.raw[k].v;  // 새교우 등록에서는 「고침」 표시를 하지 않음
     var wrap = function (inner, wide) {
       return '<div class="ef' + (wide ? ' wide' : '') + (type === 'fam' ? ' famf' : '') + (changed ? ' changed' : '') + '"><label class="ef-k">' + esc(label) + (changed ? ' <span class="ef-mark">고침</span>' : '') + '</label>' + inner + '</div>';
     };
@@ -1979,23 +2075,30 @@ body:has(.boot-load) .tabs { display: none; }
 
   function editForm() {
     var n = Object.keys(editChanges()).length;
-    return '<div class="edit-note">가족을 넣거나 빼면 상대편 칸도 함께 고쳐집니다. 고친 내역은 모두 「수정 기록」에 남습니다.</div>' +
-      EDIT_SECTIONS.map(function (sec) {
-        return '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.title === '메모' ? ' wide-card' : '') + '"><h3>' + sec.title + '</h3><div class="ef-grid">' +
+    return '<div class="edit-note">' + (EDIT.isNew ? '출석 상태·교적 등재·등록일·메모(「새교우」)는 미리 채워 두었습니다. 가족을 넣으면 상대편 칸도 함께 고쳐집니다. 등록 내역은 「수정 기록」에 남습니다.'
+        : '가족을 넣거나 빼면 상대편 칸도 함께 고쳐집니다. 고친 내역은 모두 「수정 기록」에 남습니다.') + '</div>' +
+      EDIT_SECTIONS.map(function (sec, si) {
+        return (EDIT.isNew && si === 1 ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.title === '메모' ? ' wide-card' : '') + '"><h3>' + sec.title + '</h3><div class="ef-grid">' +
           sec.fields.map(editField).join('') + '</div></section>';
       }).join('') +
       '<div class="edit-bar"><button type="button" class="ef-cancel" data-back="1">취소</button>' +
-      '<button type="button" class="ef-save" data-save="1"' + (n ? '' : ' disabled') + '>' + (n ? n + '칸 저장' : '바뀐 칸 없음') + '</button></div>';
+      '<button type="button" class="ef-save" data-save="1"' + (n ? '' : ' disabled') + '>' + saveLabel(n) + '</button></div>';
   }
 
+  function saveLabel(n) {
+    if (EDIT && EDIT.isNew) return String(EDIT.vals.name || '').trim() ? '등록' : '성명을 넣어 주십시오';
+    return n ? n + '칸 저장' : '바뀐 칸 없음';
+  }
   function syncSave() {
     var n = EDIT && EDIT.raw ? Object.keys(editChanges()).length : 0;
-    var btn = document.querySelector('.ef-save'), top = document.querySelector('.ef-top-save');
-    if (btn) { btn.disabled = !n; btn.textContent = n ? n + '칸 저장' : '바뀐 칸 없음'; }
-    if (top) { top.disabled = !n; top.textContent = n ? n + '칸 저장' : '저장'; }
+    if (EDIT && EDIT.isNew) n = String(EDIT.vals.name || '').trim() ? 1 : 0;
+    var btn = document.querySelector('.edit-bar .ef-save'), top = document.querySelector('.ef-top-save');
+    if (btn) { btn.disabled = !n; btn.textContent = saveLabel(n); }
+    if (top) { top.disabled = !n; top.textContent = EDIT && EDIT.isNew ? '등록' : (n ? n + '칸 저장' : '저장'); }
   }
   function redrawEdit() {
     var y = window.scrollY;
+    if (EDIT && EDIT.isNew) { renderNew(); window.scrollTo(0, y); return; }
     var m = byKey[EDIT.key];
     if (m) renderEdit(m);
     window.scrollTo(0, y);
@@ -2007,7 +2110,7 @@ body:has(.boot-load) .tabs { display: none; }
     if (!EDIT || !el.dataset || !el.dataset.f) return;
     EDIT.vals[el.dataset.f] = el.value;
     var wrapEl = el.closest('.ef');
-    var changed = el.value.trim() !== String(EDIT.raw[el.dataset.f].v || '').trim();
+    var changed = !EDIT.isNew && el.value.trim() !== String(EDIT.raw[el.dataset.f].v || '').trim();
     if (wrapEl) wrapEl.classList.toggle('changed', changed);
     syncSave();
   });
@@ -2068,7 +2171,8 @@ body:has(.boot-load) .tabs { display: none; }
       redrawEdit();
       return true;
     }
-    if (ds.save) { saveEdit(el); return true; }
+    if (ds.photoclr) { EDIT.photo = ''; redrawEdit(); return true; }
+    if (ds.save) { if (EDIT.isNew) saveNew(false); else saveEdit(el); return true; }
     return false;
   }
 
@@ -2138,11 +2242,13 @@ body:has(.boot-load) .tabs { display: none; }
   // view: list(탭 첫 화면) · detail · kind · group · servants · stat · care
   function render() {
     renderTabs();
-    document.body.classList.toggle('editing', state.view === 'edit');  // 편집 중에는 아래 탭을 숨김 (폰 자판이 가리지 않게)
+    document.body.classList.toggle('editing', state.view === 'edit' || state.view === 'new');
+    if (state.view !== 'new' && EDIT && EDIT.isNew) EDIT = null;  // 편집 중에는 아래 탭을 숨김 (폰 자판이 가리지 않게)
     if (!D) return;
     var v = state.view, k = state.key;
     if (v === 'detail' && byKey[k]) return renderDetail(byKey[k]);
     if (v === 'edit' && byKey[k] && D.canEdit) return renderEdit(byKey[k]);
+    if (v === 'new' && D.canEdit) return renderNew();
     if (v === 'kind') return renderKind(k);
     if (v === 'group') return renderGroup(k);
     if (v === 'servants') return renderServants(k);
@@ -2188,6 +2294,7 @@ body:has(.boot-load) .tabs { display: none; }
     if (!el) return;
     var ds = el.dataset;
     if (ds.edit) go({ view: 'edit', key: ds.edit });
+    else if (ds.newmember) go({ view: 'new', key: '' });
     else if (prayClick(el, ds)) return;
     else if (editClick(el, ds)) return;
     else if (ds.go) go({ view: 'detail', key: ds.go });
