@@ -690,6 +690,10 @@ body:has(.boot-load) .tabs { display: none; }
 .app-foot .af-name { color: var(--primary); }
 .app-foot .af-team { display: inline-block; text-align: left; margin-top: .3rem; }  /* 운영진 이름은 왼쪽 맞춤 (2026-11-05) */
 </style>
+<style>
+/* 세실대 전체 명부의 기수 제목 (2026-11-05). 글자 크기는 기존 tile-subtitle 그대로 */
+.cecil-sub { padding: .9rem 1rem .4rem; }
+</style>
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
@@ -737,7 +741,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '344280f40c';
+  var UI_VERSION = '296d0a96b0';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1531,9 +1535,12 @@ body:has(.boot-load) .tabs { display: none; }
 
   function attending() { return D.members.filter(function (m) { return m.status === '출석'; }); }
   function alias(name) { return name === '교회위원회' ? '교회위원' : name; }
-  function shown(name) { return name === '교회위원회' ? '교회위원' : name; }
+  function shown(name) { return name === '교회위원회' ? '교회위원' : name === CECIL_ALL ? '세실대 전체' : name; }
+  // 세실대 전체 명부 (2026-11-05 Francis님): 기수와 상관없이 수료자 모두
+  var CECIL_ALL = '__세실대전체';
 
   function inGroup(m, name) {
+    if (name === CECIL_ALL) return !!m.cecil;
     var n = alias(name);
     return m.ageGroup === n || m.service.indexOf(n) >= 0 || m.small.indexOf(n) >= 0 || m.cecil === n;
   }
@@ -1604,7 +1611,7 @@ body:has(.boot-load) .tabs { display: none; }
       if (!c.names.length) return;
       if (c.kind.indexOf('소그룹 · ') === 0) { smallSubs.push(c); return; }
       if (smallSubs.length && !smallSubs.done) { html += smallSection(smallSubs, tileOf); smallSubs.done = true; }
-      html += tileSection(c.kind, c.names.map(tileOf));
+      html += tileSection(c.kind, (c.kind === '세실대' ? [tileOf(CECIL_ALL)] : []).concat(c.names.map(tileOf)));
     });
     if (smallSubs.length && !smallSubs.done) html += smallSection(smallSubs, tileOf);
     screen.innerHTML = html;
@@ -1688,12 +1695,24 @@ body:has(.boot-load) .tabs { display: none; }
   function renderGroup(name) {
     var g = groupInfo(name);
     var leader = g ? g.leader : '';
+    var cecilRank = function (m) { var i = CECIL_ORDER.indexOf(m.cecil); return i < 0 ? 99 : i; };
     var ms = attending().filter(function (m) { return inGroup(m, name); }).sort(function (a, b) {
+      if (name === CECIL_ALL) return cecilRank(a) - cecilRank(b) || byName(a, b);  // 기수 순, 같은 기수는 가나다
       return isLeader(b, leader, name) - isLeader(a, leader, name) || byName(a, b);
     });
     var leadLabel = g && g.kind === '소그룹' ? '리더' : '회장';
     var sub = (AGE_DESC[name] ? AGE_DESC[name] + ' · ' : '') + (g && g.state === '휴면' ? '휴면 · ' : '') + '출석 ' + ms.length + '명';
     var html = heroBack(shown(name), sub);
+    if (name === CECIL_ALL) {  // 기수별 작은 제목 (기수가 줄 끝에서 잘리지 않게)
+      CECIL_ORDER.concat(ms.map(function (m) { return m.cecil; }).filter(function (c, i, a) { return CECIL_ORDER.indexOf(c) < 0 && a.indexOf(c) === i; })).forEach(function (c) {
+        var part = ms.filter(function (m) { return m.cecil === c; });
+        if (!part.length) return;
+        html += '<div class="tile-subtitle cecil-sub">' + esc(c) + ' · ' + part.length + '명</div><div class="list">' + part.map(rowHtml).join('') + '</div>';
+      });
+      screen.innerHTML = html;
+      wirePhotos();
+      return;
+    }
     html += '<div class="list">' + (ms.length ? ms.map(function (m) {
       // 직책 표시가 없는 회장·리더에게는 「회장」(소그룹은 「리더」) 표시를 붙여 맨 위에 보이게 한다
       if (!isLeader(m, leader, name) || m.title) return rowHtml(m);
