@@ -741,7 +741,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '296d0a96b0';
+  var UI_VERSION = 'a7ffd4d45e';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1231,8 +1231,13 @@ body:has(.boot-load) .tabs { display: none; }
 
     // 조건 (모두 AND): 출결 · 성별 · 직책 · 단체
     html += '<div class="conds">';
-    html += segRow('출결', 'status', ['전체', '출석', '비출석', '확인필요']);
-    html += segRow('성별', 'sex', ['전체', '남성', '여성', '확인필요']);
+    // 2026-11-05 Francis님: 「확인필요」 단추는 지움. 해당하는 분이 다시 생기면 그때만 보인다
+    var unkStatus = D.members.some(function (m) { return m.status !== '출석' && m.status !== '비출석'; });
+    var unkSex = D.members.some(function (m) { return m.sex !== '남' && m.sex !== '여'; });
+    if (!unkStatus && state.status === '확인필요') state.status = '전체';
+    if (!unkSex && state.sex === '확인필요') state.sex = '전체';
+    html += segRow('출결', 'status', ['전체', '출석', '비출석'].concat(unkStatus ? ['확인필요'] : []));
+    html += segRow('성별', 'sex', ['전체', '남성', '여성'].concat(unkSex ? ['확인필요'] : []));
     html += '<div class="seg-row"><span class="seg-label">단체</span>' +
       // 2026-11-03 Francis님: 「전체」만 보이면 고를 게 없어 보인다 → 목록을 여는 단추로
       (state.group
