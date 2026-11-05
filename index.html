@@ -737,7 +737,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '50c13e043f';
+  var UI_VERSION = 'efad50d073';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -2015,8 +2015,9 @@ body:has(.boot-load) .tabs { display: none; }
   function todayText() { var d = new Date(); return d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + '.'; }
   function nextIdGuess() {
     var max = 0;
-    D.members.forEach(function (m) { var x = /^SW-(\d{4})$/.exec(m.id || ''); if (x) max = Math.max(max, Number(x[1])); });
-    return 'SW-' + ('000' + (max + 1)).slice(-4);
+    var yy = String(new Date().getFullYear()).slice(-2);
+    D.members.forEach(function (m) { var x = /^(\d{2})(\d{3})$/.exec(m.id || ''); if (x && x[1] === yy) max = Math.max(max, Number(x[2])); });
+    return yy + ('00' + (max + 1)).slice(-3);
   }
   function renderNew() {
     if (!EDIT || !EDIT.isNew) {
