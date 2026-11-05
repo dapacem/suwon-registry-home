@@ -577,6 +577,8 @@ body.editing .screen { padding-bottom: 1.5rem; }
 .bl-church { font-size: 1rem; color: var(--sub); margin-bottom: .4rem; }
 .bl-text { font-size: 1.2rem; font-weight: 700; color: var(--primary); word-break: keep-all; }
 @media (min-width: 900px) { .bl-text { font-size: 1.4rem; } }
+/* 불러오는 화면의 버전 표시 (2026-11-05). 글자 크기는 화면 맨 아래 안내와 같은 작은 글씨 */
+.bl-ver { margin-top: 1.2rem; font-size: .75rem; font-weight: 400; color: var(--sub); }
 .bl-dots { margin-top: 1rem; display: flex; gap: .45rem; }
 .bl-dots i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--primary); opacity: .25; animation: bldot 1.2s infinite ease-in-out; }
 .bl-dots i:nth-child(2) { animation-delay: .2s; }
@@ -686,6 +688,7 @@ body:has(.boot-load) .tabs { display: none; }
 /* 화면 맨 아래 버전·건의 안내 (2026-11-05). 글자 크기는 기존 「판」 표시와 같은 작은 글씨 */
 .app-foot { margin: 1.5rem 1rem 1rem; padding-top: .8rem; border-top: 1px solid var(--line, #E2E8F0); text-align: center; font-size: .75rem; line-height: 1.7; color: var(--sub); word-break: keep-all; }
 .app-foot .af-name { color: var(--primary); }
+.app-foot .af-team { display: inline-block; text-align: left; margin-top: .3rem; }  /* 운영진 이름은 왼쪽 맞춤 (2026-11-05) */
 </style>
 
 <style>
@@ -734,7 +737,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'f45d548bf3';
+  var UI_VERSION = '50c13e043f';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -877,7 +880,7 @@ body:has(.boot-load) .tabs { display: none; }
   var t = pass();
   if (!t) { del(KEY); showSplash(); return; }
   // 불러오는 동안: 교회 사진과 큰 글씨를 화면 가운데에 (2026-11-03 Francis님)
-  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">교우 자료를 불러오는 중입니다…</div><div class="bl-dots"><i></i><i></i><i></i></div></div>';
+  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">잠시만 기다려 주십시오…</div><div class="bl-dots"><i></i><i></i><i></i></div><div class="bl-ver">대한성공회 수원교회 교적부 Ver 1.0</div></div>';
   api({ api: 'data', t: t }).then(function (d) {
     if (d.error) { onApiError(d.error); return; }
     if (d.renew) put(KEY, d.renew);  // 열 때마다 30일 연장
@@ -965,7 +968,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 자료 불러오기 (F-02, F-03) ──
   function load(refresh) {
-    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…</div>';
+    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…<div class="bl-ver">Ver 1.0</div></div>';
     google.script.run
       .withSuccessHandler(function (json) {
         D = JSON.parse(json);
