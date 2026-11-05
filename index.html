@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>수원교회 교적부 G</title>
+<title>대한성공회 수원교회 교적부</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="대한성공회 수원교회 교적부 (허락된 분만 들어갈 수 있습니다)">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -11,11 +11,11 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="수원교회 교적부 G">
+<meta name="apple-mobile-web-app-title" content="수원교회 교적부">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1A5276">
 <meta property="og:type" content="website">
-<meta property="og:title" content="수원교회 교적부 G">
+<meta property="og:title" content="대한성공회 수원교회 교적부">
 <meta property="og:description" content="대한성공회 수원교회 교적부">
 <meta property="og:image" content="https://dapacem.github.io/suwon-registry-home/og.jpg">
 <meta property="og:url" content="https://dapacem.github.io/suwon-registry-home/">
@@ -321,7 +321,7 @@ a { color: inherit; }
   html { font-size: 106.25%; overflow-y: scroll; scrollbar-gutter: stable; }
   body { background: #EDF1F6; }
   .tabs { top: 0; bottom: 0; right: auto; width: 14rem; flex-direction: column; gap: .25rem; padding: 1.4rem .9rem; }
-  .tabs::before { content: "수원교회 교적부 G"; color: #fff; font-weight: 700; font-size: 1.05rem; padding: .2rem .8rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); }
+  .tabs::before { content: "대한성공회 수원교회 교적부"; color: #fff; font-weight: 700; font-size: 1.05rem; padding: .2rem .8rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); }
   .tab { flex: none; flex-direction: row; justify-content: flex-start; gap: .8rem; padding: .75rem .9rem; font-size: .95rem; }
   .tab svg { width: 1.3rem; height: 1.3rem; }
   .tab:not(.on):hover { background: rgba(255,255,255,.1); }
@@ -655,7 +655,8 @@ body:has(.boot-load) .tabs { display: none; }
 /* 주소 검색 (2026-11-04) */
 .addr-row { margin-bottom: .4rem; }
 .addr-sheet { height: 80vh; display: flex; flex-direction: column; }
-.addr-box { flex: 1; min-height: 420px; }
+.addr-box { flex: 1 1 auto; height: 70vh; min-height: 420px; }
+.addr-sheet { max-height: none; overflow: hidden; }
 </style>
 <style>
 /* 「불러오는 중」은 언제나 화면 한가운데 (2026-11-04 Francis님). 화면 위치·스크롤과 상관없이 고정. 글자 크기는 그대로 */
@@ -666,7 +667,25 @@ body:has(.boot-load) .tabs { display: none; }
 /* 비공개 관리 (운영자만, 2026-11-04 Francis님): 금색 테두리·제목으로 다른 상자와 구별. 글자 크기는 그대로 */
 .card.private { border: 2px solid #B8860B; }
 .priv-tag { color: #B8860B; }
-.priv-tag::before { content: "🔒 "; }
+/* 2026-11-05 Francis님: 🔒는 「잠겨서 못 연다」로 읽혀 → 「운영자만 보임」 금색 꼬리표로 */
+.op-badge { display: inline-block; margin-left: .5rem; padding: .1rem .5rem; border-radius: 999px; background: #FBF3E0; color: #8A6508; border: 1px solid #B8860B; font-size: .7em; font-weight: 700; vertical-align: middle; white-space: nowrap; }
+.op-line { margin: .2rem 0 .1rem; }
+.op-line .op-badge { margin-left: 0; }
+</style>
+<style>
+/* 2026-11-05 Francis님: 「운영자만 보임」 꼬리표는 상자 제목 줄의 오른쪽 끝으로 */
+.card h3 .op-badge { float: right; margin-left: .5rem; margin-top: .15em; }
+</style>
+<style>
+/* 주소 검색 단추를 눈에 띄게 + 안내 (2026-11-05). 글자 크기는 기존 단추·안내 그대로 */
+.addr-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; }
+.addr-btn { flex: none; width: auto; padding: .45rem .9rem; }
+.addr-help { margin: 0; }
+</style>
+<style>
+/* 화면 맨 아래 버전·건의 안내 (2026-11-05). 글자 크기는 기존 「판」 표시와 같은 작은 글씨 */
+.app-foot { margin: 1.5rem 1rem 1rem; padding-top: .8rem; border-top: 1px solid var(--line, #E2E8F0); text-align: center; font-size: .75rem; line-height: 1.7; color: var(--sub); word-break: keep-all; }
+.app-foot .af-name { color: var(--primary); }
 </style>
 
 <style>
@@ -693,7 +712,7 @@ body:has(.boot-load) .tabs { display: none; }
     <div class="sp-box">
       <img src="apple-touch-icon.png" alt="수원교회">
       <div class="church">대한성공회 수원교회</div>
-      <h1>교적부 G</h1>
+      <h1>교적부</h1>
       <div id="stepEmail">
         <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="등록된 이메일 주소">
         <button class="go" id="sendBtn">인증번호 받기</button>
@@ -715,7 +734,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'f6a98124c6';
+  var UI_VERSION = 'f45d548bf3';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -892,7 +911,7 @@ body:has(.boot-load) .tabs { display: none; }
   function brand(title) {
     return '<div class="hero-brand">' +
       (CHURCH_IMG ? '<img class="hero-photo" alt="" src="' + CHURCH_IMG + '">' : '') +
-      '<div><div class="hero-church">' + esc(CHURCH) + '</div><div class="hero-title">' + esc(title) + '</div></div></div>';
+      '<div><div class="hero-church">' + esc(CHURCH + ' 교적부') + '</div><div class="hero-title">' + esc(title) + '</div></div></div>';
   }
 
   var D = null;           // 서버 자료
@@ -1329,7 +1348,8 @@ body:has(.boot-load) .tabs { display: none; }
   var REL_ORDER = ['husband', 'wife', 'child', 'father', 'mother', 'grandparent', 'grandparentM', 'grandchild', 'sibling', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother', 'sonInLaw', 'daughterInLaw'];
 
   /** 판 번호 82 → 「Ver 0.82」 (2026-11-04 Francis님). 뒤에 붙은 「· 화면 ○○」는 그대로 */
-  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 0.' + n; }); }
+  // 2026-11-05 Francis님: 정식 이름 「Ver 1.0」. 뒤에 판 번호를 작게 붙여 어느 배포인지 알 수 있게
+  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 1.0 · 판 ' + n; }); }
 
   function relLabel(f) {
     if (f.rel === 'child') return f.sex === '남' ? '아들' : f.sex === '여' ? '딸' : '자녀';
@@ -1425,7 +1445,7 @@ body:has(.boot-load) .tabs { display: none; }
       var tal = (m.talent || []);
       html += card('달란트 보유', tal.length ? '<div class="chips">' + tal.map(function (x) { return '<span class="tag talent">' + esc(x) + '</span>'; }).join('') + '</div>' : '<div class="fam-none">미입력</div>');
       // 비공개 관리 (2026-11-04 Francis님): 열람자가 보면 안 되는 것은 이 상자 하나에. 운영자만, 맨 아래
-      if (ADMIN) html += card('<span class="priv-tag">비공개 관리</span>', grid(
+      if (ADMIN) html += card('<span class="priv-tag">비공개 관리</span><span class="op-badge">운영자만 보임</span>', grid(
         kv('생년', m.birthYear) + kv('생년월일', m.birthDate) + kv('만 나이', m.age) +
         kv('최근 3개월 출석 횟수', m.recent == null ? '' : m.recent + '회') +
         kv('네트웍 점수', m.network == null ? '' : m.network + (m.networkGrade ? ' (' + m.networkGrade + ')' : '')) +
@@ -1812,7 +1832,7 @@ body:has(.boot-load) .tabs { display: none; }
       return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
         '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
     }).join('');
-    return '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + (c.priv ? '<span class="priv-tag">비공개 관리</span>' : '') + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+    return '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + esc(c.title) + (c.priv ? '<span class="op-badge">운영자만 보임</span>' : '') + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
       (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
       '<div class="donut-wrap"><svg class="donut" viewBox="0 0 100 100" role="img" aria-label="' + esc(c.title) + '">' + segs +
       '<text x="50" y="49" text-anchor="middle" class="d-total">' + total + '</text><text x="50" y="62" text-anchor="middle" class="d-unit">명</text></svg>' +
@@ -1832,7 +1852,7 @@ body:has(.boot-load) .tabs { display: none; }
       return '<button class="lg-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '"><span class="sw" style="background:' + r.color + '"></span>' +
         '<span class="lg-label">' + esc(r.label) + '</span><span class="lg-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></button>';
     }).join('');
-    return '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + (c.priv ? '<span class="priv-tag">비공개 관리</span>' : '') + esc(c.title) + '</h3>' +
+    return '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + esc(c.title) + (c.priv ? '<span class="op-badge">운영자만 보임</span>' : '') + '</h3>' +
       (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
       '<div class="st-ends"><span>← 약함</span><span>강함 →</span></div>' +
       '<div class="strip">' + strip + '</div>' +
@@ -1852,7 +1872,7 @@ body:has(.boot-load) .tabs { display: none; }
       if (c.type === 'donut') { html += donutCard(c, rows); return; }
       if (c.type === 'strip') { html += stripCard(c, rows); return; }
       var max = Math.max.apply(null, rows.map(function (r) { return r.n; }).concat([1]));
-      html += '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + (c.priv ? '<span class="priv-tag">비공개 관리</span>' : '') + esc(c.title) + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
+      html += '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + esc(c.title) + (c.priv ? '<span class="op-badge">운영자만 보임</span>' : '') + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
         (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
         rows.map(function (r) {
           return '<button class="bar-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '">' +
@@ -1925,7 +1945,7 @@ body:has(.boot-load) .tabs { display: none; }
     var html = heroTop('돌봄 필요') + '<div class="care-grid">';
     careGroups().forEach(function (g) {
       html += '<button class="care-tile" data-care="' + g.i + '">' +
-        '<div class="care-name">' + (g.name === '최저 출석자' || g.name === '연결 매우 약함' ? '<span class="priv-tag"></span>' : '') + esc(g.name) + '</div>' +
+        '<div class="care-name">' + esc(g.name) + '</div>' + (g.name === '최저 출석자' || g.name === '연결 매우 약함' ? '<div class="op-line"><span class="op-badge">운영자만 보임</span></div>' : '') +
         '<div class="care-num">' + g.members.length + '<span>명</span></div>' +
         (g.note ? '<div class="care-note">' + esc(g.note.replace(/^기준:\s*/, '')) + '</div>' : '') + '</button>';
     });
@@ -2040,10 +2060,16 @@ body:has(.boot-load) .tabs { display: none; }
   // ── 주소 검색 (카카오 우편번호 서비스, 무료·열쇠 불필요). 화면 안에 띄운다 (창 막힘 방지) ──
   var POSTCODE_JS = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
   function withPostcode(fn) {
-    if (window.daum && window.daum.Postcode) return fn();
+    // 나중에 불러오면 daum.postcode.load()로 준비가 끝난 뒤 써야 한다 (2026-11-05: 빈 창 문제)
+    var ready = function () {
+      if (window.daum && window.daum.postcode && window.daum.postcode.load) window.daum.postcode.load(fn);
+      else if (window.daum && window.daum.Postcode) fn();
+      else alert('주소 검색을 불러오지 못했습니다. 주소를 직접 적어 주십시오.');
+    };
+    if (window.daum && window.daum.Postcode) return ready();
     var sc = document.createElement('script');
     sc.src = POSTCODE_JS;
-    sc.onload = fn;
+    sc.onload = ready;
     sc.onerror = function () { alert('주소 검색을 불러오지 못했습니다. 주소를 직접 적어 주십시오.'); };
     document.head.appendChild(sc);
   }
@@ -2136,8 +2162,10 @@ body:has(.boot-load) .tabs { display: none; }
     }
     if (type === 'area') return wrap('<textarea class="ef-in" rows="3" data-f="' + k + '">' + esc(v) + '</textarea>', true);
     // 주소: 카카오(다음) 우편번호 서비스로 찾아 「(우편번호) 도로명 주소」를 넣고, 동·호수는 뒤에 이어 적는다 (2026-11-04 Francis님)
-    if (k === 'address') return wrap('<div class="addr-row"><button type="button" class="ef-btn" data-addr="1">주소 검색</button></div>' +
-      '<input class="ef-in" data-f="address" value="' + esc(v) + '" placeholder="주소 검색 뒤 동·호수를 이어 적어 주십시오">', true);
+    // 2026-11-05 Francis님: 단추를 그냥 지나치므로 안내를 붙임
+    if (k === 'address') return wrap('<div class="addr-row"><button type="button" class="ef-save addr-btn" data-addr="1">🔍 주소 검색</button>' +
+      '<span class="pm-note addr-help">① 이 단추를 눌러 도로명 주소를 찾고 ② 아래 칸에 동·호수를 이어 적으십시오</span></div>' +
+      '<input class="ef-in" data-f="address" value="' + esc(v) + '" placeholder="예: (16890) 경기도 용인시 수지구 성복1로 91, 106동 1104호">', true);
     return wrap('<input class="ef-in" data-f="' + k + '" value="' + esc(v) + '" placeholder="' + esc(ph ? '예: ' + ph : '') + '">', ['address', 'email', 'sponsor'].indexOf(k) >= 0);
   }
 
@@ -2157,7 +2185,7 @@ body:has(.boot-load) .tabs { display: none; }
     return '<div class="edit-note">' + (EDIT.isNew ? '출석 상태·교적 등재·새교우(예)·등록일은 미리 채워 두었습니다. 가족을 넣으면 상대편 칸도 함께 고쳐집니다. 등록 내역은 「수정 기록」에 남습니다.'
         : '가족을 넣거나 빼면 상대편 칸도 함께 고쳐집니다. 고친 내역은 모두 「수정 기록」에 남습니다.') + '</div>' +
       EDIT_SECTIONS.map(function (sec, si) {
-        return (EDIT.isNew && si === 1 && SHOW_NEW_PHOTO ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.priv ? ' wide-card' : '') + (sec.priv ? ' private' : '') + '"><h3>' + (sec.priv ? '<span class="priv-tag">비공개 관리</span>' : sec.title) + '</h3><div class="ef-grid">' +
+        return (EDIT.isNew && si === 1 && SHOW_NEW_PHOTO ? photoCard() : '') + '<section class="card' + (sec.title === '소속' || sec.title === '가족' || sec.priv ? ' wide-card' : '') + (sec.priv ? ' private' : '') + '"><h3>' + (sec.priv ? '<span class="priv-tag">비공개 관리</span><span class="op-badge">운영자만 보임</span>' : sec.title) + '</h3><div class="ef-grid">' +
           sec.fields.map(editField).join('') + '</div></section>';
       }).join('') +
       '<div class="edit-bar"><button type="button" class="ef-cancel" data-back="1">취소</button>' +
@@ -2348,18 +2376,28 @@ body:has(.boot-load) .tabs { display: none; }
     if (v === 'servants') return renderServants(k);
     if (v === 'stat') return renderStatList(k);
     if (v === 'care') return renderCareList(k);
-    if (state.tab === 'search') return renderList();
-    if (state.tab === 'groups') return renderGroupsHome();
-    if (state.tab === 'stats') return renderStats();
-    if (state.tab === 'care') return renderCare();
+    if (state.tab === 'search') { renderList(); return addFooter(); }
+    if (state.tab === 'groups') { renderGroupsHome(); return addFooter(); }
+    if (state.tab === 'stats') { renderStats(); return addFooter(); }
+    if (state.tab === 'care') { renderCare(); return addFooter(); }
     if (state.tab === 'random') {
       var pick = byKey[state.lastRandom] || pickRandom();
-      if (pick) return renderDetail(pick, { random: true });
+      if (pick) { renderDetail(pick, { random: true }); return addFooter(); }
       screen.innerHTML = '<div class="soon">출석 교우가 없습니다.</div>';
       return;
     }
     state.tab = 'search';
     renderList();
+  }
+
+  // 메뉴 첫 화면 맨 아래: 버전과 건의 안내 (2026-11-05 Francis님). 모두에게 보임
+  function addFooter() {
+    var f = document.createElement('footer');
+    f.className = 'app-foot';
+    f.innerHTML = '<div class="af-name">대한성공회 수원교회 교적부 <b>Ver 1.0</b></div>' +
+      '<div>건의사항은 운영진에게 연락 주십시오.</div>' +
+      '<div class="af-team">운영진<br>엄정식 니니안 신자회장<br>김경수 세례자요한 신자회장(전)<br>주재성 프란시스 전도분과장</div>';
+    screen.appendChild(f);
   }
 
   var scrolls = {};
