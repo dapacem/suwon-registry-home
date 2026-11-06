@@ -593,7 +593,16 @@ body:has(.boot-load) .tabs { display: none; }
 .t-num { white-space: normal; }
 .t-lead { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .75rem; }
 .t-dot { display: none; }
+.t-lead-one { display: block; overflow: hidden; text-overflow: ellipsis; }  /* 리더 여럿: 폰은 한 줄에 한 분 (2026-11-06) */
+.t-lsep { display: none; }
 @media (min-width: 900px) {
+  .t-lead-one { display: inline; white-space: nowrap; }
+  /* 리더 여럿: 컴퓨터도 한 줄에 한 분 (2026-11-06) */
+  .t-num:has(.t-lsep) { white-space: normal; }
+  .t-num:has(.t-lsep) .t-dot, .t-num:has(.t-lsep) .t-lsep { display: none; }
+  .t-num:has(.t-lsep) .t-lead { display: block; white-space: nowrap; overflow: hidden; }
+  .t-num:has(.t-lsep) .t-lead-one { display: block; overflow: hidden; text-overflow: ellipsis; }
+  .t-lsep { display: inline; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
   .t-num { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .t-lead { display: inline; font-size: inherit; }
@@ -741,7 +750,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '9f488fcfc8';
+  var UI_VERSION = '9c52071b06';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -930,7 +939,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 순서 규칙 (§4.2, §4.3) ──
   var AGE_ORDER = ['니콜라회', '라자로회', '바울로회', '미리암회', '모니카회', '에스더회', '베로니카회', '그라티아회', '주일학교'];
-  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성가대', '교육부', '다시서기', '정원 돌봄', '교회 환경 관리', '꽃꽂이'];  // 교회 환경 관리·꽃꽂이는 2026-11-03 소그룹에서 옮김
+  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성가대', '미디어 선교', '교육부', '다시서기', '정원 돌봄', '교회 환경 관리', '꽃꽂이'];  // 교회 환경 관리·꽃꽂이는 2026-11-03 소그룹에서 옮김
   var CECIL_ORDER = ['1기', '2기', '5기', '6기', '7기'];
 
   function titleRank(m) {
@@ -1596,7 +1605,7 @@ body:has(.boot-load) .tabs { display: none; }
     // 리더(단체장)는 「단체상태」 단체장 칸에서 (2026-11-03 Francis님)
     var lead = function (name) {
       var g = groupInfo(name);
-      return g && g.leader ? '<span class="t-dot"> · </span><span class="t-lead">' + esc(g.leader) + '</span>' : '';
+      return g && g.leader ? '<span class="t-dot"> · </span><span class="t-lead">' + g.leader.split('·').map(function (x) { return '<span class="t-lead-one">' + esc(x.trim()) + '</span>'; }).join('<span class="t-lsep"> · </span>') + '</span>' : '';  // 리더가 여럿이면 폰에서는 한 줄에 한 분
     };
     var SERVANT_NAME = { clergy: '사목단', council: '교회위원회' };
     html += tileSection('섬기는 이들', ['clergy', 'council', 'titled'].map(function (k) {
@@ -1705,7 +1714,8 @@ body:has(.boot-load) .tabs { display: none; }
       if (name === CECIL_ALL) return cecilRank(a) - cecilRank(b) || byName(a, b);  // 기수 순, 같은 기수는 가나다
       return isLeader(b, leader, name) - isLeader(a, leader, name) || byName(a, b);
     });
-    var leadLabel = g && g.kind === '소그룹' ? '리더' : '회장';
+    var isCecil = g && g.kind === '세실대';
+    var leadLabel = g && g.kind === '소그룹' ? '리더' : isCecil ? '학생회장' : '회장';
     var sub = (AGE_DESC[name] ? AGE_DESC[name] + ' · ' : '') + (g && g.state === '휴면' ? '휴면 · ' : '') + '출석 ' + ms.length + '명';
     var html = heroBack(shown(name), sub);
     if (name === CECIL_ALL) {  // 기수별 작은 제목 (기수가 줄 끝에서 잘리지 않게)
@@ -1720,7 +1730,8 @@ body:has(.boot-load) .tabs { display: none; }
     }
     html += '<div class="list">' + (ms.length ? ms.map(function (m) {
       // 직책 표시가 없는 회장·리더에게는 「회장」(소그룹은 「리더」) 표시를 붙여 맨 위에 보이게 한다
-      if (!isLeader(m, leader, name) || m.title) return rowHtml(m);
+      // 세실대 학생회장은 다른 직책(예: 감사)이 있어도 그 기수 화면에서는 「학생회장」으로 보인다
+      if (!isLeader(m, leader, name) || (m.title && !isCecil)) return rowHtml(m);
       return rowHtml(Object.assign({}, m, { title: leadLabel }));
     }).join('') : '<div class="empty">출석 교우가 없습니다.</div>') + '</div>';
     screen.innerHTML = html;
@@ -1790,7 +1801,7 @@ body:has(.boot-load) .tabs { display: none; }
     var att = D.members.filter(function (m) { return m.status === '출석'; });
     var list = [];
     // 원 그래프 색: 색맹 검사(dataviz validate_palette) 통과한 조합
-    list.push({ id: 'status', type: 'donut', title: '출석 현황', base: D.members, den: D.members.length, note: '전체 교적 기준', items: [
+    list.push({ id: 'status', type: 'donut', title: '출석 현황', base: D.members, den: D.members.length, items: [
       { label: '출석', color: '#2E86C1', test: function (m) { return m.status === '출석'; } },
       { label: '비출석', color: '#C0392B', test: function (m) { return m.status === '비출석'; } },
     ].concat(
@@ -1799,7 +1810,7 @@ body:has(.boot-load) .tabs { display: none; }
         ? [{ label: '확인필요', color: '#D4A017', test: function (m) { return m.status !== '출석' && m.status !== '비출석'; } }] : []
     ) });
     // 2026-11-05 Francis님: 성별도 출석상태 그래프와 같은 전체 재적자 기준 (두 그래프 합계가 같게)
-    list.push({ id: 'sex', type: 'donut', title: '성별 현황', base: D.members, den: D.members.length, note: '전체 교적 기준', items: [
+    list.push({ id: 'sex', type: 'donut', title: '성별 현황', base: D.members, den: D.members.length, items: [
       { label: '남성', color: '#2E86C1', test: function (m) { return m.sex === '남'; } },
       { label: '여성', color: '#E08E3C', test: function (m) { return m.sex === '여'; } },
     ].concat(
@@ -1822,7 +1833,7 @@ body:has(.boot-load) .tabs { display: none; }
       (m.family || []).forEach(function (f) { if (f.key) seen[f.key] = 1; });  // 교적에 있는 가족만 (탈적자·이름만 적힌 칸은 빼고)
       return 1 + Object.keys(seen).length;
     };
-    list.push({ id: 'family', type: 'donut', title: '가족 현황', note: '전체 교적 기준 · 교적에 함께 있는 가족', items: [
+    list.push({ id: 'family', type: 'donut', title: '가족 현황', note: '교적에 함께 있는 가족', items: [
       { label: '홀로 재적', tone: 'red', color: '#B03A2E', test: function (m) { return famSize(m) <= 1; } },
       { label: '2인 재적', color: '#E8762C', test: function (m) { return famSize(m) === 2; } },
       // 3인 이상: 녹색(청록빛) — 빨강·주황과 색맹 구별 검사 통과
@@ -1853,7 +1864,7 @@ body:has(.boot-load) .tabs { display: none; }
     list.forEach(function (c) {
       c.base = c.base || D.members;
       c.den = c.den || D.members.length;
-      if (!c.note) c.note = '전체 교적 기준';
+      // 2026-11-06 Francis님: 「전체 교적 기준」 표시는 쓰지 않음
     });
     return list;
   }
