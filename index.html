@@ -741,7 +741,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'a7ffd4d45e';
+  var UI_VERSION = 'd46c487bbf';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -1809,24 +1809,31 @@ body:has(.boot-load) .tabs { display: none; }
     ) });
     // 단체별 인원은 활동단체 화면에 있으므로 여기서는 「어디에 속해 있는가」만 본다 (2026-11-02 결정)
     var none = function (m) { return !m.service.length && !m.small.length && !m.cecil; };
-    list.push({ id: 'belong', title: '소속 현황', note: '한 사람이 여러 곳에 해당', items: [
+    list.push({ id: 'belong', title: '소속 현황', note: '전체 교적 기준 · 한 사람이 여러 곳에 해당', items: [
       { label: '연령단체 미지정', tone: 'red', test: function (m) { return !m.ageGroup; } },
       { label: '연령단체 외 소속 없음', tone: 'red', test: none },
       { label: '봉사단체 1곳 이상', color: '#2E6FB5', test: function (m) { return m.service.length > 0; } },
       { label: '소그룹 1곳 이상', color: '#2E6FB5', test: function (m) { return m.small.length > 0; } },
       { label: '세실대 수료', color: '#2E6FB5', test: function (m) { return !!m.cecil; } },
     ] });
-    list.push({ id: 'family', type: 'donut', title: '가족 현황', items: [
-      { label: '혼자 출석', tone: 'red', color: '#B03A2E', test: function (m) { return (m.famCount || 1) <= 1; } },
-      { label: '2인 출석', color: '#E8762C', test: function (m) { return m.famCount === 2; } },
+    // 2026-11-06 Francis님: 「홀로 출석」 → 「홀로 재적」. 출석 여부와 상관없이 교적에 함께 있는 가족(본인 포함) 수
+    var famSize = function (m) {
+      var seen = {};
+      (m.family || []).forEach(function (f) { if (f.key) seen[f.key] = 1; });  // 교적에 있는 가족만 (탈적자·이름만 적힌 칸은 빼고)
+      return 1 + Object.keys(seen).length;
+    };
+    list.push({ id: 'family', type: 'donut', title: '가족 현황', note: '전체 교적 기준 · 교적에 함께 있는 가족', items: [
+      { label: '홀로 재적', tone: 'red', color: '#B03A2E', test: function (m) { return famSize(m) <= 1; } },
+      { label: '2인 재적', color: '#E8762C', test: function (m) { return famSize(m) === 2; } },
       // 3인 이상: 녹색(청록빛) — 빨강·주황과 색맹 구별 검사 통과
-      { label: '3인 이상 출석', color: '#1E8C7E', test: function (m) { return m.famCount >= 3; } },
+      { label: '3인 이상 재적', color: '#1E8C7E', test: function (m) { return famSize(m) >= 3; } },
     ] });
     // 비공개 관리 (운영자만, 2026-11-04 Francis님): 점수류 그래프는 맨 아래에 모은다
     // 원그래프 (2026-11-02). 색은 빨·주·노·파 — 이웃 색끼리 색맹 검사 통과
     if (ADMIN) list.push({ id: 'recent', type: 'donut', priv: true, title: '최근 3개월 출석 횟수', items: [
       // 13주 기준 (2026-11-02 Francis님: 3·6·9회로 나눔)
-      { label: '3회 이하', tone: 'red', color: '#B03A2E', test: function (m) { return m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      // 2026-11-06: 전체 교적 기준이므로 출석 기록이 없는 분(빈칸)도 「3회 이하」에 넣는다
+      { label: '3회 이하', tone: 'red', color: '#B03A2E', test: function (m) { return !(m.recent >= 4); } },
       { label: '4~6회', color: '#E8762C', test: function (m) { return m.recent >= 4 && m.recent <= 6; } },
       { label: '7~9회', color: '#EDC53A', test: function (m) { return m.recent >= 7 && m.recent <= 9; } },
       { label: '10회 이상', color: '#2E6FB5', test: function (m) { return m.recent >= 10; } },
@@ -1836,15 +1843,17 @@ body:has(.boot-load) .tabs { display: none; }
       desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
       items: [
         // 빨·주·노·녹·파 5단계 (2026-11-02 Francis님). 색맹 검사로 이웃 색끼리 구별되는 값으로 고름
-        { label: '매우 약함 (끈 0개)', tone: 'red', color: '#B03A2E', test: function (m) { return m.network === 0; } },
+        { label: '매우 약함 (끈 0개)', tone: 'red', color: '#B03A2E', test: function (m) { return !(m.network >= 1); } },  // 빈칸도 0개로
         { label: '약함 (끈 1개)', color: '#E8762C', test: function (m) { return m.network === 1; } },
         { label: '보통 (끈 2~3개)', color: '#EDC53A', test: function (m) { return m.network >= 2 && m.network <= 3; } },
         { label: '강함 (끈 4개)', color: '#2E9E5B', test: function (m) { return m.network === 4; } },
         { label: '매우 강함 (끈 5개 이상)', color: '#2E6FB5', test: function (m) { return m.network >= 5; } },
       ] });
+    // 2026-11-06 Francis님: 모든 현황을 전체 재적자(출석·비출석) 기준으로 통일
     list.forEach(function (c) {
-      c.base = c.base || att;
-      c.den = c.den || att.length;
+      c.base = c.base || D.members;
+      c.den = c.den || D.members.length;
+      if (!c.note) c.note = '전체 교적 기준';
     });
     return list;
   }
