@@ -321,7 +321,7 @@ a { color: inherit; }
   html { font-size: 106.25%; overflow-y: scroll; scrollbar-gutter: stable; }
   body { background: #EDF1F6; }
   .tabs { top: 0; bottom: 0; right: auto; width: 14rem; flex-direction: column; gap: .25rem; padding: 1.4rem .9rem; }
-  .tabs::before { content: "대한성공회 수원교회 교적부"; color: #fff; font-weight: 700; font-size: 1.05rem; padding: .2rem .8rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); }
+  .tabs::before { content: "대한성공회\A수원교회 교적부"; white-space: pre-line; word-break: keep-all; color: #fff; font-weight: 700; font-size: 1.05rem; padding: .2rem .8rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); }
   .tab { flex: none; flex-direction: row; justify-content: flex-start; gap: .8rem; padding: .75rem .9rem; font-size: .95rem; }
   .tab svg { width: 1.3rem; height: 1.3rem; }
   .tab:not(.on):hover { background: rgba(255,255,255,.1); }
@@ -750,7 +750,7 @@ body:has(.boot-load) .tabs { display: none; }
 (function () {
   'use strict';
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '043430f739';
+  var UI_VERSION = '3da999a92f';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
