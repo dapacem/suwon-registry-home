@@ -719,18 +719,53 @@ body:has(.boot-load) .tabs { display: none; }
   #splash .go { display: block; width: 100%; background: #fff; color: #1A5276; font-weight: 700; padding: .8rem 1rem; border-radius: .7rem; font-size: 1rem; }
   #splash .link { margin-top: .7rem; color: #fff; opacity: .85; text-decoration: underline; font-size: .85rem; }
   #splash .sent { font-size: .9rem; margin-bottom: .6rem; opacity: .9; }
-  #splash .msg { min-height: 1.3rem; margin-top: .8rem; font-size: .9rem; color: #FFE08A; }
+  #splash .msg { white-space: pre-line; min-height: 1.3rem; margin-top: .8rem; font-size: .9rem; color: #FFE08A; }
   #splash .note { margin-top: .6rem; font-size: .78rem; opacity: .75; line-height: 1.6; }
+  #stepApply input { text-align: left; }
+  .approve-box { max-width: 26rem; margin: 2rem auto; width: calc(100% - 2rem); box-sizing: border-box; padding: 1.4rem; background: var(--card, #fff); border-radius: 1rem; box-shadow: 0 2px 10px rgba(20,45,70,.12); }
+  .ap-title { font-size: 1.15rem; font-weight: 700; color: #1A5276; margin-bottom: .9rem; }
+  .ap-tbl { width: 100%; border-collapse: collapse; margin-bottom: .9rem; }
+  .ap-tbl th { text-align: left; color: #5A6B7D; font-weight: 400; width: 4.5rem; padding: .35rem 0; vertical-align: top; }
+  .ap-tbl td { padding: .35rem 0; word-break: break-all; }
+  .ap-note { font-size: .9rem; color: #3A4A5C; line-height: 1.6; margin-bottom: 1rem; }
+  .ap-btn { display: block; width: 100%; background: #1A5276; color: #fff; font-weight: 700; padding: .8rem 1rem; border-radius: .7rem; font-size: 1rem; margin-top: .5rem; }
+  .ap-btn.ghost { background: transparent; color: #1A5276; border: 1px solid #1A5276; }
+  .ap-btn:disabled { opacity: .6; }
 </style>
 </head>
 <body>
+  <div id="kakao" style="position:fixed;inset:0;z-index:200;background:#1A5276;color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem;font-family:Arial,sans-serif;line-height:1.7">
+    <div style="font-size:1.2rem;font-weight:700;margin-bottom:.8rem">사파리·크롬으로 여는 중입니다…</div>
+    <div style="font-size:.95rem;opacity:.9;margin-bottom:1.2rem">카톡 안에서는 홈 화면에 놓을 수 없어<br>아이폰은 사파리, 갤럭시는 크롬으로 엽니다.</div>
+    <div style="font-size:.9rem;opacity:.85;margin-bottom:.6rem">저절로 열리지 않으면 아래 주소를 복사해<br>사파리·크롬 주소창에 붙여 넣어 주십시오.</div>
+    <div style="background:#fff;color:#1A5276;border-radius:.6rem;padding:.6rem .8rem;font-size:.9rem;word-break:break-all;margin-bottom:.8rem" id="kakaoUrl"></div>
+    <button id="kakaoCopy" style="background:#fff;color:#1A5276;font-weight:700;border:0;border-radius:.7rem;padding:.7rem 1.4rem;font-size:1rem">주소 복사</button>
+  </div>
+  <script>
+  // 카톡 안에서 열면 사파리·크롬으로 넘긴다 (2026-11-07 Francis님: 안내문은 카톡에서 바로 누르게)
+  (function () {
+    if (!/KAKAOTALK/i.test(navigator.userAgent)) return;
+    window.__inKakao = true;
+    var url = location.href;
+    var box = document.getElementById('kakao');
+    box.style.display = 'flex';
+    document.getElementById('kakaoUrl').textContent = url;
+    document.getElementById('kakaoCopy').onclick = function () {
+      var b = this;
+      var done = function () { b.textContent = '복사했습니다'; };
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () {});
+      else { var t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); }
+    };
+    location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(url);
+  })();
+  </script>
   <div id="splash">
     <div class="sp-box">
       <img src="apple-touch-icon.png" alt="수원교회">
       <div class="church">대한성공회 수원교회</div>
       <h1>교적부</h1>
       <div id="stepEmail">
-        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="등록된 이메일 주소">
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소">
         <button class="go" id="sendBtn">인증번호 받기</button>
       </div>
       <div id="stepCode" hidden>
@@ -738,6 +773,20 @@ body:has(.boot-load) .tabs { display: none; }
         <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="인증번호 6자리">
         <button class="go" id="verifyBtn">확인</button>
         <button class="link" id="backBtn">이메일 다시 입력</button>
+      </div>
+      <div id="stepApply" hidden>
+        <div class="sent" id="applyTo"></div>
+        <input id="apName" type="text" autocomplete="name" maxlength="20" placeholder="성명 (예: 홍길동)">
+        <input id="apSaint" type="text" maxlength="20" placeholder="신명 (예: 바우로)">
+        <input id="apNote" type="text" maxlength="60" placeholder="직분·한마디 (예: 교회위원 선교분과)">
+        <button class="go" id="applyBtn">열람 신청</button>
+        <button class="link" id="applyBack">이메일 다시 입력</button>
+      </div>
+      <div id="stepWait" hidden>
+        <div class="sent" id="waitTo"></div>
+        <div class="sent">승인되면 메일로 알려 드립니다.<br>그때 이 앱을 다시 여시면 바로 들어가집니다.</div>
+        <button class="go" id="waitCheck">승인되었는지 확인</button>
+        <button class="link" id="waitBack">다른 이메일로</button>
       </div>
       <div class="msg" id="spMsg"></div>
       <div class="note">처음 한 번 인증하면, 이 휴대폰에서는 계속 바로 열립니다.<br>(30일 넘게 열지 않으면 다시 인증)</div>
@@ -749,6 +798,7 @@ body:has(.boot-load) .tabs { display: none; }
 <script>
 (function () {
   'use strict';
+  if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
   var UI_VERSION = '3da999a92f';
 
@@ -790,13 +840,52 @@ body:has(.boot-load) .tabs { display: none; }
   // ── 처음 화면: 이메일 → 인증번호 ──
   var splash = document.getElementById('splash');
   var $ = function (id) { return document.getElementById(id); };
-  function msg(t) { $('spMsg').textContent = t || ''; }
+  function msg(t) { $('spMsg').textContent = String(t || '').replace(/<br>/g, '\n'); }
   function showSplash(note) {
     splash.classList.add('on');
     $('email').value = get('suwon-registry-email');
     msg(note || '');
   }
-  function stepCode(on) { $('stepEmail').hidden = on; $('stepCode').hidden = !on; if (on) $('code').focus(); }
+  function stepCode(on) { $('stepEmail').hidden = on; $('stepCode').hidden = !on; $('stepApply').hidden = true; $('stepWait').hidden = true; if (on) $('code').focus(); }
+  // 등록 전 (2026-11-07 Francis님): 인증번호로 본인 확인 → 열람 신청 → 승인 기다림 → 승인되면 아이콘을 다시 열 때 바로 들어감
+  var waiting = false;
+  function stepApply(email) {
+    splash.classList.add('on');
+    $('stepEmail').hidden = true; $('stepCode').hidden = true; $('stepApply').hidden = false; $('stepWait').hidden = true;
+    $('applyTo').textContent = email + ' 은(는) 아직 등록되지 않았습니다. 아래에 적어 열람을 신청하시면 승인 뒤 메일로 알려 드립니다.';
+    msg('');
+  }
+  function stepWait(email) {
+    waiting = true;
+    splash.classList.add('on');
+    $('stepEmail').hidden = true; $('stepCode').hidden = true; $('stepApply').hidden = true; $('stepWait').hidden = false;
+    $('waitTo').textContent = email + ' 로 열람을 신청하셨습니다.';
+    msg('');
+  }
+  function checkPending(t) {
+    return api({ api: 'status', t: t }).then(function (j) {
+      if (j.state === 'ok') { location.replace(location.pathname); return; }
+      if (j.state === 'wait') { stepWait(j.email); return; }
+      if (j.state === 'none') { stepApply(j.email); return; }
+      del(KEY); showSplash('다시 로그인해 주십시오.');
+    });
+  }
+  $('applyBack').addEventListener('click', function () { del(KEY); $('stepApply').hidden = true; $('stepEmail').hidden = false; msg(''); });
+  $('waitBack').addEventListener('click', function () { del(KEY); waiting = false; $('stepWait').hidden = true; $('stepEmail').hidden = false; msg(''); });
+  $('waitCheck').addEventListener('click', function () { msg('확인 중…'); checkPending(get(KEY)).then(function () { if (waiting) msg('아직 승인되지 않았습니다.'); }).catch(function () { msg('연결이 원활하지 않습니다.'); }); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && waiting && get(KEY)) checkPending(get(KEY)).catch(function () {}); });
+  $('applyBtn').addEventListener('click', function () {
+    var name = $('apName').value.trim();
+    if (!name) { msg('성명을 넣어 주십시오.'); return; }
+    msg('보내는 중…');
+    api({ api: 'apply', t: get(KEY), name: name, saint: $('apSaint').value.trim(), note: $('apNote').value.trim() }).then(function (j) {
+      if (j.ok) stepWait(get('suwon-registry-email'));
+      else if (j.error === 'ALREADY') location.replace(location.pathname);
+      else if (j.error === 'EXPIRED') { del(KEY); showSplash('다시 로그인해 주십시오.'); }
+      else if (j.error === 'BUSY') msg('신청이 몰려 있습니다. 한 시간 뒤 다시 해 주십시오.');
+      else msg('잠시 후 다시 시도해 주십시오.');
+    }).catch(function () { msg('연결이 원활하지 않습니다. 잠시 후 다시 시도해 주십시오.'); });
+  });
   $('sendBtn').addEventListener('click', function () {
     var email = $('email').value.trim().toLowerCase();
     if (!email) { msg('이메일 주소를 넣어 주십시오.'); return; }
@@ -807,7 +896,7 @@ body:has(.boot-load) .tabs { display: none; }
         $('sentTo').textContent = email + ' 로 보낸 번호를 넣어 주십시오.';
         msg(j.again ? '방금 보낸 번호를 그대로 쓰십시오.' : '');
         stepCode(true);
-      } else if (j.error === 'NOT_REGISTERED') msg('등록되지 않은 이메일입니다. 주재성 위원에게 문의하십시오.');
+      } else if (j.error === 'BUSY') msg('요청이 몰려 있습니다. 잠시 후 다시 시도해 주십시오.');
       else if (j.error === 'BAD_EMAIL') msg('이메일 주소를 다시 확인해 주십시오.');
       else if (j.error === 'LOCKED') msg('여러 번 틀려 잠시 잠겼습니다. 몇 시간 뒤 다시 시도하십시오.');
       else msg('잠시 후 다시 시도해 주십시오.');
@@ -889,12 +978,24 @@ body:has(.boot-load) .tabs { display: none; }
   }
   window.addEventListener('message', function (e) { if (e.data === 'suwon-registry-expired') onApiError('EXPIRED'); });
 
+  // ── 사용 신청 승인 (메일 링크 ?approve=…&k=…, 앱 소유자만) ──
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('approve')) {
+    try { sessionStorage.setItem('suwon-approve', JSON.stringify({ id: qs.get('approve'), k: qs.get('k') || '' })); } catch (e) {}
+    history.replaceState(null, '', location.pathname);
+  }
+  var pending = null;
+  try { pending = JSON.parse(sessionStorage.getItem('suwon-approve') || 'null'); } catch (e) {}
+
   // ── 시작 ──
   var t = pass();
+  if (t && pending) { approveScreen(t, pending); return; }
+  if (!t && pending) { del(KEY); showSplash('승인하려면 먼저 로그인해 주십시오.'); return; }
   if (!t) { del(KEY); showSplash(); return; }
   // 불러오는 동안: 교회 사진과 큰 글씨를 화면 가운데에 (2026-11-03 Francis님)
   document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">잠시만 기다려 주십시오…</div><div class="bl-dots"><i></i><i></i><i></i></div><div class="bl-ver">대한성공회 수원교회 교적부 Ver 1.0</div></div>';
   api({ api: 'data', t: t }).then(function (d) {
+    if (d.error === 'NO_ACCESS') { document.getElementById('screen').innerHTML = ''; checkPending(t).catch(function () { showSplash('연결이 원활하지 않습니다. 잠시 후 다시 여십시오.'); }); return; }
     if (d.error) { onApiError(d.error); return; }
     if (d.renew) put(KEY, d.renew);  // 열 때마다 30일 연장
     var boot = document.getElementById('boot');
@@ -906,6 +1007,42 @@ body:has(.boot-load) .tabs { display: none; }
   }).catch(function () {
     document.getElementById('screen').innerHTML = '<div class="loading">자료를 불러오지 못했습니다. 잠시 후 다시 여십시오.</div>';
   });
+
+  function approveScreen(t, req) {
+    var scr = document.getElementById('screen');
+    var nav = document.getElementById('tabs'); if (nav) nav.style.display = 'none';
+    var done = function () { try { sessionStorage.removeItem('suwon-approve'); } catch (e) {} };
+    var box = function (inner) { scr.innerHTML = '<div class="approve-box">' + inner + '</div>'; };
+    var h = function (s) { return String(s || '').replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    var back = '<button class="ap-btn ghost" id="apHome">앱으로</button>';
+    var wireHome = function () { var b = document.getElementById('apHome'); if (b) b.onclick = function () { done(); location.replace(location.pathname); }; };
+    box('<div class="ap-title">사용 신청 승인</div><div class="ap-note">불러오는 중…</div>');
+    api({ api: 'applyinfo', t: t, id: req.id, k: req.k }).then(function (j) {
+      if (j.error === 'EXPIRED' || j.error === 'NO_ACCESS') { done(); onApiError(j.error); return; }
+      if (!j.ok) {
+        box('<div class="ap-title">사용 신청 승인</div><div class="ap-note">' + (j.error === 'NOT_OWNER' ? '승인은 앱 관리자(주재성 프란시스)만 할 수 있습니다.' : '신청을 찾을 수 없습니다. 링크를 다시 확인해 주십시오.') + '</div>' + back);
+        wireHome(); return;
+      }
+      var r = j.req;
+      var info = '<table class="ap-tbl"><tr><th>성명</th><td>' + h(r.name) + ' ' + h(r.saint) + '</td></tr><tr><th>이메일</th><td>' + h(r.email) + '</td></tr>' +
+        (r.note ? '<tr><th>한마디</th><td>' + h(r.note) + '</td></tr>' : '') + '<tr><th>신청</th><td>' + h(r.time) + '</td></tr></table>';
+      if (r.state !== '대기') { box('<div class="ap-title">사용 신청 승인</div>' + info + '<div class="ap-note">이미 처리된 신청입니다 (' + h(r.state) + ').</div>' + back); wireHome(); return; }
+      box('<div class="ap-title">사용 신청 승인</div>' + info +
+        '<div class="ap-note">승인하면 「앱 사용자」에 <b>열람자</b>(편집 아니오)로 들어가고, 신청하신 분께 안내 메일이 갑니다.<br>운영자·편집 권한은 시트에서 직접 바꾸십시오.</div>' +
+        '<button class="ap-btn" id="apOk">열람자로 승인</button>' + back);
+      wireHome();
+      document.getElementById('apOk').onclick = function () {
+        this.disabled = true; this.textContent = '승인하는 중…';
+        fetch(MAIN, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ api: 'approve', t: t, id: req.id, k: req.k }) })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            if (d.ok) { done(); box('<div class="ap-title">승인했습니다</div>' + info + '<div class="ap-note">' + h(d.email) + ' 로 안내 메일을 보냈습니다.</div>' + back); wireHome(); }
+            else if (d.error === 'DONE') { done(); box('<div class="ap-title">사용 신청 승인</div>' + info + '<div class="ap-note">이미 처리된 신청입니다.</div>' + back); wireHome(); }
+            else { box('<div class="ap-title">사용 신청 승인</div>' + info + '<div class="ap-note">승인하지 못했습니다 (' + h(d.error) + '). 잠시 후 다시 해 주십시오.</div>' + back); wireHome(); }
+          }).catch(function () { box('<div class="ap-title">사용 신청 승인</div><div class="ap-note">연결이 원활하지 않습니다.</div>' + back); wireHome(); });
+      };
+    }).catch(function () { box('<div class="ap-title">사용 신청 승인</div><div class="ap-note">연결이 원활하지 않습니다.</div>' + back); wireHome(); });
+  }
 
   function startApp() {
 
