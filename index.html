@@ -773,6 +773,7 @@ body:has(.boot-load) .tabs { display: none; }
         <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="인증번호 6자리">
         <button class="go" id="verifyBtn">확인</button>
         <button class="link" id="backBtn">이메일 다시 입력</button>
+        <div class="note">메일이 안 보이면 스팸함(네이버는 「스팸메일함」)을 확인해 주십시오.</div>
       </div>
       <div id="stepApply" hidden>
         <div class="sent" id="applyTo"></div>
@@ -784,12 +785,13 @@ body:has(.boot-load) .tabs { display: none; }
       </div>
       <div id="stepWait" hidden>
         <div class="sent" id="waitTo"></div>
-        <div class="sent">승인되면 메일로 알려 드립니다.<br>그때 이 앱을 다시 여시면 바로 들어가집니다.</div>
-        <button class="go" id="waitCheck">승인되었는지 확인</button>
+        <div class="sent">등록되면 카톡으로 알려 드립니다.<br>그때 이 앱을 다시 여시면 바로 들어가집니다.</div>
+        <button class="go" id="waitCheck">등록되었는지 확인</button>
         <button class="link" id="waitBack">다른 이메일로</button>
       </div>
       <div class="msg" id="spMsg"></div>
-      <div class="note">처음 한 번 인증하면, 이 휴대폰에서는 계속 바로 열립니다.<br>(30일 넘게 열지 않으면 다시 인증)</div>
+      <div class="note">처음 한 번 확인하면, 이 휴대폰에서는 계속 바로 열립니다.<br>(30일 넘게 열지 않으면 다시 확인)</div>
+      <button class="link" id="googleBtn">구글 계정으로 들어가기</button>
     </div>
   </div>
   <div id="screen" class="screen"></div>
@@ -801,6 +803,7 @@ body:has(.boot-load) .tabs { display: none; }
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
   var UI_VERSION = '3da999a92f';
+  var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
   function checkUpdate() {
@@ -852,7 +855,7 @@ body:has(.boot-load) .tabs { display: none; }
   function stepApply(email) {
     splash.classList.add('on');
     $('stepEmail').hidden = true; $('stepCode').hidden = true; $('stepApply').hidden = false; $('stepWait').hidden = true;
-    $('applyTo').textContent = email + ' 은(는) 아직 등록되지 않았습니다. 아래에 적어 열람을 신청하시면 승인 뒤 메일로 알려 드립니다.';
+    $('applyTo').textContent = email + ' 은(는) 아직 등록되지 않았습니다. 아래에 적어 열람을 신청하시면 등록되는 대로 카톡으로 알려 드립니다.';
     msg('');
   }
   function stepWait(email) {
@@ -893,10 +896,11 @@ body:has(.boot-load) .tabs { display: none; }
     api({ api: 'sendcode', email: email }).then(function (j) {
       if (j.ok) {
         put('suwon-registry-email', email);
-        $('sentTo').textContent = email + ' 로 보낸 번호를 넣어 주십시오.';
-        msg(j.again ? '방금 보낸 번호를 그대로 쓰십시오.' : '');
+        $('sentTo').textContent = email + ' 로 메일을 보냈습니다. 메일에 적힌 인증번호 6자리를 넣어 주십시오.';
+        msg(j.again ? '방금 보낸 인증번호를 그대로 쓰십시오.' : '');
         stepCode(true);
-      } else if (j.error === 'BUSY') msg('요청이 몰려 있습니다. 잠시 후 다시 시도해 주십시오.');
+      } else if (j.error === 'TOO_MANY') msg('인증번호를 여러 번 받으셨습니다. 한 시간 뒤 다시 시도해 주십시오.');
+      else if (j.error === 'BUSY') msg('요청이 몰려 있습니다. 잠시 후 다시 시도해 주십시오.');
       else if (j.error === 'BAD_EMAIL') msg('이메일 주소를 다시 확인해 주십시오.');
       else if (j.error === 'LOCKED') msg('여러 번 틀려 잠시 잠겼습니다. 몇 시간 뒤 다시 시도하십시오.');
       else msg('잠시 후 다시 시도해 주십시오.');
@@ -908,14 +912,33 @@ body:has(.boot-load) .tabs { display: none; }
     msg('확인 중…');
     api({ api: 'verify', email: get('suwon-registry-email'), code: code }).then(function (j) {
       if (j.ok && j.t) { put(KEY, j.t); location.replace(location.pathname); }
-      else if (j.error === 'WRONG') msg('번호가 맞지 않습니다. 다시 넣어 주십시오.');
-      else if (j.error === 'NO_CODE') { msg('번호가 만료되었습니다. 다시 받아 주십시오.'); stepCode(false); }
+      else if (j.error === 'WRONG') msg('인증번호가 맞지 않습니다. 다시 넣어 주십시오.');
+      else if (j.error === 'NO_CODE') { msg('인증번호가 만료되었거나 여러 번 틀렸습니다. 다시 받아 주십시오.'); stepCode(false); }
       else if (j.error === 'LOCKED') msg('여러 번 틀려 잠시 잠겼습니다. 몇 시간 뒤 다시 시도하십시오.');
-      else msg('등록되지 않은 이메일입니다. 주재성 위원에게 문의하십시오.');
+      else msg('잠시 후 다시 시도해 주십시오.');
     }).catch(function () { msg('연결이 원활하지 않습니다.'); });
   });
   $('code').addEventListener('input', function () { if (this.value.replace(/D/g, '').length === 6) $('verifyBtn').click(); });
   $('backBtn').addEventListener('click', function () { stepCode(false); msg(''); });
+
+  // 구글 계정으로 들어가기 (보조, 2026-11-08): 입구 앱이 구글 이메일을 확인해 출입증을 맡기면, 이 화면이 일회용 번호로 찾아간다
+  var GNKEY = 'suwon-gnonce';
+  function claimLoop() {
+    var g = (get(GNKEY) || '').split('|');
+    if (!g[0] || Date.now() - Number(g[1] || 0) > 6 * 60000) { del(GNKEY); return; }
+    api({ api: 'claim', n: g[0] }).then(function (j) {
+      if (j.t) { del(GNKEY); put(KEY, j.t); location.replace(location.pathname); }
+      else setTimeout(claimLoop, 2500);
+    }).catch(function () { setTimeout(claimLoop, 4000); });
+  }
+  $('googleBtn').addEventListener('click', function () {
+    var a = new Uint8Array(24); (window.crypto || window.msCrypto).getRandomValues(a);
+    var n = Array.prototype.map.call(a, function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+    put(GNKEY, n + '|' + Date.now());
+    window.open(GATE + '?n=' + n, '_blank');
+    msg('구글 로그인 창에서 들어가신 뒤 이 화면으로 돌아오십시오.');
+    claimLoop();
+  });
 
   // ── 화면 코드가 쓰는 google.script.run / history 를 자료 창구로 바꿔 끼움 ──
   var preload = null;
@@ -989,6 +1012,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 시작 ──
   var t = pass();
+  if (!t && get(GNKEY)) { showSplash('구글 로그인을 확인하는 중입니다…'); claimLoop(); return; }
   if (t && pending) { approveScreen(t, pending); return; }
   if (!t && pending) { del(KEY); showSplash('승인하려면 먼저 로그인해 주십시오.'); return; }
   if (!t) { del(KEY); showSplash(); return; }
