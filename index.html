@@ -802,7 +802,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '772d5cc504';
+  var UI_VERSION = '2c50a3f604';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1526,8 +1526,8 @@ body:has(.boot-load) .tabs { display: none; }
   // ── 교우 상세 (§5.3) ──
   var REL = { father: '아버지', mother: '어머니', husband: '남편', wife: '아내', sibling: '형제자매',
     wifeFather: '장인', wifeMother: '장모', husbandFather: '시아버지', husbandMother: '시어머니', sonInLaw: '사위', daughterInLaw: '며느리' };
-  // 핵가족·직계 먼저, 형제자매, 인척은 맨 아래 (2026-11-04 Francis님): 배우자 → 자녀 → 부모 → 조부모 → 손주 → 형제자매 → 장인·장모·시부모 → 사위·며느리
-  var REL_ORDER = ['husband', 'wife', 'child', 'father', 'mother', 'grandparent', 'grandparentM', 'grandchild', 'sibling', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother', 'sonInLaw', 'daughterInLaw'];
+  // 2026-11-08 Francis님: 배우자 → 자녀 → 부모 → 형제자매 → 조부모 → 손주 → 장인·장모·시부모 → 사위·며느리
+  var REL_ORDER = ['husband', 'wife', 'child', 'father', 'mother', 'sibling', 'grandparent', 'grandparentM', 'grandchild', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother', 'sonInLaw', 'daughterInLaw'];
 
   /** 판 번호 82 → 「Ver 0.82」 (2026-11-04 Francis님). 뒤에 붙은 「· 화면 ○○」는 그대로 */
   // 2026-11-05 Francis님: 정식 이름 「Ver 1.0」. 뒤에 판 번호를 작게 붙여 어느 배포인지 알 수 있게
