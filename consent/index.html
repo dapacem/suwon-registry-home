@@ -44,27 +44,27 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
 .hidden { display:none; }
 .done { text-align:center; padding:60px 10px; }
 .done h1 { font-size:28px; }
+.kidrow { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px 2px; margin:0 0 12px; }
+.kidrow.bad { outline:3px solid var(--bad); outline-offset:2px; }
+.ch.row { flex-direction:row; } .ch.row button { flex:1; }
+.same { display:flex; align-items:center; gap:10px; font-size:20px; margin-bottom:8px; } .same input { width:30px; height:30px; }
+.kn { font-weight:700; color:var(--navy); margin-bottom:8px; }
+.more { width:100%; font:inherit; font-size:20px; min-height:56px; border:2px dashed var(--navy); border-radius:12px; background:#fff; color:var(--navy); margin-bottom:6px; }
 .foot { margin-top:30px; font-size:16px; color:var(--mute); text-align:center; }
 </style></head><body><div class="wrap" id="form">
 <h1>대한성공회 수원교회 교우 정보 수집·이용 동의서</h1>
 <div class="lead"><p>재적 교우를 바르게 관리하기 위해 교적을 새로 정리합니다. 별세 · 이사 · 전출 · 출산 등으로 바뀌는 교적 사항을 잘 관리하려는 것입니다.</p><p>개인정보 보호법에 따라 본인의 동의를 받습니다. 동의하지 않으셔도 감사성찬례와 교회 생활에는 아무런 차이가 없습니다.</p></div>
 <div class="card" style="background:var(--sky)"><p class="det" style="margin:0"><b>목적</b> 재적 교우 관리 — 별세 · 이사 · 전출 · 출산 등으로 바뀌는 교적 사항을 바르게 관리합니다.<br><b>보는 사람</b> 사제단 · 교회위원 · 관할사제와 신자회장이 지명한 신자 사역자<br><span style="color:var(--mute)">아래 모든 항목에 똑같이 적용됩니다.</span></p></div>
 
-<h2>작성하시는 분</h2>
-<div class="card" id="q-who"><div class="ch" data-name="who"><button type="button" data-v="본인 (만 14세 이상)">본인 (만 14세 이상)</button><button type="button" data-v="만 14세 미만 자녀를 대신하여 (부모님)">만 14세 미만 자녀를 대신하여 (부모님)</button></div></div>
+<h2>작성하시는 분 (본인)</h2>
+<label class="fld" id="f-name"><span>성명</span><input name="name" autocomplete="name"></label>
+<label class="fld"><span>신명 <i>세례명, 없으시면 비워 두십시오</i></span><input name="saint"></label>
+<label class="fld" id="f-phone"><span>휴대폰 <i>본인 확인용</i></span><input name="phone" inputmode="tel" placeholder="010-1234-5678"></label>
 
-<div id="self" class="hidden">
-  <label class="fld" id="f-name"><span>성명</span><input name="name" autocomplete="name"></label>
-  <label class="fld"><span>신명 <i>세례명, 없으시면 비워 두십시오</i></span><input name="saint"></label>
-  <label class="fld" id="f-phone"><span>휴대폰 <i>본인 확인용</i></span><input name="phone" inputmode="tel" placeholder="010-1234-5678"></label>
-</div>
-<div id="kid" class="hidden">
-  <div class="card" style="background:var(--sky)">만 14세 미만 자녀는 법에 따라 부모님(법정대리인)의 동의를 받습니다. 한 장에 자녀 여럿을 적으실 수 있습니다. 동의 칸은 적으신 자녀 모두에게 똑같이 적용됩니다.</div>
-  <label class="fld" id="f-kids"><span>자녀 성명 · 신명 · 생년월일 <i>한 줄에 한 명 (예: 홍길동 요셉 150510)</i></span><textarea name="kids" rows="3"></textarea></label>
-  <label class="fld" id="f-pname"><span>부모 성명</span><input name="pname"></label>
-  <label class="fld" id="f-prel"><span>자녀와의 관계 <i>예: 어머니</i></span><input name="prel"></label>
-  <label class="fld" id="f-pphone"><span>부모 휴대폰 <i>본인 확인용</i></span><input name="pphone" inputmode="tel" placeholder="010-1234-5678"></label>
-</div>
+<h2>만 14세 미만 자녀 <i style="font-style:normal;font-weight:400;font-size:18px;color:var(--mute)">있으시면 3명까지 함께</i></h2>
+<div class="card" style="background:var(--sky)">만 14세 미만 자녀는 부모님이 대신 동의합니다. 아래 동의 칸은 <b>본인과 적으신 자녀 모두에게 똑같이</b> 적용됩니다. 자녀가 없으시면 비워 두십시오.</div>
+<div class="kidrow" id="k1"><div class="kn">자녀 1</div><label class="fld"><span>성명</span><input name="k1n"></label><label class="fld"><span>신명 <i>없으면 비워 두십시오</i></span><input name="k1s"></label><div class="fld"><span>성별</span><div class="ch row" data-name="k1g"><button type="button" data-v="남">남</button><button type="button" data-v="여">여</button></div></div><label class="fld"><span>생년월일 <i>주민번호 앞 6자리</i></span><input name="k1b" inputmode="numeric" maxlength="6"></label><label class="fld"><span>휴대폰 <i>있으면</i></span><input name="k1p" inputmode="tel"></label><label class="fld"><span>이메일 <i>있으면</i></span><input name="k1e" type="email"></label><div class="fld"><span>주소</span><label class="same"><input type="checkbox" name="k1same" checked> 부모와 같음</label><input name="k1a" placeholder="다르면 적어 주십시오" class="hidden"></div><label class="fld"><span>세례일 <i>아시는 만큼</i></span><input name="k1t"></label><label class="fld"><span>견진일 <i>아시는 만큼</i></span><input name="k1c"></label><label class="fld"><span>후견인 성명 <i>세례 때 대부 · 대모</i></span><input name="k1r"></label></div><div id="kmore" class="hidden"><div class="kidrow" id="k2"><div class="kn">자녀 2</div><label class="fld"><span>성명</span><input name="k2n"></label><label class="fld"><span>신명 <i>없으면 비워 두십시오</i></span><input name="k2s"></label><div class="fld"><span>성별</span><div class="ch row" data-name="k2g"><button type="button" data-v="남">남</button><button type="button" data-v="여">여</button></div></div><label class="fld"><span>생년월일 <i>주민번호 앞 6자리</i></span><input name="k2b" inputmode="numeric" maxlength="6"></label><label class="fld"><span>휴대폰 <i>있으면</i></span><input name="k2p" inputmode="tel"></label><label class="fld"><span>이메일 <i>있으면</i></span><input name="k2e" type="email"></label><div class="fld"><span>주소</span><label class="same"><input type="checkbox" name="k2same" checked> 부모와 같음</label><input name="k2a" placeholder="다르면 적어 주십시오" class="hidden"></div><label class="fld"><span>세례일 <i>아시는 만큼</i></span><input name="k2t"></label><label class="fld"><span>견진일 <i>아시는 만큼</i></span><input name="k2c"></label><label class="fld"><span>후견인 성명 <i>세례 때 대부 · 대모</i></span><input name="k2r"></label></div><div class="kidrow" id="k3"><div class="kn">자녀 3</div><label class="fld"><span>성명</span><input name="k3n"></label><label class="fld"><span>신명 <i>없으면 비워 두십시오</i></span><input name="k3s"></label><div class="fld"><span>성별</span><div class="ch row" data-name="k3g"><button type="button" data-v="남">남</button><button type="button" data-v="여">여</button></div></div><label class="fld"><span>생년월일 <i>주민번호 앞 6자리</i></span><input name="k3b" inputmode="numeric" maxlength="6"></label><label class="fld"><span>휴대폰 <i>있으면</i></span><input name="k3p" inputmode="tel"></label><label class="fld"><span>이메일 <i>있으면</i></span><input name="k3e" type="email"></label><div class="fld"><span>주소</span><label class="same"><input type="checkbox" name="k3same" checked> 부모와 같음</label><input name="k3a" placeholder="다르면 적어 주십시오" class="hidden"></div><label class="fld"><span>세례일 <i>아시는 만큼</i></span><input name="k3t"></label><label class="fld"><span>견진일 <i>아시는 만큼</i></span><input name="k3c"></label><label class="fld"><span>후견인 성명 <i>세례 때 대부 · 대모</i></span><input name="k3r"></label></div></div>
+<button type="button" class="more" id="kbtn">＋ 자녀 더 적기</button>
 
 <h2>동의 — 칸마다 하나를 눌러 주십시오</h2>
 <section class="card" id="q-c1"><h3>① 기본 교적 <span class="tag req">필수</span></h3><p class="det"><b>항목</b> 성명 · 신명 · 성별 · 가족 관계 · 출석 상태</p><p class="note">동의하지 않으시면 교적을 관리하기 어렵습니다.</p><div class="ch" data-name="c1"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card sens" id="q-c2"><h3>② 신앙 정보 <span class="tag">따로 동의</span></h3><p class="det"><b>항목</b> 세례일 · 견진일 · 후견인 · 출신 교파 · 소속 단체 · 직책</p><p class="note">신앙에 관한 정보라 다른 항목과 따로 여쭙니다.</p><div class="ch" data-name="c2"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c3"><h3>③ 연락처 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 휴대폰 · 카카오톡 · 이메일 · 주소</p><div class="ch" data-name="c3"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c4"><h3>④ 사진 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 얼굴 사진 — 교적부 앱과 교우 요람(인쇄)에 함께 실립니다</p><div class="ch" data-name="c4"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c5"><h3>⑤ 생년월일 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 생년월일 (주민등록번호 앞 6자리)</p><p class="note">요람과 앱 화면에는 싣지 않습니다.</p><div class="ch" data-name="c5"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section>
@@ -78,12 +78,12 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
 <label class="okbox" id="q-ok"><input type="checkbox" name="ok"><span>위 내용을 읽고 이해했으며, 표시한 대로 동의합니다.</span></label>
 <button class="go" id="go" type="button">제출하기</button>
 <div class="err" id="err"></div>
-<div class="foot">대한성공회 수원교회 · 동의서 v2.8 · 2026-11-09 (초안)</div>
+<div class="foot">대한성공회 수원교회 · 동의서 v2.9 · 2026-11-09 (초안)</div>
 </div>
 <div class="wrap done hidden" id="done"><h1>제출되었습니다</h1><p>동의해 주셔서 감사합니다. 주님 안에서 늘 평안하시길 빕니다.</p></div>
 <script>
 (function () {
-  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec', VER = 'v2.8', CONFIRM = "위 내용을 읽고 이해했으며, 표시한 대로 동의합니다.";
+  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec', VER = 'v2.9', CONFIRM = "위 내용을 읽고 이해했으며, 표시한 대로 동의합니다.";
   var preview = location.protocol === 'file:' || /[?&]preview/.test(location.search);
   var vals = {};
   document.querySelectorAll('.ch').forEach(function (ch) {
@@ -92,29 +92,35 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
       ch.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
       vals[ch.dataset.name] = b.dataset.v;
       var box = ch.closest('.card, .sub'); if (box) box.classList.remove('bad');
-      if (ch.dataset.name === 'who') {
-        var kid = b.dataset.v.indexOf('자녀') >= 0;
-        document.getElementById('self').classList.toggle('hidden', kid);
-        document.getElementById('kid').classList.toggle('hidden', !kid);
-      }
     });
   });
   function val(n) { var el = document.querySelector('[name="' + n + '"]'); return el ? (el.type === 'checkbox' ? (el.checked ? CONFIRM : '') : el.value.trim()) : ''; }
   function bad(id) { var el = document.getElementById(id); if (el) el.classList.add('bad'); return el; }
-  document.querySelectorAll('input, textarea').forEach(function (el) { el.addEventListener('input', function () { var f = el.closest('.fld, .okbox'); if (f) f.classList.remove('bad'); }); });
+  document.querySelectorAll('input, textarea').forEach(function (el) { el.addEventListener('input', function () { var f = el.closest('.kidrow') || el.closest('.fld, .okbox'); if (f) f.classList.remove('bad'); }); });
+  [1, 2, 3].forEach(function (i) { var c = document.querySelector('[name=k' + i + 'same]'); c.addEventListener('change', function () { document.querySelector('[name=k' + i + 'a]').classList.toggle('hidden', c.checked); }); });
+  document.getElementById('kbtn').addEventListener('click', function () { document.getElementById('kmore').classList.remove('hidden'); this.classList.add('hidden'); });
   document.getElementById('go').addEventListener('click', function () {
     var err = document.getElementById('err'), first = null, mark = function (id) { var el = bad(id); if (!first) first = el; };
     document.querySelectorAll('.bad').forEach(function (x) { x.classList.remove('bad'); });
-    if (!vals.who) mark('q-who');
-    var kid = (vals.who || '').indexOf('자녀') >= 0, ph = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
-    if (vals.who && !kid) { if (!val('name')) mark('f-name'); if (!ph.test(val('phone').replace(/\s/g, ''))) mark('f-phone'); }
-    if (kid) { if (!val('kids')) mark('f-kids'); if (!val('pname')) mark('f-pname'); if (!val('prel')) mark('f-prel'); if (!ph.test(val('pphone').replace(/\s/g, ''))) mark('f-pphone'); }
+    var ph = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+    if (!val('name')) mark('f-name'); if (!ph.test(val('phone').replace(/\s/g, ''))) mark('f-phone');
+    var kids = [], kbad = false;
+    [1, 2, 3].forEach(function (i) {
+      var g = function (k) { return val('k' + i + k); }, n = g('n'), bb = g('b');
+      var any = ['n', 's', 'b', 'p', 'e', 't', 'c', 'r'].some(function (k) { return g(k); }) || vals['k' + i + 'g'];
+      if (!any) return;
+      if (!n || !/^[0-9]{6}$/.test(bb)) { mark('k' + i); kbad = true; return; }
+      var parts = [n, g('s') ? '신명 ' + g('s') : '', vals['k' + i + 'g'] || '', bb, g('p') ? '휴대폰 ' + g('p') : '', g('e') ? '이메일 ' + g('e') : '',
+        '주소 ' + (document.querySelector('[name=k' + i + 'same]').checked ? '부모와 같음' : (g('a') || '-')),
+        g('t') ? '세례 ' + g('t') : '', g('c') ? '견진 ' + g('c') : '', g('r') ? '후견인 ' + g('r') : ''];
+      kids.push(parts.filter(function (x) { return x; }).join(' · '));
+    });
     ['c1', 'c2', 'c3', 'c4', 'c5'].forEach(function (k) { if (!vals[k]) mark('q-' + k); });
     var bd = val('birth'); if (bd && !/^[0-9]{6}$/.test(bd)) { mark('q-c5'); }
     if (!val('ok')) mark('q-ok');
-    if (first) { err.textContent = '빨간 테두리 칸을 채워 주십시오.' + (bd && !/^[0-9]{6}$/.test(bd) ? ' (생년월일은 주민번호 앞 6자리 숫자)' : ''); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-    var f = { who: vals.who, c1: vals.c1, c2: vals.c2, c3: vals.c3, c4: vals.c4, c5: vals.c5, ok: val('ok'), ver: VER };
-    (kid ? ['kids', 'pname', 'prel', 'pphone'] : ['name', 'saint', 'phone']).concat(['birth', 'address', 'email', 'baptism', 'confirm', 'sponsor']).forEach(function (k) { f[k] = val(k); });
+    if (first) { err.textContent = '빨간 테두리 칸을 채워 주십시오.' + (kbad ? ' (자녀는 성명과 생년월일 6자리)' : '') + (bd && !/^[0-9]{6}$/.test(bd) ? ' (생년월일은 주민번호 앞 6자리 숫자)' : ''); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    var f = { who: kids.length ? '본인과 자녀 ' + kids.length + '명' : '본인', kids: kids.join(' / '), c1: vals.c1, c2: vals.c2, c3: vals.c3, c4: vals.c4, c5: vals.c5, ok: val('ok'), ver: VER };
+    ['name', 'saint', 'phone', 'birth', 'address', 'email', 'baptism', 'confirm', 'sponsor'].forEach(function (k) { f[k] = val(k); });
     var go = this; go.disabled = true; err.textContent = '';
     var finish = function () { document.getElementById('form').classList.add('hidden'); document.getElementById('done').classList.remove('hidden'); window.scrollTo(0, 0); };
     if (preview) { finish(); return; }
