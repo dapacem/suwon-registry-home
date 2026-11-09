@@ -47,7 +47,8 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
 .foot { margin-top:30px; font-size:16px; color:var(--mute); text-align:center; }
 </style></head><body><div class="wrap" id="form">
 <h1>대한성공회 수원교회 교우 정보 수집·이용 동의서</h1>
-<div class="lead"><p>교회가 교우 여러분을 얼굴과 이름으로 알아보고 잘 돌보기 위해 교적을 새로 정리합니다.</p><p>개인정보 보호법에 따라 본인의 동의를 받습니다. 동의하지 않으셔도 감사성찬례와 교회 생활에는 아무런 차이가 없습니다.</p></div>
+<div class="lead"><p>재적 교우를 바르게 관리하기 위해 교적을 새로 정리합니다. 별세 · 이사 · 전출 · 출산 등으로 바뀌는 교적 사항을 잘 관리하려는 것입니다.</p><p>개인정보 보호법에 따라 본인의 동의를 받습니다. 동의하지 않으셔도 감사성찬례와 교회 생활에는 아무런 차이가 없습니다.</p></div>
+<div class="card" style="background:var(--sky)"><p class="det" style="margin:0"><b>목적</b> 재적 교우 관리 — 별세 · 이사 · 전출 · 출산 등으로 바뀌는 교적 사항을 바르게 관리합니다.<br><b>보는 사람</b> 사제단 · 교회위원 · 관할사제와 신자회장이 지명한 신자 사역자<br><span style="color:var(--mute)">아래 모든 항목에 똑같이 적용됩니다.</span></p></div>
 
 <h2>작성하시는 분</h2>
 <div class="card" id="q-who"><div class="ch" data-name="who"><button type="button" data-v="본인 (만 14세 이상)">본인 (만 14세 이상)</button><button type="button" data-v="만 14세 미만 자녀를 대신하여 (부모님)">만 14세 미만 자녀를 대신하여 (부모님)</button></div></div>
@@ -59,30 +60,30 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
 </div>
 <div id="kid" class="hidden">
   <div class="card" style="background:var(--sky)">만 14세 미만 자녀는 법에 따라 부모님(법정대리인)의 동의를 받습니다. 한 장에 자녀 여럿을 적으실 수 있습니다. 동의 칸은 적으신 자녀 모두에게 똑같이 적용됩니다.</div>
-  <label class="fld" id="f-kids"><span>자녀 성명 · 신명 · 생년월일 <i>한 줄에 한 명 (예: 홍길동 요셉 20150510)</i></span><textarea name="kids" rows="3"></textarea></label>
+  <label class="fld" id="f-kids"><span>자녀 성명 · 신명 · 생년월일 <i>한 줄에 한 명 (예: 홍길동 요셉 150510)</i></span><textarea name="kids" rows="3"></textarea></label>
   <label class="fld" id="f-pname"><span>부모 성명</span><input name="pname"></label>
   <label class="fld" id="f-prel"><span>자녀와의 관계 <i>예: 어머니</i></span><input name="prel"></label>
   <label class="fld" id="f-pphone"><span>부모 휴대폰 <i>본인 확인용</i></span><input name="pphone" inputmode="tel" placeholder="010-1234-5678"></label>
 </div>
 
 <h2>동의 — 칸마다 하나를 눌러 주십시오</h2>
-<section class="card" id="q-c1"><h3>① 기본 교적 <span class="tag req">필수</span></h3><p class="det"><b>항목</b> 성명 · 신명 · 성별 · 가족 관계 · 출석 상태<br><b>목적</b> 교적 관리, 가정 돌봄<br><b>보는 사람</b> 사제단 · 교회위원</p><p class="note">동의하지 않으시면 교적을 관리하기 어렵습니다.</p><div class="ch" data-name="c1"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card sens" id="q-c2"><h3>② 신앙 정보 (민감정보) <span class="tag">따로 동의</span></h3><p class="det"><b>항목</b> 세례일 · 견진일 · 후견인 · 출신 교파 · 소속 단체 · 직책<br><b>목적</b> 성사와 사목 기록, 단체 활동 안내<br><b>보는 사람</b> 사제단 · 교회위원</p><p class="note">신앙에 관한 정보는 법에서 민감정보로 보아 다른 동의와 따로 여쭙니다.</p><div class="ch" data-name="c2"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c3"><h3>③ 연락처 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 휴대폰 · 카카오톡 · 이메일 · 주소<br><b>목적</b> 안부 인사, 모임 안내, 긴급 연락<br><b>보는 사람</b> 사제단 · 교회위원</p><div class="ch" data-name="c3"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card"><h3>④ 사진 <span class="tag">선택 · 두 가지를 따로</span></h3><p class="det"><b>항목</b> 얼굴 사진</p><div class="sub" id="q-c41"><div class="sn">④-1 교적부 앱</div><div class="who">보는 사람: 사제단 · 교회위원</div><div class="ch" data-name="c41"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></div><div class="sub" id="q-c42"><div class="sn">④-2 교우 요람 (인쇄)</div><div class="who">보는 사람: 수원교회 교우</div><div class="ch" data-name="c42"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></div></section><section class="card" id="q-c5"><h3>⑤ 생년월일 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 생년월일 (또는 태어난 해만)<br><b>목적</b> 연령단체 안내, 생일 축하, 어르신 돌봄<br><b>보는 사람</b> 교적 담당 운영진만 (요람 · 앱 화면에 싣지 않음)</p><div class="ch" data-name="c5"><button type="button" data-v="생년월일 전체">생년월일 전체</button><button type="button" data-v="태어난 해만">태어난 해만</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section>
+<section class="card" id="q-c1"><h3>① 기본 교적 <span class="tag req">필수</span></h3><p class="det"><b>항목</b> 성명 · 신명 · 성별 · 가족 관계 · 출석 상태</p><p class="note">동의하지 않으시면 교적을 관리하기 어렵습니다.</p><div class="ch" data-name="c1"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card sens" id="q-c2"><h3>② 신앙 정보 <span class="tag">따로 동의</span></h3><p class="det"><b>항목</b> 세례일 · 견진일 · 후견인 · 출신 교파 · 소속 단체 · 직책</p><p class="note">신앙에 관한 정보라 다른 항목과 따로 여쭙니다.</p><div class="ch" data-name="c2"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c3"><h3>③ 연락처 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 휴대폰 · 카카오톡 · 이메일 · 주소</p><div class="ch" data-name="c3"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c4"><h3>④ 사진 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 얼굴 사진 — 교적부 앱과 교우 요람(인쇄)에 함께 실립니다</p><div class="ch" data-name="c4"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section><section class="card" id="q-c5"><h3>⑤ 생년월일 <span class="tag">선택</span></h3><p class="det"><b>항목</b> 생년월일 (주민등록번호 앞 6자리)</p><p class="note">요람과 앱 화면에는 싣지 않습니다.</p><div class="ch" data-name="c5"><button type="button" data-v="동의합니다">동의합니다</button><button type="button" data-v="동의하지 않습니다">동의하지 않습니다</button></div></section>
 
 <h2>알려 주실 정보 — 위에서 동의하신 칸만 적어 주십시오</h2>
-<label class="fl"><span>생년월일 <i>⑤ · 예: 19550315 (태어난 해만이면 1955)</i></span><input name="birth" inputmode="numeric" maxlength="8"></label><label class="fl"><span>주소 <i>③</i></span><input name="address" ></label><label class="fl"><span>이메일 <i>③</i></span><input name="email" type="email"></label><label class="fl"><span>세례일 <i>② · 아시는 만큼 (예: 1980년 부활절)</i></span><input name="baptism" ></label><label class="fl"><span>견진일 <i>② · 아시는 만큼</i></span><input name="confirm" ></label>
+<label class="fl"><span>생년월일 <i>⑤ · 주민등록번호 앞 6자리 (예: 550315)</i></span><input name="birth" inputmode="numeric" maxlength="6"></label><label class="fl"><span>주소 <i>③</i></span><input name="address" ></label><label class="fl"><span>이메일 <i>③</i></span><input name="email" type="email"></label><label class="fl"><span>세례일 <i>② · 아시는 만큼 (예: 1980년 부활절)</i></span><input name="baptism" ></label><label class="fl"><span>견진일 <i>② · 아시는 만큼</i></span><input name="confirm" ></label><label class="fl"><span>후견인 성명 <i>② · 세례 때 후견인(대부 · 대모)</i></span><input name="sponsor" ></label>
 
 <h2>꼭 알려 드릴 것</h2>
-<div class="card notice"><div><b>보관 기간</b>교적에 계시는 동안 보관합니다. 전출하시거나 동의를 거두시면 1개월 안에 지웁니다.</div><div><b>보관 장소</b>교적은 Google LLC(미국)의 클라우드 서버(구글 시트 · 드라이브)에 보관됩니다. 동의하신 뒤 인터넷으로 옮겨져 위 목적에만 쓰입니다. 원하지 않으시면 해당 칸에 동의하지 않으시면 됩니다.</div><div><b>거부할 권리</b>동의하지 않으셔도 교회 생활에는 아무런 차이가 없습니다. 다만 동의하지 않은 항목으로는 연락을 드리거나 요람에 싣지 못합니다.</div><div><b>철회 · 열람 · 정정</b>언제든 말씀하시면 동의를 거두거나, 교회가 가진 내 정보를 보거나 고칠 수 있습니다.</div><div><b>관리 책임</b>대한성공회 수원교회 · 담당 주재성 프란시스(전도분과) · 교회 031-248-5700</div></div>
+<div class="card notice"><div><b>보관 기간</b>교적에 계시는 동안 보관합니다. 전출하시거나 동의를 거두시면 1개월 안에 지웁니다.</div><div><b>보관 장소</b>교적은 Google LLC(미국)의 클라우드 서버(구글 시트 · 드라이브)에 보관됩니다. 동의하신 뒤 인터넷으로 옮겨져 위 목적에만 쓰입니다. 원하지 않으시면 해당 칸에 동의하지 않으시면 됩니다.</div><div><b>거부할 권리</b>동의하지 않으셔도 교회 생활에는 아무런 차이가 없습니다. 다만 동의하지 않은 항목으로는 연락을 드리거나 요람에 싣지 못합니다.</div><div><b>철회 · 열람 · 정정</b>언제든 말씀하시면 동의를 거두거나, 교회가 가진 내 정보를 보거나 고칠 수 있습니다.</div><div><b>관리 책임</b>대한성공회 수원교회 · 담당 교회위원회 전도분과 주재성 프란시스 · 교회 031-248-5700</div></div>
 
 <label class="okbox" id="q-ok"><input type="checkbox" name="ok"><span>위 내용을 읽고 이해했으며, 표시한 대로 동의합니다.</span></label>
 <button class="go" id="go" type="button">제출하기</button>
 <div class="err" id="err"></div>
-<div class="foot">대한성공회 수원교회 · 동의서 v2.1 · 2026-11-09 (초안)</div>
+<div class="foot">대한성공회 수원교회 · 동의서 v2.8 · 2026-11-09 (초안)</div>
 </div>
 <div class="wrap done hidden" id="done"><h1>제출되었습니다</h1><p>동의해 주셔서 감사합니다. 주님 안에서 늘 평안하시길 빕니다.</p></div>
 <script>
 (function () {
-  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec', VER = 'v2.1', CONFIRM = "위 내용을 읽고 이해했으며, 표시한 대로 동의합니다.";
+  var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec', VER = 'v2.8', CONFIRM = "위 내용을 읽고 이해했으며, 표시한 대로 동의합니다.";
   var preview = location.protocol === 'file:' || /[?&]preview/.test(location.search);
   var vals = {};
   document.querySelectorAll('.ch').forEach(function (ch) {
@@ -108,12 +109,12 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
     var kid = (vals.who || '').indexOf('자녀') >= 0, ph = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
     if (vals.who && !kid) { if (!val('name')) mark('f-name'); if (!ph.test(val('phone').replace(/\s/g, ''))) mark('f-phone'); }
     if (kid) { if (!val('kids')) mark('f-kids'); if (!val('pname')) mark('f-pname'); if (!val('prel')) mark('f-prel'); if (!ph.test(val('pphone').replace(/\s/g, ''))) mark('f-pphone'); }
-    ['c1', 'c2', 'c3', 'c41', 'c42', 'c5'].forEach(function (k) { if (!vals[k]) mark('q-' + k); });
-    var bd = val('birth'); if (bd && !/^([0-9]{8}|[0-9]{4})$/.test(bd)) { mark('q-c5'); }
+    ['c1', 'c2', 'c3', 'c4', 'c5'].forEach(function (k) { if (!vals[k]) mark('q-' + k); });
+    var bd = val('birth'); if (bd && !/^[0-9]{6}$/.test(bd)) { mark('q-c5'); }
     if (!val('ok')) mark('q-ok');
-    if (first) { err.textContent = '빨간 테두리 칸을 채워 주십시오.' + (bd && !/^([0-9]{8}|[0-9]{4})$/.test(bd) ? ' (생년월일은 8자리 또는 4자리 숫자)' : ''); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-    var f = { who: vals.who, c1: vals.c1, c2: vals.c2, c3: vals.c3, c41: vals.c41, c42: vals.c42, c5: vals.c5, ok: val('ok'), ver: VER };
-    (kid ? ['kids', 'pname', 'prel', 'pphone'] : ['name', 'saint', 'phone']).concat(['birth', 'address', 'email', 'baptism', 'confirm']).forEach(function (k) { f[k] = val(k); });
+    if (first) { err.textContent = '빨간 테두리 칸을 채워 주십시오.' + (bd && !/^[0-9]{6}$/.test(bd) ? ' (생년월일은 주민번호 앞 6자리 숫자)' : ''); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    var f = { who: vals.who, c1: vals.c1, c2: vals.c2, c3: vals.c3, c4: vals.c4, c5: vals.c5, ok: val('ok'), ver: VER };
+    (kid ? ['kids', 'pname', 'prel', 'pphone'] : ['name', 'saint', 'phone']).concat(['birth', 'address', 'email', 'baptism', 'confirm', 'sponsor']).forEach(function (k) { f[k] = val(k); });
     var go = this; go.disabled = true; err.textContent = '';
     var finish = function () { document.getElementById('form').classList.add('hidden'); document.getElementById('done').classList.remove('hidden'); window.scrollTo(0, 0); };
     if (preview) { finish(); return; }
