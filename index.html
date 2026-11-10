@@ -702,6 +702,10 @@ body:has(.boot-load) .tabs { display: none; }
 <style>
 /* 세실대 전체 명부의 기수 제목 (2026-11-05). 글자 크기는 기존 tile-subtitle 그대로 */
 .cecil-sub { padding: .9rem 1rem .4rem; }
+.cs-group { border-top: 1px solid #E3E8EF; padding: 8px 0; }
+.cs-group summary { cursor: pointer; color: #1A5276; }
+.cs-names { margin-top: 6px; line-height: 1.8; }
+.cs-pend { padding: 4px 0; border-top: 1px dashed #E3E8EF; }
 </style>
 
 <style>
@@ -802,7 +806,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '3faaea0aa7';
+  var UI_VERSION = 'f3dbef9c14';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -974,6 +978,11 @@ body:has(.boot-load) .tabs { display: none; }
           .then(function (r) { return r.json(); }).then(function (d) {
             if (d.error === 'EXPIRED' || d.error === 'NO_ACCESS') { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
           }).catch(function (e) { fail(e); });
+      },
+      apiConsent: function (token) {
+        api({ api: 'consentstatus', t: token }).then(function (d) {
+          if (d.error === 'EXPIRED' || d.error === 'NO_ACCESS') { onApiError(d.error); fail(new Error(d.error)); } else ok(d);
+        }).catch(function (e) { fail(e); });
       },
       apiPhotos: function (token, ids, size) {
         api({ api: 'photos', t: token, ids: ids.join(','), size: size || 'sm' }).then(function (d) {
@@ -2099,7 +2108,34 @@ body:has(.boot-load) .tabs { display: none; }
             (r.note ? '<div class="bar-note">' + esc(r.note) + '</div>' : '') + '</button>';
         }).join('') + '</section>';
     });
+    if (ADMIN) html += '<section class="card private" id="consentCard"><h3>동의 현황<span class="op-badge">운영자만 보임</span><span class="muted">개인정보 동의서</span></h3><div class="chart-desc">불러오는 중…</div></section>';
     screen.innerHTML = html;
+    if (ADMIN) loadConsent();
+  }
+
+  // ── 동의 현황 (2026-11-10 Francis님): 누가 냈고 누가 안 냈는지, 확인 대기 ──
+  function loadConsent() {
+    google.script.run.withSuccessHandler(function (r) {
+      if (typeof r === 'string') r = JSON.parse(r);
+      var el = document.getElementById('consentCard');
+      if (!el || !r || !r.ok) { if (el) el.querySelector('.chart-desc').textContent = '동의 기록을 읽지 못했습니다.'; return; }
+      var all = D.members, done = all.filter(function (m) { return r.done[m.id]; });
+      var notYet = all.filter(function (m) { return !r.done[m.id] && m.status === '출석'; });
+      var groups = {};
+      notYet.forEach(function (m) { var g = m.ageGroup || '연령단체 없음'; (groups[g] = groups[g] || []).push(m); });
+      var keys = Object.keys(groups).sort(function (a, b) { return idxIn(AGE_ORDER, a) - idxIn(AGE_ORDER, b); });
+      var names = function (ms) { return ms.sort(byName).map(function (m) { return esc(m.name) + (m.saint ? ' <span class="muted">' + esc(m.saint) + '</span>' : ''); }).join(' · '); };
+      el.innerHTML = '<h3>동의 현황<span class="op-badge">운영자만 보임</span><span class="muted">개인정보 동의서</span></h3>' +
+        '<div class="bar-row"><div class="bar-head"><span class="bar-label">낸 분</span><span class="bar-val">' + done.length + '명 / 재적 ' + all.length + '명 (' + pct(done.length, all.length) + '%)</span></div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pct(done.length, all.length) + '%;background:#1F6FB2"></div></div></div>' +
+        '<div class="chart-desc">아직 안 낸 출석 교우 ' + notYet.length + '명 — 단체를 누르면 이름이 보입니다</div>' +
+        keys.map(function (g) { return '<details class="cs-group"><summary>' + esc(g) + ' <b>' + groups[g].length + '명</b></summary><div class="cs-names">' + names(groups[g]) + '</div></details>'; }).join('') +
+        (r.pending.length ? '<div class="chart-desc" style="margin-top:12px"><b>확인 대기 ' + r.pending.length + '건</b> — 교적부에서 한 사람으로 찾지 못해 반영하지 않은 응답</div>' +
+          r.pending.map(function (p) { return '<div class="cs-pend">' + esc(p.name) + (p.saint ? ' ' + esc(p.saint) : '') + ' <span class="muted">' + esc(p.date) + ' · ' + esc(p.memo.replace(/^확인 대기:\s*/, '')) + '</span></div>'; }).join('') : '');
+    }).withFailureHandler(function () {
+      var el = document.getElementById('consentCard');
+      if (el) el.querySelector('.chart-desc').textContent = '동의 기록을 읽지 못했습니다.';
+    }).apiConsent(TOKEN);
   }
 
   function renderStatList(key) {

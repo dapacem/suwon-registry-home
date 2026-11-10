@@ -104,7 +104,7 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
     document.querySelectorAll('.bad').forEach(function (x) { x.classList.remove('bad'); });
     var ph = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
     if (!val('name')) mark('f-name'); if (!ph.test(val('phone').replace(/\s/g, ''))) mark('f-phone');
-    var kids = [], kbad = false;
+    var kids = [], kd = [], kbad = false;
     [1, 2, 3].forEach(function (i) {
       var g = function (k) { return val('k' + i + k); }, n = g('n'), bb = g('b');
       var any = ['n', 's', 'b', 'p', 'e', 't', 'c', 'r'].some(function (k) { return g(k); }) || vals['k' + i + 'g'];
@@ -114,12 +114,14 @@ input:focus, textarea:focus { outline:none; border-color:var(--navy); }
         '주소 ' + (document.querySelector('[name=k' + i + 'same]').checked ? '부모와 같음' : (g('a') || '-')),
         g('t') ? '세례 ' + g('t') : '', g('c') ? '견진 ' + g('c') : '', g('r') ? '후견인 ' + g('r') : ''];
       kids.push(parts.filter(function (x) { return x; }).join(' · '));
+      var same = document.querySelector('[name=k' + i + 'same]').checked;
+      kd.push({ name: n, saint: g('s'), sex: vals['k' + i + 'g'] || '', birth: bb, phone: g('p'), email: g('e'), baptism: g('t'), confirm: g('c'), sponsor: g('r'), same: same, address: same ? '' : g('a') });
     });
     ['c1', 'c2', 'c3', 'c4', 'c5'].forEach(function (k) { if (!vals[k]) mark('q-' + k); });
     var bd = val('birth'); if (bd && !/^[0-9]{6}$/.test(bd)) { mark('q-c5'); }
     if (!val('ok')) mark('q-ok');
     if (first) { err.textContent = '빨간 테두리 칸을 채워 주십시오.' + (kbad ? ' (자녀는 성명과 생년월일 6자리)' : '') + (bd && !/^[0-9]{6}$/.test(bd) ? ' (생년월일은 주민번호 앞 6자리 숫자)' : ''); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-    var f = { who: kids.length ? '본인과 자녀 ' + kids.length + '명' : '본인', kids: kids.join(' / '), c1: vals.c1, c2: vals.c2, c3: vals.c3, c4: vals.c4, c5: vals.c5, ok: val('ok'), ver: VER };
+    var f = { who: kids.length ? '본인과 자녀 ' + kids.length + '명' : '본인', kids: kids.join(' / '), kidsData: JSON.stringify(kd), c1: vals.c1, c2: vals.c2, c3: vals.c3, c4: vals.c4, c5: vals.c5, ok: val('ok'), ver: VER };
     ['name', 'saint', 'phone', 'birth', 'address', 'email', 'baptism', 'confirm', 'sponsor'].forEach(function (k) { f[k] = val(k); });
     var go = this; go.disabled = true; err.textContent = '';
     var finish = function () { document.getElementById('form').classList.add('hidden'); document.getElementById('done').classList.remove('hidden'); window.scrollTo(0, 0); };
