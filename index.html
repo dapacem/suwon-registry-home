@@ -806,7 +806,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'f3dbef9c14';
+  var UI_VERSION = 'ac3903d052';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1981,6 +1981,21 @@ body:has(.boot-load) .tabs { display: none; }
       D.members.some(function (m) { return m.status !== '출석' && m.status !== '비출석'; })
         ? [{ label: '확인필요', color: '#D4A017', test: function (m) { return m.status !== '출석' && m.status !== '비출석'; } }] : []
     ) });
+    // 2026-11-11 Francis님: 비출석 교우를 연령단체별로 — 사목단·단체장이 누구를 돌볼지 보이게. 누르면 명단
+    var absent = D.members.filter(function (m) { return m.status === '비출석'; });
+    if (absent.length) {
+      var ag = {};
+      absent.forEach(function (m) { ag[m.ageGroup || ''] = 1; });
+      var agKeys = Object.keys(ag).sort(function (a, b) {
+        if (!a) return 1; if (!b) return -1;
+        return idxIn(AGE_ORDER, a) - idxIn(AGE_ORDER, b);
+      });
+      list.push({ id: 'absent', title: '비출석 현황', base: absent, den: absent.length,
+        note: '비출석 교우 ' + absent.length + '명 · 연령단체별',
+        items: agKeys.map(function (g) {
+          return { label: g || '연령단체 없음', color: '#C0392B', test: function (m) { return (m.ageGroup || '') === g; } };
+        }) });
+    }
     // 2026-11-05 Francis님: 성별도 출석상태 그래프와 같은 전체 재적자 기준 (두 그래프 합계가 같게)
     list.push({ id: 'sex', type: 'donut', title: '성별 현황', base: D.members, den: D.members.length, items: [
       { label: '남성', color: '#2E86C1', test: function (m) { return m.sex === '남'; } },
