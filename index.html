@@ -806,7 +806,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'ac3903d052';
+  var UI_VERSION = 'a1bb978a79';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -2179,23 +2179,25 @@ body:has(.boot-load) .tabs { display: none; }
         if (m.newbie === '아니오') return false;
         return (m.regTime && Date.now() - m.regTime <= YEAR) || /새교우/.test(m.memo || '');
       } },
-      // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
-      { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.care ? m.care.low : m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
-      // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
-      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
+      // 2026-11-12 Francis님 순서: 새교우 → 초고령층 → 최저 출석자 → 연결 매우 약함
+      // 2026-11-12 Francis님: 비출석 어르신(요양·병환)도 넣음 — 병자성사·심방 대상
       // 2026-11-04: 「초고령자」 칸(예/아니오)이 먼저. 비어 있으면 만 80세 이상
-      { name: '초고령층', test: function (m) {
+      { name: '초고령층', all: true, fixedNote: '만 80세 이상\n(요양·병환 등 비출석 어르신 포함)', test: function (m) {
         if (m.elderly === '예') return true;
         if (m.elderly === '아니오') return false;
         return m.care ? m.care.old : m.age >= 80;
       } },
+      // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
+      { name: '최저 출석자', fixedNote: '최근 3개월(13주) 출석 3회 이하 (출석 교우 중)', test: function (m) { return m.care ? m.care.low : m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
+      { name: '연결 매우 약함', fixedNote: '공동체 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
     ].filter(function (g) {
       // 최저 출석자·연결 매우 약함은 운영자 전용 (2026-11-04 Francis님). 열람자는 새교우·초고령층만
       return ADMIN || g.name === '새교우' || g.name === '초고령층';
     }).map(function (g, i) {
       g.i = i;
       g.note = g.fixedNote || note(g.name);
-      g.members = att.filter(g.test).sort(byName);
+      g.members = (g.all ? D.members.filter(function (m) { return m.status === '출석' || m.status === '비출석'; }) : att).filter(g.test).sort(byName);
       return g;
     });
   }
