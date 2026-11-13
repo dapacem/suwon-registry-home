@@ -58,6 +58,7 @@ a { color: inherit; }
 .hero-brand:last-child { margin-bottom: 0; }
 .hero-photo { flex: none; width: 3.2rem; height: 3.2rem; border-radius: .7rem; object-fit: cover; border: 2px solid rgba(255,255,255,.85); }
 .hero-church { font-size: .8125rem; opacity: .85; }
+.hero-sum { font-size: .8125rem; opacity: .85; margin-top: .3rem; word-break: keep-all; }
 .hero-title { font-size: 1.25rem; font-weight: 700; margin: .25rem 0 .9rem; }
 .search {
   display: flex; align-items: center; gap: .5rem;
@@ -520,6 +521,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
   .tabs-home { font-size: 1.15rem; }
   .hero-title, .sub-title { font-size: 1.5rem; }
   .hero-church { font-size: .9rem; }
+  .hero-sum { font-size: .9rem; }
   .prayer, .pray-bar .prayer { font-size: 1.25rem; }
   .detail-name { font-size: 1.85rem; }
   .detail-saint { font-size: 1.2rem; }
@@ -823,7 +825,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'cd94c4c486';
+  var UI_VERSION = 'a5bbef678a';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1800,7 +1802,12 @@ body:has(.boot-load) .tabs { display: none; }
 
   /** 활동 단체 첫 화면: 묶음마다 단체 타일(이름 + 출석 인원). 한 번 누르면 바로 명단 (2026-11-02) */
   function renderGroupsHome() {
-    var html = heroTop('활동 단체');
+    // 머리에 단체 개요 — 범주별 단체 수 (2026-11-13 Francis님). 타일과 같은 목록으로 센다
+    var nAge = groupsOf('연령단체'), nSvc = groupsOf('봉사단체').filter(function (n) { return ['사목단', '교회위원'].indexOf(n) < 0; });
+    var nSmall = groupsOf('소그룹'), nCecil = groupsOf('세실대');
+    var nDorm = nAge.filter(isDormant).length;
+    var summary = '연령단체 ' + nAge.length + '개' + (nDorm ? ' (휴면 ' + nDorm + ')' : '') + ' · 봉사단체 ' + nSvc.length + '개 · 소그룹 ' + nSmall.length + '개 · 세실대 ' + nCecil.length + '기';
+    var html = '<header class="hero">' + brand('활동 단체').replace(/<\/div><\/div><\/div>$/, '</div><div class="hero-sum">' + summary.split(' · ').map(function (x) { return esc(x).replace(/ /g, '&nbsp;'); }).join(' · ') + '</div></div></div>') + '</header>';
     var sg = servantGroups();
     var count = function (k) { return sg[k].sections.reduce(function (t, x) { return t + x[1].length; }, 0); };
     // 리더(단체장)는 「단체상태」 단체장 칸에서 (2026-11-03 Francis님)
