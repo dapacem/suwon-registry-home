@@ -831,7 +831,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '15948aadb3';
+  var UI_VERSION = '736838174b';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1021,6 +1021,7 @@ body:has(.boot-load) .tabs { display: none; }
     run: new Proxy({}, { get: function (_, k) { return runner()[k]; } }),
     history: {
       push: function (state, params, hash) { history.pushState(state, '', '#' + (hash || '')); },
+      replace: function (state, params, hash) { history.replaceState(state, '', '#' + (hash || '')); },
       setChangeHandler: function (fn) { window.addEventListener('popstate', function (e) { fn({ state: e.state }); }); },
     },
   } };
@@ -2705,7 +2706,13 @@ body:has(.boot-load) .tabs { display: none; }
     if (state.tab === 'stats') { renderStats(); return addFooter(); }
     if (state.tab === 'care') { renderCare(); return addFooter(); }
     if (state.tab === 'random') {
-      var pick = byKey[state.lastRandom] || pickRandom();
+      // 랜덤 교우도 한 사람씩 뒤로 가기 기록에 남겨, 「뒤로」 하면 앞서 본 교우로 (2026-11-13 Francis님)
+      var pick = byKey[state.key] || byKey[state.lastRandom] || pickRandom();
+      if (pick && state.key !== pick.key) {
+        state.key = pick.key;
+        try { google.script.history.replace({ tab: 'random', view: 'list', key: pick.key }, null, 'random/' + pick.key); } catch (e) {}
+      }
+      if (pick) state.lastRandom = pick.key;
       if (pick) { renderDetail(pick, { random: true }); return addFooter(); }
       screen.innerHTML = '<div class="soon">출석 교우가 없습니다.</div>';
       return;
@@ -2765,7 +2772,7 @@ body:has(.boot-load) .tabs { display: none; }
     else if (ds.tpicker) openTalentPicker();
     else if (ds.clear) { state.q = ''; renderList(); document.getElementById('q').focus(); }
     else if (ds.refresh) load(true);
-    else if (ds.random) { pickRandom(); go({ view: 'list', key: '' }, false); }
+    else if (ds.random) { var nx = pickRandom(); go({ view: 'list', key: nx ? nx.key : '' }); }
     else if (ds.servants) go({ view: 'servants', key: ds.servants === '1' ? '' : ds.servants });
     else if (ds.kind) go({ view: 'kind', key: ds.kind });
     else if (ds.group) go({ tab: state.tab === 'search' || state.tab === 'random' ? 'groups' : state.tab, view: 'group', key: ds.group });
