@@ -191,6 +191,8 @@ a { color: inherit; }
 .card h3 { margin: 0 0 .5rem; font-size: 1rem; color: var(--primary); }
 .card h3 .muted { font-weight: 400; font-size: .8125rem; color: var(--sub); margin-left: .4rem; }
 .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.aff-grid { display: grid; grid-template-columns: auto 1fr; gap: .55rem .8rem; align-items: start; }
+.aff-label { font-size: .875rem; color: var(--sub); white-space: nowrap; padding-top: .4rem; }
 .tag { font-size: .8125rem; background: var(--chip); color: var(--chip-text); padding: .35rem .8rem; border-radius: 999px; }
 .tag.dormant { background: #EEF0F3; color: var(--sub); }
 .fam { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .6rem 0; border-top: 1px solid var(--line); }
@@ -525,6 +527,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
   .tag { font-size: .9375rem; padding: .4rem .9rem; }
   .fam-name { font-size: 1.15rem; }
   .fam-rel { font-size: .95rem; }
+  .aff-label { font-size: .95rem; }
   .fam-none { font-size: 1rem; }
   .row-name { font-size: 1.05rem; }
   .row-saint { font-size: .85rem; }
@@ -815,7 +818,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'ba9ddbf6b2';
+  var UI_VERSION = 'a474a2a27a';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1602,13 +1605,15 @@ body:has(.boot-load) .tabs { display: none; }
       '</header>';
 
     // 소속
-    var chips = [];
-    if (m.ageGroup) chips.push(tag(m.ageGroup));
-    SERVICE_ORDER.concat(m.service.filter(function (s) { return SERVICE_ORDER.indexOf(s) < 0; }))
-      .forEach(function (s) { if (m.service.indexOf(s) >= 0) chips.push(tag(s)); });
-    m.small.slice().sort(function (a, b) { return a.localeCompare(b, 'ko'); }).forEach(function (s) { chips.push(tag(s)); });
-    if (m.cecil) chips.push(tag('세실대 ' + m.cecil, m.cecil));
-    html += card('소속', chips.length ? '<div class="chips">' + chips.join('') + '</div>' : '<div class="fam-none">소속 없음</div>');
+    // 종류마다 한 줄, 앞에 종류 이름 (2026-11-13 Francis님). 빈 종류는 줄을 만들지 않음
+    var affRows = [];
+    var affRow = function (label, list) { if (list.length) affRows.push('<div class="aff-label">' + label + '</div><div class="chips">' + list.join('') + '</div>'); };
+    affRow('연령단체', m.ageGroup ? [tag(m.ageGroup)] : []);
+    affRow('봉사단체', SERVICE_ORDER.concat(m.service.filter(function (s) { return SERVICE_ORDER.indexOf(s) < 0; }))
+      .filter(function (s) { return m.service.indexOf(s) >= 0; }).map(function (s) { return tag(s); }));
+    affRow('소그룹', m.small.slice().sort(function (a, b) { return a.localeCompare(b, 'ko'); }).map(function (s) { return tag(s); }));
+    affRow('세실대', m.cecil ? [tag(m.cecil, m.cecil)] : []);
+    html += card('소속', affRows.length ? '<div class="aff-grid">' + affRows.join('') + '</div>' : '<div class="fam-none">소속 없음</div>');
 
     // 가족: 관계 순서(직계 먼저), 같은 관계 안에서 출석 먼저
     var fam = m.family.slice().sort(function (a, b) {
