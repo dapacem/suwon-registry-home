@@ -235,6 +235,8 @@ a { color: inherit; }
 .back-bar { padding: .1rem .6rem .45rem; }
 .back-link { display: inline-flex; align-items: center; gap: .15rem; font: inherit; font-weight: 600; color: var(--primary); background: none; border: 0; padding: .35rem .5rem .35rem .1rem; cursor: pointer; }
 .back-link:active { opacity: .6; }
+.back-bar { display: flex; justify-content: space-between; align-items: center; }
+.next-link { gap: .3rem; padding: .35rem .1rem .35rem .5rem; }
 .sub-title { font-size: 1.25rem; font-weight: 700; margin-top: .35rem; }
 .sub-note { font-size: .75rem; opacity: .85; margin-top: .35rem; line-height: 1.5; }
 .row-count { font-size: .875rem; color: var(--sub); }
@@ -319,6 +321,10 @@ a { color: inherit; }
 <style>.hero + .list, .sub-hero + .list, .count + .list { margin-top: .9rem; } .count + .list { margin-top: 0; }</style>
 <style>
 /* 랜덤 교우: 교우 카드 위의 기도 띠 (카드 모양은 표준 그대로) */
+.hero-prayer { display: flex; flex-direction: column; align-items: center; gap: .45rem; margin-top: 1rem; color: #E9C46A; }
+.hero-prayer .hp-line { width: 3rem; height: 2px; background: #B8860B; border-radius: 2px; }
+.hero-prayer .hp-text { font-size: 1.0625rem; letter-spacing: .02em; word-break: keep-all; text-align: center; }
+.hero-prayer .nb { display: inline-block; }
 .pray-bar { display: flex; align-items: center; gap: .6rem; background: #FBF6EA; border-bottom: 1px solid #EFE3C4; padding: .7rem .6rem; }
 .pray-bar .prayer { flex: 1; margin: 0; font-size: 1.0625rem; color: #6B4E06; opacity: 1; text-align: left; }
 .pray-bar .again { position: static; flex: none; color: var(--primary); border-color: var(--primary); background: #fff; }
@@ -825,7 +831,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'a5bbef678a';
+  var UI_VERSION = '5d72efdca4';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1601,17 +1607,25 @@ body:has(.boot-load) .tabs { display: none; }
     // 문자: 모든 교우 카드에서 (관리자), 사진 오른쪽 아래 (2026-11-03 Francis님)
     var msgBtn = '<button class="edit-btn hp-right-low" data-pray="' + m.key + '"' + (opts.random ? ' data-kind-msg="pray"' : '') + '>' +
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자 안부</button>';  // 열람자도 (연락처를 보므로, 2026-11-04)
-    var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div></div>' : '') +
-      // 뒤로 단추는 머리 띠 밖 위에 (2026-11-13 Francis님). 랜덤 교우는 뒤로 없음
-      (opts.random ? '' : '<nav class="back-bar"><button class="back-link" data-back="1">' +
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>뒤로</button></nav>') +
+    // 뒤로 단추는 머리 띠 밖 맨 위에 (2026-11-13 Francis님). 랜덤 교우도 같이
+    // 「다른 교우」는 이 교우에게 하는 일이 아니라 머리 밖 뒤로 줄 오른쪽에 (2026-11-13 Francis님)
+    var html = '<nav class="back-bar"><button class="back-link" data-back="1">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>뒤로</button>' +
+        (opts.random ? '<button class="back-link next-link" data-random="1">다른 교우' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>' : '') +
+        '</nav>' +
+
       '<header class="detail-hero">' +
       avatar(m.name, m.photoId, 'lg', 'lg') +
       '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
       // 직책이 없어도 같은 자리를 비워 두어, 교우마다 머리 높이가 달라지지 않게 (2026-11-03 Francis님)
       (m.title ? '<span class="title-tag">' + esc(m.title) + '</span>' : '<span class="title-tag blank" aria-hidden="true">&nbsp;</span>') +
       // 2026-11-03: 단추는 이름 아래 한 줄에 모아 화면 밖으로 넘치지 않게 (글자를 크게 쓰는 폰에서도)
-      (editBtn || msgBtn || againBtn ? '<div class="hero-actions">' + editBtn + msgBtn + againBtn + '</div>' : '') +
+      (editBtn || msgBtn ? '<div class="hero-actions">' + editBtn + msgBtn + '</div>' : '') +
+      // 랜덤 교우 기도 문구는 머리 띠 안, 이름 아래 금색 줄로 (2026-11-13 Francis님: 따로 띠는 약해 보임)
+      (opts.random ? '<div class="hero-prayer"><span class="hp-line"></span>' +
+        '<svg class="hp-cross" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v18M6 9h12"/></svg>' +
+        '<span class="hp-text"><span class="nb">이 교우 분을 떠올리며</span> <span class="nb">하느님께 기도합니다</span></span></div>' : '') +
       '</header>';
 
     // 소속
