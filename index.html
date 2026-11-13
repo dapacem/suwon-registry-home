@@ -284,6 +284,7 @@ a { color: inherit; }
 
 /* ── 아래 탭 ── */
 .screen { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); min-height: 100vh; }
+.tabs-home { display: none; }
 .tabs {
   /* 아래 탭: AS Ver1처럼 남색 바탕 + 흰 아이콘 (2026-11-02 시인성 개선) */
   position: fixed; left: 0; right: 0; bottom: 0; display: flex;
@@ -331,7 +332,10 @@ a { color: inherit; }
   html { font-size: 106.25%; overflow-y: scroll; scrollbar-gutter: stable; }
   body { background: #EDF1F6; }
   .tabs { top: 0; bottom: 0; right: auto; width: 14rem; flex-direction: column; gap: .25rem; padding: 1.4rem .9rem; }
-  .tabs::before { content: "대한성공회\A수원교회 교적부"; white-space: pre-line; word-break: keep-all; color: #fff; font-weight: 700; font-size: 1.05rem; padding: .2rem .8rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); }
+  .tabs-home { display: block; text-align: left; color: #fff; font-weight: 700; font-size: 1.05rem; word-break: keep-all; background: none; border: 0; padding: .2rem .4rem 1.1rem; margin-bottom: .7rem; border-bottom: 1px solid rgba(255,255,255,.22); cursor: pointer; font-family: inherit; }
+  .tabs-photo { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 40%; border-radius: .7rem; margin-bottom: .8rem; }
+  .tabs-name { display: block; padding: 0 .4rem; line-height: 1.4; }
+  .tabs-home:hover .tabs-name { text-decoration: underline; text-underline-offset: 4px; }
   .tab { flex: none; flex-direction: row; justify-content: flex-start; gap: .8rem; padding: .75rem .9rem; font-size: .95rem; }
   .tab svg { width: 1.3rem; height: 1.3rem; }
   .tab:not(.on):hover { background: rgba(255,255,255,.1); }
@@ -513,7 +517,7 @@ body.editing .screen { padding-bottom: 1.5rem; }
 @media (min-width: 900px) {
   html { font-size: 112.5%; }
   .tab { font-size: 1rem; }
-  .tabs::before { font-size: 1.15rem; }
+  .tabs-home { font-size: 1.15rem; }
   .hero-title, .sub-title { font-size: 1.5rem; }
   .hero-church { font-size: .9rem; }
   .prayer, .pray-bar .prayer { font-size: 1.25rem; }
@@ -813,13 +817,13 @@ body:has(.boot-load) .tabs { display: none; }
   </div>
   <div id="screen" class="screen"></div>
   <nav id="tabs" class="tabs"></nav>
-  <div id="boot" hidden data-church="대한성공회 수원교회" data-photo="apple-touch-icon.png"></div>
+  <div id="boot" hidden data-church="대한성공회 수원교회" data-photo="church.jpg"></div>
 <script>
 (function () {
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '57d8d6a255';
+  var UI_VERSION = 'cd94c4c486';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1729,7 +1733,11 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   function renderTabs() {
-    tabsEl.innerHTML = TABS.map(function (t) {
+    // 컴퓨터 왼쪽 메뉴 맨 위: 교회 사진 + 이름. 누르면 첫 화면(활동 단체)으로 (2026-11-13 Francis님)
+    var home = '<button class="tabs-home" data-tab="groups" aria-label="첫 화면으로">' +
+      (CHURCH_IMG ? '<img class="tabs-photo" alt="" src="' + CHURCH_IMG + '">' : '') +
+      '<span class="tabs-name">대한성공회<br>수원교회 교적부</span></button>';
+    tabsEl.innerHTML = home + TABS.map(function (t) {
       return '<button class="tab' + (state.tab === t.id ? ' on' : '') + '" data-tab="' + t.id + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + t.icon + '</svg>' +
         t.label + '</button>';
