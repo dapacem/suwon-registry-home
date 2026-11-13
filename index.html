@@ -806,7 +806,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'a1bb978a79';
+  var UI_VERSION = '42661fd65f';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1109,7 +1109,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 순서 규칙 (§4.2, §4.3) ──
   var AGE_ORDER = ['니콜라회', '라자로회', '바울로회', '미리암회', '모니카회', '에스더회', '베로니카회', '그라티아회', '주일학교'];
-  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성가대', '방송송출', '꽃꽂이', '교육부', '교회 환경 관리', '정원 돌봄', '다시서기'];  // 2026-11-08 Francis님 순서
+  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성 스테파노 성가대', '방송송출', '꽃꽂이', '교육부', '교회 환경 관리', '정원 돌봄', '다시서기'];  // 2026-11-08 Francis님 순서
   var CECIL_ORDER = ['1기', '2기', '5기', '6기', '7기'];
 
   function titleRank(m) {
@@ -1517,7 +1517,7 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   /** 단체 이름이 들어 있지 않은 단체 고유 직책 (2026-11-02: 성가대 지휘자·반주자) */
-  var TITLE_GROUP = { '지휘자': '성가대', '반주자': '성가대', '교회위원(교육)': '교육부' };
+  var TITLE_GROUP = { '지휘자': '성 스테파노 성가대', '반주자': '성 스테파노 성가대', '성가대장': '성 스테파노 성가대', '교회위원(교육)': '교육부' };
 
   /** 회장·리더인가: ① 단체상태 「단체장」 칸의 이름(띄어쓰기 무시) ② 그 단체 직책 */
   function isLeader(m, leaderText, groupName) {
@@ -1865,19 +1865,21 @@ body:has(.boot-load) .tabs { display: none; }
       (names.length ? names.map(groupLine).join('') : '<div class="empty">단체가 없습니다.</div>') + '</div>';
   }
 
+  // 2026-11-13 Francis님: 교회 규정 제19조에 맞춤(에스더 46~59 · 모니카 60~74 · 미리암 75+, 그라티아 만 19~35, 주일학교(학생회) 만 19세 미만)
   // 연령단체 나이 기준: 단체 화면에만 보이고 교우 카드에는 보이지 않는다 (2026-11-03 Francis님)
   var AGE_DESC = {
     '베로니카회': '36~45세 여성 교우들의 봉사와 친교 모임',
-    '그라티아회': '18~35세 청년 교우들의 봉사와 친교 모임',
-    '에스더회': '46~55세 여성 교우들의 봉사와 친교 모임',
-    '모니카회': '56~69세 여성 교우들의 봉사와 친교 모임',
-    '미리암회': '70세 이상 여성 교우들의 봉사와 친교 모임',
+    '그라티아회': '만 19~35세 청년 교우들의 봉사와 친교 모임',
+    '에스더회': '46~59세 여성 교우들의 봉사와 친교 모임',
+    '모니카회': '60~74세 여성 교우들의 봉사와 친교 모임',
+    '미리암회': '75세 이상 여성 교우들의 봉사와 친교 모임',
     '바울로회': '36~50세 남성 교우들의 봉사와 친교 모임',
     '라자로회': '51~65세 남성 교우들의 봉사와 친교 모임',
     '니콜라회': '66세 이상 남성 교우들의 봉사와 친교 모임',
+    '주일학교': '만 19세 미만 어린이·청소년 교우들의 모임',
   };
   // 상자에 짧게: 「36~45세」
-  function ageShort(name) { var m = (AGE_DESC[name] || '').match(/^(\S+세(?: 이상)?)/); return m ? m[1] : ''; }
+  function ageShort(name) { var m = (AGE_DESC[name] || '').match(/^((?:만 )?\S+세(?: 이상| 이하| 미만)?)/); return m ? m[1] : ''; }
   function renderGroup(name) {
     var g = groupInfo(name);
     var leader = g ? g.leader : '';
