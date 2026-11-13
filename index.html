@@ -228,6 +228,9 @@ a { color: inherit; }
 .card-desc { font-size: .875rem; color: var(--sub); line-height: 1.55; }
 .tag { border: 0; }
 .sub-hero { padding: 1rem 3rem 1.2rem; }
+.back-bar { padding: .1rem .6rem .45rem; }
+.back-link { display: inline-flex; align-items: center; gap: .15rem; font: inherit; font-weight: 600; color: var(--primary); background: none; border: 0; padding: .35rem .5rem .35rem .1rem; cursor: pointer; }
+.back-link:active { opacity: .6; }
 .sub-title { font-size: 1.25rem; font-weight: 700; margin-top: .35rem; }
 .sub-note { font-size: .75rem; opacity: .85; margin-top: .35rem; line-height: 1.5; }
 .row-count { font-size: .875rem; color: var(--sub); }
@@ -333,6 +336,7 @@ a { color: inherit; }
   .screen > * { max-width: 72rem; margin-left: auto; margin-right: auto; }
   .hero, .detail-hero { border-radius: 1rem; padding: 1.4rem 1.8rem; }
   .detail-hero .back { left: 1rem; top: 1rem; }
+  .back-bar { padding: 0 0 .5rem; }
   .list, .card, .tiles, .care-grid, .warn-box { border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; }
   .card { margin: .6rem 0; padding: 1rem 1.2rem; }
   .list { display: grid; grid-template-columns: 1fr 1fr; margin-top: .9rem; }
@@ -356,7 +360,7 @@ a { color: inherit; }
     display: grid; grid-template-columns: repeat(2, minmax(0, 35.5rem)); justify-content: center; gap: 1rem; align-content: start; align-items: stretch;
   }
   .screen:has(> .detail-hero:not(.sub-hero)) > *, .screen:has(> .card .donut-wrap) > * { max-width: none; margin: 0; }
-  .screen > .detail-hero, .screen > .hero, .screen > .sub-hero, .screen > .refresh-line, .screen > .warn-box, .screen > .tile-sec { grid-column: 1 / -1; }
+  .screen > .back-bar, .screen > .detail-hero, .screen > .hero, .screen > .sub-hero, .screen > .refresh-line, .screen > .warn-box, .screen > .tile-sec { grid-column: 1 / -1; }
   /* 단체 고르기 창: 아래에서 올라오는 대신 가운데 창 */
   .sheet-back { align-items: center; justify-content: center; }
   .sheet { max-width: 44rem; max-height: 80vh; border-radius: 1rem; }
@@ -810,7 +814,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '16753885fe';
+  var UI_VERSION = '7a50661559';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1762,8 +1766,8 @@ body:has(.boot-load) .tabs { display: none; }
   function countIn(name) { return attending().filter(function (m) { return inGroup(m, name); }).length; }
 
   function heroBack(title, sub) {
-    return '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
-      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
+    return '<nav class="back-bar"><button class="back-link" data-back="1">' +
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>뒤로</button></nav><header class="detail-hero sub-hero">' +
       '<div class="sub-title">' + esc(title) + '</div>' + (sub ? '<div class="sub-note">' + esc(sub) + '</div>' : '') + '</header>';
   }
 
@@ -2264,8 +2268,8 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   function renderEdit(m) {
-    var head = '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
-      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
+    var head = '<nav class="back-bar"><button class="back-link" data-back="1">' +
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>뒤로</button></nav><header class="detail-hero sub-hero">' +
       '<div class="sub-title">교우 카드 편집</div><div class="sub-note">' + esc(m.name) + (m.saint ? ' ' + esc(m.saint) : '') + ' · ' + esc(m.id) + '</div>' +
       '<button class="ef-top-save" data-save="1" disabled>저장</button></header>';
     if (EDIT && EDIT.key === m.key && EDIT.raw) { screen.innerHTML = head + editForm(); syncSave(); return; }
@@ -2298,8 +2302,8 @@ body:has(.boot-load) .tabs { display: none; }
       EDIT_SECTIONS.forEach(function (sec) { sec.fields.forEach(function (f) { EDIT.raw[f[0]] = { v: '', auto: false }; }); });
       EDIT.vals = { status: '출석', registered: '?', newbie: '예', regDate: todayText() };
     }
-    screen.innerHTML = '<header class="detail-hero sub-hero"><button class="back" data-back="1" aria-label="뒤로">' +
-      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
+    screen.innerHTML = '<nav class="back-bar"><button class="back-link" data-back="1">' +
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>뒤로</button></nav><header class="detail-hero sub-hero">' +
       '<div class="sub-title">새교우 등록</div><div class="sub-note">교적번호는 저장할 때 다음 번호로 매겨집니다 (예상 ' + esc(nextIdGuess()) + ')</div>' +
       '<button class="ef-top-save" data-save="1" disabled>등록</button></header>' + editForm();
     syncSave();
