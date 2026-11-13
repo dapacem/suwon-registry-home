@@ -810,7 +810,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'b0c4fc4c11';
+  var UI_VERSION = '16753885fe';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1030,7 +1030,7 @@ body:has(.boot-load) .tabs { display: none; }
   if (!t && pending) { del(KEY); showSplash('승인하려면 먼저 로그인해 주십시오.'); return; }
   if (!t) { del(KEY); showSplash(); return; }
   // 불러오는 동안: 교회 사진과 큰 글씨를 화면 가운데에 (2026-11-03 Francis님)
-  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">잠시만 기다려 주십시오…</div><div class="bl-dots"><i></i><i></i><i></i></div><div class="bl-ver">대한성공회 수원교회 교적부 Ver 1.0</div></div>';
+  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">잠시만 기다려 주십시오…</div><div class="bl-dots"><i></i><i></i><i></i></div><div class="bl-ver">대한성공회 수원교회 교적부 Ver 1.5</div></div>';
   api({ api: 'data', t: t }).then(function (d) {
     if (d.error === 'NO_ACCESS') { document.getElementById('screen').innerHTML = ''; checkPending(t).catch(function () { showSplash('연결이 원활하지 않습니다. 잠시 후 다시 여십시오.'); }); return; }
     if (d.error) { onApiError(d.error); return; }
@@ -1155,7 +1155,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 자료 불러오기 (F-02, F-03) ──
   function load(refresh) {
-    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…<div class="bl-ver">Ver 1.0</div></div>';
+    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…<div class="bl-ver">Ver 1.5</div></div>';
     google.script.run
       .withSuccessHandler(function (json) {
         D = JSON.parse(json);
@@ -1543,8 +1543,8 @@ body:has(.boot-load) .tabs { display: none; }
   var REL_ORDER = ['husband', 'wife', 'child', 'sonInLaw', 'daughterInLaw', 'grandchild', 'father', 'mother', 'sibling', 'grandparent', 'grandparentM', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother'];
 
   /** 판 번호 82 → 「Ver 0.82」 (2026-11-04 Francis님). 뒤에 붙은 「· 화면 ○○」는 그대로 */
-  // 2026-11-05 Francis님: 정식 이름 「Ver 1.0」. 뒤에 판 번호를 작게 붙여 어느 배포인지 알 수 있게
-  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 1.0 · 판 ' + n; }); }
+  // 2026-11-05 Francis님: 정식 이름 「Ver 1.0」 → 2026-11-13 「Ver 1.5」. 뒤에 판 번호를 작게 붙여 어느 배포인지 알 수 있게
+  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 1.5 · 판 ' + n; }); }
 
   function relLabel(f) {
     if (f.rel === 'child') return f.sex === '남' ? '아들' : f.sex === '여' ? '딸' : '자녀';
@@ -2671,7 +2671,7 @@ body:has(.boot-load) .tabs { display: none; }
   function addFooter() {
     var f = document.createElement('footer');
     f.className = 'app-foot';
-    f.innerHTML = '<div class="af-name">대한성공회 수원교회 교적부 <b>Ver 1.0</b></div>' +
+    f.innerHTML = '<div class="af-name">대한성공회 수원교회 교적부 <b>Ver 1.5</b></div>' +
       '<div>건의사항이 있으시면 운영진에게 연락 주십시오.</div>' +
       '<div class="af-team">운영진<br>엄정식 니니안 신자회장<br>김경수 세례자요한 신자회장(전)<br>주재성 프란시스 전도분과장</div>';
     screen.appendChild(f);
