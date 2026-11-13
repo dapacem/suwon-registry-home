@@ -337,6 +337,7 @@ a { color: inherit; }
   .hero, .detail-hero { border-radius: 1rem; padding: 1.4rem 1.8rem; }
   .detail-hero .back { left: 1rem; top: 1rem; }
   .back-bar { padding: 0 0 .5rem; }
+  .screen:has(> .detail-hero:not(.sub-hero)) > .back-bar { padding-bottom: 0; margin-bottom: -.5rem; }
   .list, .card, .tiles, .care-grid, .warn-box { border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; }
   .card { margin: .6rem 0; padding: 1rem 1.2rem; }
   .list { display: grid; grid-template-columns: 1fr 1fr; margin-top: .9rem; }
@@ -814,7 +815,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '7a50661559';
+  var UI_VERSION = '4c0a20c04d';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1588,9 +1589,10 @@ body:has(.boot-load) .tabs { display: none; }
     var msgBtn = '<button class="edit-btn hp-right-low" data-pray="' + m.key + '"' + (opts.random ? ' data-kind-msg="pray"' : '') + '>' +
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>문자 안부</button>';  // 열람자도 (연락처를 보므로, 2026-11-04)
     var html = (opts.random ? '<div class="pray-bar"><div class="prayer">이 교우 분을 떠올리며 하느님께 기도합니다</div></div>' : '') +
+      // 뒤로 단추는 머리 띠 밖 위에 (2026-11-13 Francis님). 랜덤 교우는 뒤로 없음
+      (opts.random ? '' : '<nav class="back-bar"><button class="back-link" data-back="1">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>뒤로</button></nav>') +
       '<header class="detail-hero">' +
-      '<button class="back" data-back="1" aria-label="뒤로"' + (opts.random ? ' style="visibility:hidden" tabindex="-1"' : '') + '>' +
-        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>' +
       avatar(m.name, m.photoId, 'lg', 'lg') +
       '<div><span class="detail-name">' + esc(m.name) + '</span>' + (m.saint ? '<span class="detail-saint">' + esc(m.saint) + '</span>' : '') + '</div>' +
       // 직책이 없어도 같은 자리를 비워 두어, 교우마다 머리 높이가 달라지지 않게 (2026-11-03 Francis님)
