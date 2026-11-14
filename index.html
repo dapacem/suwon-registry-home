@@ -831,7 +831,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '1040719584';
+  var UI_VERSION = '469827a782';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -2233,7 +2233,7 @@ body:has(.boot-load) .tabs { display: none; }
         if (m.newbie === '아니오') return false;
         return (m.regTime && Date.now() - m.regTime <= YEAR) || /새교우/.test(m.memo || '');
       } },
-      // 2026-11-12 Francis님 순서: 새교우 → 초고령층 → 염려 교우(옛 최저 출석자·맘 쓸 교우) → 홀로 교우(옛 연결 매우 약함, 2026-11-13 이름 바꿈)
+      // 2026-11-12 Francis님 순서: 새교우 → 초고령층 → 뜸한 교우(옛 최저 출석자·맘 쓸 교우·염려 교우) → 이어 드릴 교우(옛 연결 매우 약함·홀로 교우, 2026-11-13 이름 바꿈)
       // 2026-11-12 Francis님: 비출석 어르신(요양·병환)도 넣음 — 병자성사·심방 대상
       // 2026-11-04: 「초고령자」 칸(예/아니오)이 먼저. 비어 있으면 만 80세 이상
       { name: '초고령층', all: true, fixedNote: '만 80세 이상\n(요양·병환 등 비출석 어르신 포함)', test: function (m) {
@@ -2242,11 +2242,11 @@ body:has(.boot-load) .tabs { display: none; }
         return m.care ? m.care.old : m.age >= 80;
       } },
       // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
-      { name: '염려 교우', fixedNote: '분기(13주) 출석 3회 이하\n(출석 교우 중)', test: function (m) { return m.care ? m.care.low : m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
+      { name: '뜸한 교우', fixedNote: '분기(13주) 출석 3회 이하\n(출석 교우 중)', test: function (m) { return m.care ? m.care.low : m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
       // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
-      { name: '홀로 교우', fixedNote: '가족·봉사단체·소그룹·세실대 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
+      { name: '이어 드릴 교우', fixedNote: '가족·봉사단체·소그룹·세실대 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
     ].filter(function (g) {
-      // 염려 교우·홀로 교우는 운영자 전용 (2026-11-04 Francis님). 열람자는 새교우·초고령층만
+      // 뜸한 교우·이어 드릴 교우는 운영자 전용 (2026-11-04 Francis님). 열람자는 새교우·초고령층만
       return ADMIN || g.name === '새교우' || g.name === '초고령층';
     }).map(function (g, i) {
       g.i = i;
@@ -2269,7 +2269,7 @@ body:has(.boot-load) .tabs { display: none; }
     var html = heroTop('돌봄 필요') + '<div class="care-grid">';
     careGroups().forEach(function (g) {
       html += '<button class="care-tile" data-care="' + g.i + '">' +
-        '<div class="care-name">' + esc(g.name) + '</div>' + (g.name === '염려 교우' || g.name === '홀로 교우' ? '<div class="op-line"><span class="op-badge">운영자만 보임</span></div>' : '') +
+        '<div class="care-name">' + esc(g.name) + '</div>' + (g.name === '뜸한 교우' || g.name === '이어 드릴 교우' ? '<div class="op-line"><span class="op-badge">운영자만 보임</span></div>' : '') +
         '<div class="care-num">' + g.members.length + '<span>명</span></div>' +
         (g.note ? '<div class="care-note">' + esc(g.note.replace(/^기준:\s*/, '')) + '</div>' : '') + '</button>';
     });
