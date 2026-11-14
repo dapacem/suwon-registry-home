@@ -559,6 +559,9 @@ body.editing .screen { padding-bottom: 1.5rem; }
 </style>
 <style>
 /* 소그룹: 큰 제목 아래 주제별 작은 제목 — 왼쪽 세로줄로 한 묶음임을 보인다 (2026-11-03) */
+.bar-group { font-size: .875rem; font-weight: 700; color: var(--gold); padding: .7rem 0 .2rem; }
+.bar-group:first-of-type { padding-top: .2rem; }
+.bar-age { font-size: .8125rem; font-weight: 400; color: var(--sub); margin-left: .45rem; }
 .tile-count { font-size: .8125rem; font-weight: 400; color: var(--sub); margin-left: .45rem; }
 .tile-group-body { margin: .1rem 0 0 .6rem; padding-left: .8rem; border-left: 3px solid #C9D6E5; }
 .tile-sub { margin: 0 0 .7rem; }
@@ -831,7 +834,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '469827a782';
+  var UI_VERSION = '4be094071f';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -2046,8 +2049,14 @@ body:has(.boot-load) .tabs { display: none; }
       });
       list.push({ id: 'absent', title: '비출석 현황', base: absent, den: absent.length,
         note: '비출석 교우 ' + absent.length + '명 · 연령단체별',
+        // 2026-11-14 Francis님: 남성·여성·기타로 나누고 나이대도 함께
         items: agKeys.map(function (g) {
-          return { label: g ? (isDormant(g) ? g + ' (휴면)' : g) : '연령단체 없음', color: '#C0392B', test: function (m) { return (m.ageGroup || '') === g; } };
+          var sec = AGE_GROUP_SECTIONS.filter(function (x) { return x.names.indexOf(g) >= 0; })[0];
+          return { label: g ? (isDormant(g) ? g + ' (휴면)' : g) : '연령단체 없음', age: g ? ageShort(g) : '', group: sec ? sec.label : '기타',
+            color: '#C0392B', test: function (m) { return (m.ageGroup || '') === g; } };
+        }).sort(function (a, b) {
+          var o = ['남성', '여성', '기타'];
+          return o.indexOf(a.group) - o.indexOf(b.group);
         }) });
     }
     // 2026-11-05 Francis님: 성별도 출석상태 그래프와 같은 전체 재적자 기준 (두 그래프 합계가 같게)
@@ -2162,16 +2171,17 @@ body:has(.boot-load) .tabs { display: none; }
     charts().forEach(function (c) {
       var rows = c.items.map(function (it, i) {
         var n = c.base.filter(it.test).length;
-        return { label: it.label, n: n, i: i, note: it.note, tone: it.tone || '', color: it.color };
+        return { label: it.label, n: n, i: i, note: it.note, tone: it.tone || '', color: it.color, age: it.age || '', group: it.group || '' };
       });
       if (c.type === 'donut') { html += donutCard(c, rows); return; }
       if (c.type === 'strip') { html += stripCard(c, rows); return; }
       var max = Math.max.apply(null, rows.map(function (r) { return r.n; }).concat([1]));
       html += '<section class="card' + (c.priv ? ' private' : '') + '"><h3>' + esc(c.title) + (c.priv ? '<span class="op-badge">운영자만 보임</span>' : '') + (c.note ? '<span class="muted">' + esc(c.note) + '</span>' : '') + '</h3>' +
         (c.desc ? '<div class="chart-desc">' + esc(c.desc) + '</div>' : '') +
-        rows.map(function (r) {
-          return '<button class="bar-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '">' +
-            '<div class="bar-head"><span class="bar-label">' + esc(r.label) + '</span>' +
+        rows.map(function (r, k) {
+          var head = r.group && (k === 0 || rows[k - 1].group !== r.group) ? '<div class="bar-group">' + esc(r.group) + '</div>' : '';
+          return head + '<button class="bar-row' + (r.tone ? ' tone-' + r.tone : '') + '" data-stat="' + c.id + ':' + r.i + '">' +
+            '<div class="bar-head"><span class="bar-label">' + esc(r.label) + (r.age ? '<span class="bar-age">' + esc(r.age) + '</span>' : '') + '</span>' +
             '<span class="bar-val">' + r.n + '명 (' + pct(r.n, c.den) + '%)</span></div>' +
             '<div class="bar-track"><div class="bar-fill" style="width:' + (r.n / max * 100) + '%' + (r.color ? ';background:' + r.color : '') + '"></div></div>' +
             (r.note ? '<div class="bar-note">' + esc(r.note) + '</div>' : '') + '</button>';
