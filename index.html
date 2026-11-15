@@ -833,7 +833,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'f7d30f0d6c';
+  var UI_VERSION = 'aa3651748d';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1148,6 +1148,7 @@ body:has(.boot-load) .tabs { display: none; }
     if (!t) return 99;
     // 「부제(협동)」처럼 뒤에 덧붙은 말이 있어도 앞부분으로 판단
     var fixed = [['관할사제', 1], ['보좌사제', 2], ['부제', 3], ['동행사제', 4], ['신자회장', 5], ['사제회장', 6], ['감사', 9]];
+    if (/^협동\s*부제/.test(t)) return 3;  // 「협동 부제」 (2026-11-15 Francis님)
     for (var i = 0; i < fixed.length; i++) if (t.indexOf(fixed[i][0]) === 0) return fixed[i][1];
     if (t.indexOf('교회위원') === 0) return 7;
     if (/회 회장$/.test(t) && m.service.indexOf('교회위원') >= 0) return 8;
