@@ -209,6 +209,7 @@ a { color: inherit; }
 .kv a { color: var(--primary); }
 
 /* ── 단체·통계·돌봄 ── */
+.center-text { line-height: 1.6; word-break: keep-all; }
 .tile-sec { margin-top: .7rem; }
 .tile-title { font-size: 1rem; font-weight: 700; color: var(--primary); padding: .2rem .6rem .45rem; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -832,7 +833,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '7ced9d1e16';
+  var UI_VERSION = '01be986892';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1818,6 +1819,22 @@ body:has(.boot-load) .tabs { display: none; }
 
   var KINDS = ['연령단체', '봉사단체', '소그룹', '세실대'];
 
+  // 사역 센터 (2026-11-15 Francis님): 교회가 앞으로 사역을 묶어 운영할 네 센터. 사람은 아직 구성 중
+  var CENTERS = [
+    { id: 'care', name: '환대와 돌봄', work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
+    { id: 'edu', name: '교육과 영성', work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
+    { id: 'next', name: '미래세대', work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
+    { id: 'mission', name: '사회선교', work: '지역 봉사, 노숙인 지원, 사회적 약자 돌봄', role: '지역 봉사의 기획자와 연결자, 이웃과 교회의 다리' },
+  ];
+  function renderCenter(id) {
+    var c = CENTERS.filter(function (x) { return x.id === id; })[0];
+    if (!c) { go({ view: 'list', key: '' }, false); return; }
+    screen.innerHTML = heroBack(c.name, '사역 센터 · 구성 중') +
+      card('하는 일', '<div class="center-text">' + esc(c.work) + '</div>') +
+      card('여러분의 자리', '<div class="center-text">' + esc(c.role) + '</div>') +
+      card('함께하는 교우', '<div class="fam-none">아직 구성 중입니다</div>');
+  }
+
   /** 활동 단체 첫 화면: 묶음마다 단체 타일(이름 + 출석 인원). 한 번 누르면 바로 명단 (2026-11-02) */
   function renderGroupsHome() {
     // 머리 제목 아래 한 줄로 범주별 단체 수 (2026-11-13 Francis님: 따로 칸보다 이 모양이 낫다). 타일과 같은 목록으로 센다
@@ -1837,6 +1854,9 @@ body:has(.boot-load) .tabs { display: none; }
     html += tileSection('섬기는 이들', ['clergy', 'council', 'titled'].map(function (k) {
       return '<button class="tile" data-servants="' + k + '"><span class="t-name">' + sg[k].title + '</span>' +
         '<span class="t-num">' + count(k) + '명' + (SERVANT_NAME[k] ? lead(SERVANT_NAME[k]) : '') + '</span></button>';
+    }));
+    html += tileSection('사역 센터', CENTERS.map(function (c) {
+      return '<button class="tile" data-center="' + c.id + '"><span class="t-name">' + esc(c.name) + '</span><span class="t-num">구성 중</span></button>';
     }));
     var tileOf = function (n) {
       var g = groupInfo(n);
@@ -2708,6 +2728,7 @@ body:has(.boot-load) .tabs { display: none; }
     if (v === 'kind') return renderKind(k);
     if (v === 'group') return renderGroup(k);
     if (v === 'servants') return renderServants(k);
+    if (v === 'center') return renderCenter(k);
     if (v === 'stat') return renderStatList(k);
     if (v === 'care') return renderCareList(k);
     if (state.tab === 'search') { renderList(); return addFooter(); }
@@ -2782,6 +2803,7 @@ body:has(.boot-load) .tabs { display: none; }
     else if (ds.clear) { state.q = ''; renderList(); document.getElementById('q').focus(); }
     else if (ds.refresh) load(true);
     else if (ds.random) { var nx = pickRandom(); go({ view: 'list', key: nx ? nx.key : '' }); }
+    else if (ds.center) go({ view: 'center', key: ds.center });
     else if (ds.servants) go({ view: 'servants', key: ds.servants === '1' ? '' : ds.servants });
     else if (ds.kind) go({ view: 'kind', key: ds.kind });
     else if (ds.group) go({ tab: state.tab === 'search' || state.tab === 'random' ? 'groups' : state.tab, view: 'group', key: ds.group });
