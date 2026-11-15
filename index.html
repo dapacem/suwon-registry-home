@@ -322,7 +322,6 @@ a { color: inherit; }
 <style>
 /* 랜덤 교우: 교우 카드 위의 기도 띠 (카드 모양은 표준 그대로) */
 .hero-prayer { display: flex; flex-direction: column; align-items: center; gap: .45rem; margin-top: 1rem; color: #E9C46A; }
-.hero-prayer .hp-line { width: 3rem; height: 2px; background: #B8860B; border-radius: 2px; }
 .hero-prayer .hp-text { font-size: 1.0625rem; letter-spacing: .02em; word-break: keep-all; text-align: center; }
 .hero-prayer .nb { display: inline-block; }
 .pray-bar { display: flex; align-items: center; gap: .6rem; background: #FBF6EA; border-bottom: 1px solid #EFE3C4; padding: .7rem .6rem; }
@@ -833,7 +832,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'aa3651748d';
+  var UI_VERSION = '7ced9d1e16';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1627,7 +1626,7 @@ body:has(.boot-load) .tabs { display: none; }
       // 2026-11-03: 단추는 이름 아래 한 줄에 모아 화면 밖으로 넘치지 않게 (글자를 크게 쓰는 폰에서도)
       (editBtn || msgBtn ? '<div class="hero-actions">' + editBtn + msgBtn + '</div>' : '') +
       // 랜덤 교우 기도 문구는 머리 띠 안, 이름 아래 금색 줄로 (2026-11-13 Francis님: 따로 띠는 약해 보임)
-      (opts.random ? '<div class="hero-prayer"><span class="hp-line"></span>' +
+      (opts.random ? '<div class="hero-prayer">' +  // 십자가 위 금색 선은 뺌 (2026-11-15 Francis님)
         '<svg class="hp-cross" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v18M6 9h12"/></svg>' +
         '<span class="hp-text"><span class="nb">이 교우 분을 떠올리며</span> <span class="nb">하느님께 기도합니다</span></span></div>' : '') +
       '</header>';
