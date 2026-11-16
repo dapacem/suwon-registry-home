@@ -834,7 +834,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'c358fbb336';
+  var UI_VERSION = '043f8566b5';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1141,7 +1141,7 @@ body:has(.boot-load) .tabs { display: none; }
   var ALWAYS_DORMANT = ['바울로회'];
   function isDormant(n) { var g = groupInfo(n); return ALWAYS_DORMANT.indexOf(n) >= 0 || !!(g && g.state === '휴면'); }
   var AGE_ORDER = ['니콜라회', '라자로회', '바울로회', '미리암회', '모니카회', '에스더회', '베로니카회', '그라티아회', '주일학교'];
-  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성 스테파노 성가대', '방송송출', '꽃꽂이', '교육부', '교회 환경 관리', '정원 돌봄', '다시서기'];  // 2026-11-08 Francis님 순서
+  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성 스테파노 성가대', '방송송출', '꽃꽂이', '교사회', '교회 환경 관리', '정원 돌봄', '다시서기'];  // 2026-11-08 Francis님 순서
   var CECIL_ORDER = ['1기', '2기', '5기', '6기', '7기'];
 
   function titleRank(m) {
@@ -1174,7 +1174,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   function indexMember(m) {
     // 시트의 「교회위원회」를 화면 표기 「교회위원」으로 통일 (§3.4, §4.7)
-    m.service = m.service.map(function (x) { return x === '교회위원회' ? '교회위원' : x; });
+    m.service = m.service.map(function (x) { return x === '교회위원회' ? '교회위원' : x === '교육부' ? '교사회' : x; });  // 옛 이름 교육부 → 교사회 (2026-11-16)
     var parts = [m.name, m.saint, m.title, m.ageGroup, m.cecil, m.cecil ? '세실대' + m.cecil : '']
       .concat(m.service, m.small, m.talent || []);  // 달란트로도 찾기 (관리자 자료에만 있음)
     m._hay = norm(parts.join(' '));
@@ -1550,7 +1550,7 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   /** 단체 이름이 들어 있지 않은 단체 고유 직책 (2026-11-02: 성가대 지휘자·반주자) */
-  var TITLE_GROUP = { '지휘자': '성 스테파노 성가대', '반주자': '성 스테파노 성가대', '성가대장': '성 스테파노 성가대', '교회위원(교육)': '교육부' };
+  var TITLE_GROUP = { '지휘자': '성 스테파노 성가대', '반주자': '성 스테파노 성가대', '성가대장': '성 스테파노 성가대', '교회위원(교육)': '교사회' };
 
   /** 회장·리더인가: ① 단체상태 「단체장」 칸의 이름(띄어쓰기 무시) ② 그 단체 직책 */
   function isLeader(m, leaderText, groupName) {
@@ -1640,7 +1640,7 @@ body:has(.boot-load) .tabs { display: none; }
     // 사역 센터 — 소속 맨 위 (2026-11-16 Francis님: 센터 → 연령단체 → 봉사단체 → 소그룹 → 세실대): 센터장·센터원이면 「미래세대 센터장」처럼. 누르면 센터 화면
     affRow('사역 센터', CENTERS.map(function (c) {
       var role = c.leader === m.name ? '센터장' : '';
-      if (!role) centerCrew(c).forEach(function (x) { if (!role && x[1].some(function (y) { return y.key === m.key; })) role = x[0]; });
+      if (!role) role = centerCrew(c).filter(function (x) { return x[1].some(function (y) { return y.key === m.key; }); }).map(function (x) { return x[0]; }).join('·');
       return role ? '<button class="tag" data-center="' + c.id + '">' + esc(c.name + ' ' + role) + '</button>' : '';
     }).filter(Boolean));
     affRow('연령단체', m.ageGroup ? [tag(isDormant(m.ageGroup) ? m.ageGroup + ' (휴면)' : m.ageGroup, m.ageGroup)] : []);
@@ -1830,7 +1830,7 @@ body:has(.boot-load) .tabs { display: none; }
   var CENTERS = [
     { id: 'care', name: '환대와 돌봄', leader: '황응식', work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
     { id: 'edu', name: '교육과 영성', leader: '고계원', work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
-    { id: 'next', name: '미래세대', leader: '이수자', crew: [['분과위원', ['이지숙', '염경미', '임희정']], ['교사회', { group: '교육부' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
+    { id: 'next', name: '미래세대', leader: '이수자', crew: [['분과위원', ['이지숙', '염경미', '임희정']], ['교사회', { group: '교사회' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
     { id: 'mission', name: '사회선교', leader: '엄정식', work: '지역 봉사, 노숙인 지원, 사회적 약자 돌봄', role: '지역 봉사의 기획자와 연결자, 이웃과 교회의 다리' },
   ];
   function leaderLabel(name) {
@@ -1845,12 +1845,12 @@ body:has(.boot-load) .tabs { display: none; }
       var list = Array.isArray(sec[1])
         ? sec[1].map(function (nm) { return D.members.filter(function (m) { return m.name === nm; })[0]; }).filter(Boolean)
         : D.members.filter(function (m) { return inGroup(m, sec[1].group); }).sort(function (x, y) { return x.name.localeCompare(y.name, 'ko'); });
-      list = list.filter(function (m) { if (seen[m.key]) return false; seen[m.key] = 1; return true; });
+      list = list.filter(function (m) { return !seen[m.key]; });  // 센터장만 빼고, 두 묶음에 다 있으면 둘 다 보임 (2026-11-16 임희정: 분과위원·교사회)
       out.push([sec[0], list]);
     });
     return out;
   }
-  function centerTotal(c) { return (c.leader ? 1 : 0) + centerCrew(c).reduce(function (t, x) { return t + x[1].length; }, 0); }
+  function centerTotal(c) { var u = {}; centerCrew(c).forEach(function (x) { x[1].forEach(function (m) { u[m.key] = 1; }); }); return (c.leader ? 1 : 0) + Object.keys(u).length; }
   function renderCenter(id) {
     var c = CENTERS.filter(function (x) { return x.id === id; })[0];
     if (!c) { go({ view: 'list', key: '' }, false); return; }
