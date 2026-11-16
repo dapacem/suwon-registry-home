@@ -742,8 +742,12 @@ body:has(.boot-load) .tabs { display: none; }
 
 <style>
   body { padding-top: env(safe-area-inset-top); }
-  /* 맨 위 흐림 없애기 (2026-11-16 Francis님): 아이폰이 상태 표시줄 아래로 지나가는 화면을 흐리게 보여 주므로, 그 자리를 바탕색 띠로 가림 */
-  body::before { content: ''; position: fixed; left: 0; right: 0; top: 0; height: env(safe-area-inset-top); background: #F4F6F9; z-index: 45; pointer-events: none; }
+  /* 맨 위 흐림 없애기 (2026-11-16 Francis님): 아이폰(iOS 26)은 화면 맨 위 상태 표시줄 아래 한 뼘을 일부러 흐리게 그림.
+     그 자리에 바탕색 띠를 깔고 내용을 그만큼 아래로 내려, 흐림 구역에 글자가 들어가지 않게 함 */
+  :root { --top-guard: 0px; }
+  @supports (-webkit-touch-callout: none) { :root { --top-guard: 30px; } }
+  body { padding-top: calc(env(safe-area-inset-top) + var(--top-guard)); }
+  body::before { content: ''; position: fixed; left: 0; right: 0; top: 0; height: calc(env(safe-area-inset-top) + var(--top-guard)); background: #F4F6F9; z-index: 45; pointer-events: none; }
   #splash { position: fixed; inset: 0; z-index: 100; background: #1A5276; color: #fff; display: none;
             align-items: center; justify-content: center; text-align: center; padding: 1.5rem; }
   #splash.on { display: flex; }
