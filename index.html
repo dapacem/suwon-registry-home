@@ -838,7 +838,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '2bae4328d4';
+  var UI_VERSION = 'd76a99decb';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1832,9 +1832,9 @@ body:has(.boot-load) .tabs { display: none; }
 
   // 사역 센터 (2026-11-15 Francis님): 교회가 앞으로 사역을 묶어 운영할 네 센터. 센터장 넷 (2026-11-16 Francis님), 센터원은 구성 중
   var CENTERS = [
-    { id: 'care', name: '환대와 돌봄', leader: '황응식', crew: [['센터원', ['김정임']]], work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
-    { id: 'edu', name: '교육과 영성', leader: '고계원', work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
-    { id: 'next', name: '미래세대', leader: '이수자', crew: [['분과위원', ['이지숙', '염경미', '임희정']], ['교사회', { group: '교사회' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
+    { id: 'care', name: '환대와 돌봄', leader: '황응식', crew: [['센터원', ['김정임', '김경수']]], work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
+    { id: 'edu', name: '교육과 영성', leader: '고계원', crew: [['분과위원', ['조수옥', '나문숙', '최영희', '임경림', '김경수']]], work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
+    { id: 'next', name: '미래세대', leader: '이수자', crew: [['분과위원', ['이지숙', '염경미', '임희정', '임경림', '김미정']], ['교사회', { group: '교사회' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
     { id: 'mission', name: '사회선교', leader: '엄정식', crew: [['분과위원', ['이광형', '이규필', '이정미', '이정선']]], work: '지역 봉사, 노숙인 지원, 사회적 약자 돌봄', role: '지역 봉사의 기획자와 연결자, 이웃과 교회의 다리' },
   ];
   function leaderLabel(name) {
