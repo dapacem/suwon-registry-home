@@ -834,7 +834,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '4b5ee7a583';
+  var UI_VERSION = '636320bd11';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1824,25 +1824,41 @@ body:has(.boot-load) .tabs { display: none; }
   var CENTERS = [
     { id: 'care', name: '환대와 돌봄', leader: '황응식', work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
     { id: 'edu', name: '교육과 영성', leader: '고계원', work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
-    { id: 'next', name: '미래세대', leader: '이수자', work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
+    { id: 'next', name: '미래세대', leader: '이수자', crew: [['분과위원', ['이지숙', '염경미', '임희정']], ['교사회', { group: '교육부' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
     { id: 'mission', name: '사회선교', leader: '엄정식', work: '지역 봉사, 노숙인 지원, 사회적 약자 돌봄', role: '지역 봉사의 기획자와 연결자, 이웃과 교회의 다리' },
   ];
   function leaderLabel(name) {
     var lm = D.members.filter(function (m) { return m.name === name; });
     return lm.length === 1 && lm[0].saint ? name + ' ' + lm[0].saint : name;
   }
+  // 센터원 묶음: [제목, 이름 목록] 또는 [제목, { group: 봉사단체 }] (2026-11-16 Francis님: 미래세대 = 분과위원 셋 + 교사회 전원)
+  function centerCrew(c) {
+    var seen = {}, out = [];
+    D.members.forEach(function (m) { if (m.name === c.leader) seen[m.key] = 1; });
+    (c.crew || []).forEach(function (sec) {
+      var list = Array.isArray(sec[1])
+        ? sec[1].map(function (nm) { return D.members.filter(function (m) { return m.name === nm; })[0]; }).filter(Boolean)
+        : D.members.filter(function (m) { return inGroup(m, sec[1].group); }).sort(function (x, y) { return x.name.localeCompare(y.name, 'ko'); });
+      list = list.filter(function (m) { if (seen[m.key]) return false; seen[m.key] = 1; return true; });
+      out.push([sec[0], list]);
+    });
+    return out;
+  }
+  function centerTotal(c) { return (c.leader ? 1 : 0) + centerCrew(c).reduce(function (t, x) { return t + x[1].length; }, 0); }
   function renderCenter(id) {
     var c = CENTERS.filter(function (x) { return x.id === id; })[0];
     if (!c) { go({ view: 'list', key: '' }, false); return; }
-    // 누르면 센터원 명부 (2026-11-15 Francis님). 지금은 리더만, 센터원은 빈 칸
+    // 누르면 센터원 명부 (2026-11-15 Francis님)
     var lm = c.leader ? D.members.filter(function (m) { return m.name === c.leader; }) : [];
-    var crew = [];  // 센터원 — 아직 정해지지 않음
-    var total = (c.leader ? 1 : 0) + crew.length;
-    var html = heroBack(c.name, c.work + ' · ' + total + '명');
+    var secs = centerCrew(c);
+    var html = heroBack(c.name, c.work + ' · ' + centerTotal(c) + '명');
     html += '<div class="list"><div class="section-title">센터장</div>' +
       (lm.length ? lm.map(rowHtml).join('') : '<div class="fam-none">' + (c.leader ? esc(c.leader) : '작성 중입니다') + '</div>') + '</div>';
-    html += '<div class="list"><div class="section-title">센터원</div>' +
-      (crew.length ? crew.map(rowHtml).join('') : '<div class="fam-none">작성 중입니다</div>') + '</div>';
+    if (secs.length) secs.forEach(function (x) {
+      html += '<div class="list"><div class="section-title">' + esc(x[0]) + ' ' + x[1].length + '명</div>' +
+        (x[1].length ? x[1].map(rowHtml).join('') : '<div class="fam-none">작성 중입니다</div>') + '</div>';
+    });
+    else html += '<div class="list"><div class="section-title">센터원</div><div class="fam-none">작성 중입니다</div></div>';
     screen.innerHTML = html;
     wirePhotos();
   }
@@ -1869,7 +1885,7 @@ body:has(.boot-load) .tabs { display: none; }
         '<span class="t-num">' + count(k) + '명' + (SERVANT_NAME[k] ? lead(SERVANT_NAME[k]) : '') + '</span></button>';
     }));
     html += tileSection('사역 센터', CENTERS.map(function (c) {
-      return '<button class="tile" data-center="' + c.id + '"><span class="t-name">' + esc(c.name) + '</span><span class="t-num">작성 중' + (c.leader ? '<span class="t-dot"> · </span><span class="t-lead">' + esc(leaderLabel(c.leader)) + '</span>' : '') + '</span></button>';
+      return '<button class="tile" data-center="' + c.id + '"><span class="t-name">' + esc(c.name) + '</span><span class="t-num">' + (c.crew ? centerTotal(c) + '명' : '작성 중') + (c.leader ? '<span class="t-dot"> · </span><span class="t-lead">' + esc(leaderLabel(c.leader)) + '</span>' : '') + '</span></button>';
     }));
     var tileOf = function (n) {
       var g = groupInfo(n);
