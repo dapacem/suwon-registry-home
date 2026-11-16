@@ -834,7 +834,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '636320bd11';
+  var UI_VERSION = 'c358fbb336';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1055,7 +1055,7 @@ body:has(.boot-load) .tabs { display: none; }
   if (!t && pending) { del(KEY); showSplash('승인하려면 먼저 로그인해 주십시오.'); return; }
   if (!t) { del(KEY); showSplash(); return; }
   // 불러오는 동안: 교회 사진과 큰 글씨를 화면 가운데에 (2026-11-03 Francis님)
-  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">잠시만 기다려 주십시오…</div><div class="bl-dots"><i></i><i></i><i></i></div><div class="bl-ver">대한성공회 수원교회 교적부 Ver 1.5</div></div>';
+  document.getElementById('screen').innerHTML = '<div class="boot-load"><img class="bl-photo" src="image.jpg" alt=""><div class="bl-church">대한성공회 수원교회</div><div class="bl-text">잠시만 기다려 주십시오…</div><div class="bl-dots"><i></i><i></i><i></i></div><div class="bl-ver">대한성공회 수원교회 교적부 Ver 1.6</div></div>';
   api({ api: 'data', t: t }).then(function (d) {
     if (d.error === 'NO_ACCESS') { document.getElementById('screen').innerHTML = ''; checkPending(t).catch(function () { showSplash('연결이 원활하지 않습니다. 잠시 후 다시 여십시오.'); }); return; }
     if (d.error) { onApiError(d.error); return; }
@@ -1184,7 +1184,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   // ── 자료 불러오기 (F-02, F-03) ──
   function load(refresh) {
-    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…<div class="bl-ver">Ver 1.5</div></div>';
+    if (refresh) screen.innerHTML = '<div class="loading center">자료를 다시 읽는 중입니다…<div class="bl-ver">Ver 1.6</div></div>';
     google.script.run
       .withSuccessHandler(function (json) {
         D = JSON.parse(json);
@@ -1572,8 +1572,8 @@ body:has(.boot-load) .tabs { display: none; }
   var REL_ORDER = ['husband', 'wife', 'child', 'sonInLaw', 'daughterInLaw', 'grandchild', 'father', 'mother', 'sibling', 'grandparent', 'grandparentM', 'wifeFather', 'wifeMother', 'husbandFather', 'husbandMother'];
 
   /** 판 번호 82 → 「Ver 0.82」 (2026-11-04 Francis님). 뒤에 붙은 「· 화면 ○○」는 그대로 */
-  // 2026-11-05 Francis님: 정식 이름 「Ver 1.0」 → 2026-11-13 「Ver 1.5」. 뒤에 판 번호를 작게 붙여 어느 배포인지 알 수 있게
-  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 1.5 · 판 ' + n; }); }
+  // 2026-11-05 Francis님: 정식 이름 「Ver 1.0」 → 2026-11-13 「Ver 1.5」 → 2026-11-16 「Ver 1.6」. 뒤에 판 번호를 작게 붙여 어느 배포인지 알 수 있게
+  function verLabel(b) { return String(b).replace(/^(\d+)/, function (n) { return 'Ver 1.6 · 판 ' + n; }); }
 
   function relLabel(f) {
     if (f.rel === 'child') return f.sex === '남' ? '아들' : f.sex === '여' ? '딸' : '자녀';
@@ -1637,6 +1637,12 @@ body:has(.boot-load) .tabs { display: none; }
     // 종류마다 한 줄, 앞에 종류 이름 (2026-11-13 Francis님). 빈 종류는 줄을 만들지 않음
     var affRows = [];
     var affRow = function (label, list) { if (list.length) affRows.push('<div class="aff-label">' + label + '</div><div class="chips">' + list.join('') + '</div>'); };
+    // 사역 센터 — 소속 맨 위 (2026-11-16 Francis님: 센터 → 연령단체 → 봉사단체 → 소그룹 → 세실대): 센터장·센터원이면 「미래세대 센터장」처럼. 누르면 센터 화면
+    affRow('사역 센터', CENTERS.map(function (c) {
+      var role = c.leader === m.name ? '센터장' : '';
+      if (!role) centerCrew(c).forEach(function (x) { if (!role && x[1].some(function (y) { return y.key === m.key; })) role = x[0]; });
+      return role ? '<button class="tag" data-center="' + c.id + '">' + esc(c.name + ' ' + role) + '</button>' : '';
+    }).filter(Boolean));
     affRow('연령단체', m.ageGroup ? [tag(isDormant(m.ageGroup) ? m.ageGroup + ' (휴면)' : m.ageGroup, m.ageGroup)] : []);
     affRow('봉사단체', SERVICE_ORDER.concat(m.service.filter(function (s) { return SERVICE_ORDER.indexOf(s) < 0; }))
       .filter(function (s) { return m.service.indexOf(s) >= 0; }).map(function (s) { return tag(s); }));
@@ -2784,7 +2790,7 @@ body:has(.boot-load) .tabs { display: none; }
   function addFooter() {
     var f = document.createElement('footer');
     f.className = 'app-foot';
-    f.innerHTML = '<div class="af-name">대한성공회 수원교회 교적부 <b>Ver 1.5</b></div>' +
+    f.innerHTML = '<div class="af-name">대한성공회 수원교회 교적부 <b>Ver 1.6</b></div>' +
       '<div>건의사항이 있으시면 운영진에게 연락 주십시오.</div>' +
       '<div class="af-team">운영진<br>엄정식 니니안 신자회장<br>김경수 세례자요한 신자회장(전)<br>주재성 프란시스 전도분과장</div>';
     screen.appendChild(f);
@@ -2832,7 +2838,7 @@ body:has(.boot-load) .tabs { display: none; }
     else if (ds.clear) { state.q = ''; renderList(); document.getElementById('q').focus(); }
     else if (ds.refresh) load(true);
     else if (ds.random) { var nx = pickRandom(); go({ view: 'list', key: nx ? nx.key : '' }); }
-    else if (ds.center) go({ view: 'center', key: ds.center });
+    else if (ds.center) go({ tab: 'groups', view: 'center', key: ds.center });
     else if (ds.servants) go({ view: 'servants', key: ds.servants === '1' ? '' : ds.servants });
     else if (ds.kind) go({ view: 'kind', key: ds.kind });
     else if (ds.group) go({ tab: state.tab === 'search' || state.tab === 'random' ? 'groups' : state.tab, view: 'group', key: ds.group });
