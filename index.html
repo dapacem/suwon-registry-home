@@ -844,7 +844,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '8eec73feef';
+  var UI_VERSION = 'b9ba5c0fed';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1649,10 +1649,10 @@ body:has(.boot-load) .tabs { display: none; }
     var affRow = function (label, list) { if (list.length) affRows.push('<div class="aff-label">' + label + '</div><div class="chips">' + list.join('') + '</div>'); };
     // 사역 센터 — 소속 맨 위 (2026-11-16 Francis님: 센터 → 연령단체 → 봉사단체 → 소그룹 → 세실대): 센터장·센터원이면 「미래세대 센터장」처럼. 누르면 센터 화면
     affRow('사역 센터', CENTERS.map(function (c) {
-      var role = c.priest === m.name ? '담당사제' : c.leader === m.name ? '센터장' : '';
+      var role = c.priest === m.name ? (c.priestTitle || '동행사제') : c.leader === m.name ? '센터장' : '';
       if (!role) role = centerCrew(c).filter(function (x) { return x[1].some(function (y) { return y.key === m.key; }); }).map(function (x) { return x[0]; }).join('·');
       // 칩은 센터 이름만 「환대와 돌봄센터」, 센터장은 「…센터장」 (2026-11-16 Francis님)
-      return role ? '<button class="tag" data-center="' + c.id + '">' + esc(c.name + (role === '센터장' ? '센터장' : role === '담당사제' ? '센터 담당사제' : '센터')) + '</button>' : '';
+      return role ? '<button class="tag" data-center="' + c.id + '">' + esc(c.name + (role === '센터장' ? '센터장' : role === (c.priestTitle || '동행사제') ? '센터 ' + role : '센터')) + '</button>' : '';
     }).filter(Boolean));
     affRow('연령단체', m.ageGroup ? [tag(isDormant(m.ageGroup) ? m.ageGroup + ' (휴면)' : m.ageGroup, m.ageGroup)] : []);
     affRow('봉사단체', SERVICE_ORDER.concat(m.service.filter(function (s) { return SERVICE_ORDER.indexOf(s) < 0; }))
@@ -1847,10 +1847,10 @@ body:has(.boot-load) .tabs { display: none; }
   // 사역 센터 (2026-11-15 Francis님): 교회가 앞으로 사역을 묶어 운영할 네 센터. 센터장 넷 (2026-11-16 Francis님), 센터원은 구성 중
   // 환대와 돌봄 명단: 권석준 신부님 (2026-11-17)
   var CENTERS = [
-    { id: 'care', name: '환대와 돌봄', priest: '권석준', leader: '황응식', crew: [['실행위원', ['김동옥', '황연희', '고세연', '윤견숙', '장명구', '이은진', '김경수']], ['안내봉사자', ['박용수', '정미진', '이화숙', '경애순', '이정선', '정혜경', '김정임', '윤경숙', '이순복', '안희동']]], work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
-    { id: 'edu', name: '교육과 영성', leader: '고계원', crew: [['실행위원', ['조수옥', '나문숙', '최영희', '임경림']]], work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
-    { id: 'next', name: '미래세대', leader: '이수자', crew: [['실행위원', ['이지숙', '염경미', '임희정', '임경림', '김미정']], ['교사회', { group: '교사회' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
-    { id: 'mission', name: '사회선교', leader: '엄정식', crew: [['실행위원', ['이광형', '이규필', '이정미', '이정선']]], work: '지역 봉사, 노숙인 지원, 사회적 약자 돌봄', role: '지역 봉사의 기획자와 연결자, 이웃과 교회의 다리' },
+    { id: 'care', name: '환대와 돌봄', priest: '최용준', leader: '황응식', crew: [['실행위원', ['김동옥', '황연희', '고세연', '윤견숙', '장명구', '이은진', '김경수']], ['안내봉사자', ['박용수', '정미진', '이화숙', '경애순', '이정선', '정혜경', '김정임', '윤경숙', '이순복', '안희동']]], work: '새 교우 환대, 성체심방, 병자와 취약계층 돌봄', role: '새 교우의 첫 동행자, 심방과 안부를 나누는 돌봄이' },
+    { id: 'edu', name: '교육과 영성', priest: '이해청', priestTitle: '동행부제', leader: '고계원', crew: [['실행위원', ['조수옥', '나문숙', '최영희', '임경림']]], work: '성서공부, 영성훈련, 소그룹 리더 교육, 교리교육', role: '소그룹 리더, 성서공부와 교리교육, 아침기도 인도자' },
+    { id: 'next', name: '미래세대', priest: '권석준', leader: '이수자', crew: [['실행위원', ['이지숙', '염경미', '임희정', '임경림', '김미정']], ['교사회', { group: '교사회' }]], work: '교회학교, 청년회, 학생회, 가족 신앙전승', role: '아이와 청년 곁의 신앙 선배, 학부모와 가정의 동반자' },
+    { id: 'mission', name: '사회선교', priest: '정일용', leader: '엄정식', crew: [['실행위원', ['이광형', '이규필', '이정미', '이정선']]], work: '지역 봉사, 노숙인 지원, 사회적 약자 돌봄', role: '지역 봉사의 기획자와 연결자, 이웃과 교회의 다리' },
   ];
   function leaderLabel(name) {
     var lm = D.members.filter(function (m) { return m.name === name; });
@@ -1869,7 +1869,7 @@ body:has(.boot-load) .tabs { display: none; }
     });
     return out;
   }
-  function centerTotal(c) { var u = {}; centerCrew(c).forEach(function (x) { x[1].forEach(function (m) { u[m.key] = 1; }); }); return (c.leader ? 1 : 0) + (c.priest ? 1 : 0) + Object.keys(u).length; }  // 담당사제도 셈 (2026-11-17 Francis님)
+  function centerTotal(c) { var u = {}; centerCrew(c).forEach(function (x) { x[1].forEach(function (m) { u[m.key] = 1; }); }); return (c.leader ? 1 : 0) + (c.priest ? 1 : 0) + Object.keys(u).length; }  // 동행사제도 셈 (2026-11-17 Francis님)
   function renderCenter(id) {
     var c = CENTERS.filter(function (x) { return x.id === id; })[0];
     if (!c) { go({ view: 'list', key: '' }, false); return; }
@@ -1879,9 +1879,9 @@ body:has(.boot-load) .tabs { display: none; }
     var html = heroBack(c.name, c.work, centerTotal(c));
     html += '<div class="list"><div class="section-title">센터장</div>' +
       (lm.length ? lm.map(rowHtml).join('') : '<div class="fam-none">' + (c.leader ? esc(c.leader) : '작성 중입니다') + '</div>') + '</div>';
-    // 담당사제 (2026-11-17 권석준 신부님 명단): 센터장 아래에 (Francis님: 센터장을 위로), 인원 수에도 넣음
+    // 동행사제·동행부제 (2026-11-17 관할사제 메시지, 「담당사제」 대신): 센터장 아래에, 인원 수에도 넣음
     var pm = c.priest ? D.members.filter(function (m) { return m.name === c.priest; }) : [];
-    if (pm.length) html += '<div class="list"><div class="section-title">담당사제</div>' + pm.map(rowHtml).join('') + '</div>';
+    if (pm.length) html += '<div class="list"><div class="section-title">' + esc(c.priestTitle || '동행사제') + '</div>' + pm.map(rowHtml).join('') + '</div>';
     if (secs.length) secs.forEach(function (x) {
       html += '<div class="list"><div class="section-title">' + esc(x[0]) + '<span class="st-num">' + x[1].length + '명</span></div>' +
         (x[1].length ? x[1].map(rowHtml).join('') : '<div class="fam-none">작성 중입니다</div>') + '</div>';
