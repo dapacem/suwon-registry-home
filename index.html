@@ -844,7 +844,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'c529ce14f2';
+  var UI_VERSION = '8eec73feef';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -2021,7 +2021,10 @@ body:has(.boot-load) .tabs { display: none; }
     });
     var isCecil = g && g.kind === '세실대';
     var leadLabel = g && g.kind === '소그룹' ? '리더' : isCecil ? '학생회장' : '회장';
-    var sub = (AGE_DESC[name] ? AGE_DESC[name] + ' · ' : '') + (isDormant(name) ? '휴면 · ' : '') + '출석 ' + ms.length + '명';
+    // 비출석 교우도 아래에 따로 (2026-11-17 Francis님: 그리워하며 단체장이 연락하도록)
+    var off = D.members.filter(function (m) { return m.status !== '출석' && inGroup(m, name); }).sort(byName);
+    var offHtml = off.length ? '<div class="tile-subtitle">비출석 · ' + off.length + '명</div><div class="list">' + off.map(rowHtml).join('') + '</div>' : '';
+    var sub = (AGE_DESC[name] ? AGE_DESC[name] + ' · ' : '') + (isDormant(name) ? '휴면 · ' : '') + '출석 ' + ms.length + '명' + (off.length ? ' · 비출석 ' + off.length + '명' : '');
     var html = heroBack(shown(name), sub);
     if (name === CECIL_ALL) {  // 기수별 작은 제목 (기수가 줄 끝에서 잘리지 않게)
       CECIL_ORDER.concat(ms.map(function (m) { return m.cecil; }).filter(function (c, i, a) { return CECIL_ORDER.indexOf(c) < 0 && a.indexOf(c) === i; })).forEach(function (c) {
@@ -2029,7 +2032,7 @@ body:has(.boot-load) .tabs { display: none; }
         if (!part.length) return;
         html += '<div class="tile-subtitle cecil-sub">' + esc(c) + ' · ' + part.length + '명</div><div class="list">' + part.map(rowHtml).join('') + '</div>';
       });
-      screen.innerHTML = html;
+      screen.innerHTML = html + offHtml;
       wirePhotos();
       return;
     }
@@ -2038,7 +2041,7 @@ body:has(.boot-load) .tabs { display: none; }
       // 세실대 학생회장은 다른 직책(예: 감사)이 있어도 그 기수 화면에서는 「학생회장」으로 보인다
       if (!isLeader(m, leader, name) || (m.title && !isCecil)) return rowHtml(m);
       return rowHtml(Object.assign({}, m, { title: leadLabel }));
-    }).join('') : '<div class="empty">출석 교우가 없습니다.</div>') + '</div>';
+    }).join('') : '<div class="empty">출석 교우가 없습니다.</div>') + '</div>' + offHtml;
     screen.innerHTML = html;
     wirePhotos();
   }
