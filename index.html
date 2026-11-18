@@ -844,7 +844,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = 'b9ba5c0fed';
+  var UI_VERSION = '436f33f521';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1151,7 +1151,7 @@ body:has(.boot-load) .tabs { display: none; }
   var ALWAYS_DORMANT = ['바울로회'];
   function isDormant(n) { var g = groupInfo(n); return ALWAYS_DORMANT.indexOf(n) >= 0 || !!(g && g.state === '휴면'); }
   var AGE_ORDER = ['니콜라회', '라자로회', '바울로회', '미리암회', '모니카회', '에스더회', '베로니카회', '그라티아회', '주일학교'];
-  var SERVICE_ORDER = ['사목단', '교회위원', '전례단', '성 스테파노 성가대', '방송송출', '꽃꽂이', '교사회', '교회 환경 관리', '정원 돌봄', '다시서기'];  // 2026-11-08 Francis님 순서
+  var SERVICE_ORDER = ['사목단', '교회위원', '복사단', '성 스테파노 성가대', '방송송출', '꽃꽂이', '교사회', '교회 환경 관리', '정원 돌봄', '다시서기'];  // 2026-11-08 Francis님 순서
   var CECIL_ORDER = ['1기', '2기', '5기', '6기', '7기'];
 
   function titleRank(m) {
@@ -1184,7 +1184,7 @@ body:has(.boot-load) .tabs { display: none; }
 
   function indexMember(m) {
     // 시트의 「교회위원회」를 화면 표기 「교회위원」으로 통일 (§3.4, §4.7)
-    m.service = m.service.map(function (x) { return x === '교회위원회' ? '교회위원' : x === '교육부' ? '교사회' : x; });  // 옛 이름 교육부 → 교사회 (2026-11-16)
+    m.service = m.service.map(function (x) { return x === '교회위원회' ? '교회위원' : x === '교육부' ? '교사회' : x === '전례단' ? '복사단' : x; });  // 옛 이름 교육부 → 교사회 (2026-11-16), 전례단 → 복사단 (2026-11-18)
     var parts = [m.name, m.saint, m.title, m.ageGroup, m.cecil, m.cecil ? '세실대' + m.cecil : '']
       .concat(m.service, m.small, m.talent || []);  // 달란트로도 찾기 (관리자 자료에만 있음)
     m._hay = norm(parts.join(' '));
