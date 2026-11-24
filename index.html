@@ -844,7 +844,7 @@ body:has(.boot-load) .tabs { display: none; }
   'use strict';
   if (window.__inKakao) return;  // 카톡 안에서는 사파리·크롬으로 넘기고 멈춘다
   var MAIN = 'https://script.google.com/macros/s/AKfycbzyco2se9LOR2OZ05kgbzJAb00qyVkZPieN0bpNwOquLBlk5pFw_92bLdN-8hr1lp0/exec';
-  var UI_VERSION = '5e4d15efd5';
+  var UI_VERSION = '11a85e5f9b';
   var GATE = 'https://script.google.com/macros/s/AKfycbyu0OxtAoA_pmqRxqeV77BdY4mg0d-Jc6gVxrI5l3AnTpO1z97xMS9LLwOX0T3C3Ww2xw/exec';
 
   // ── 새 화면이 올라왔으면 스스로 바꿔 끼운다 (홈 화면 앱이 옛 화면을 붙잡고 있지 않게) ──
@@ -1371,7 +1371,8 @@ body:has(.boot-load) .tabs { display: none; }
       var seen = {};
       (m.talent || []).forEach(function (t) { var f = talentField(t); if (f && !seen[f]) { seen[f] = 1; c[f] = (c[f] || 0) + 1; } });
     });
-    return Object.keys(c).sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, 'ko'); }).map(function (f) { return [f, c[f]]; });
+    var hg = function (x) { return /^[가-힣]/.test(x) ? 0 : 1; };  // 가나다순, 한글 먼저·영문 뒤 (2026-11-24 Francis님)
+    return Object.keys(c).sort(function (a, b) { return hg(a) - hg(b) || a.localeCompare(b, 'ko'); }).map(function (f) { return [f, c[f]]; });
   }
   function openTalentPicker() {
     var el = document.createElement('div');
@@ -1395,7 +1396,7 @@ body:has(.boot-load) .tabs { display: none; }
   /** 단체 고르기 판 (아이폰 기본 펼침 목록 대신, 묶음 제목을 잘 보이게) */
   function pickerSections() {
     return [
-      { title: '', items: [['', '전체'], [NOGROUP, '무소속 (연령단체 외 소속 無)']] },
+      { title: '', items: [['', '전체'], [NOGROUP, '무소속 (연령별 활동단체 외 소속 無)']] },
       { title: '섬기는 이들', items: [['사목단', '사목단'], ['교회위원', '교회위원회'], [TITLED, '직책 섬김이']] },
     ].concat(kindCards().filter(function (c) { return c.names.length; }).map(function (c) {
       return { title: c.kind, items: c.names.map(function (n) { return [n, (c.kind === '세실대' ? '세실대 ' : '') + shown(n)]; }) };
@@ -1545,7 +1546,7 @@ body:has(.boot-load) .tabs { display: none; }
   function groupedHtml(list) {
     var buckets = {};
     list.forEach(function (m) {
-      var g = m.ageGroup || '연령단체 미지정';
+      var g = m.ageGroup || '연령별 활동단체 미지정';
       (buckets[g] = buckets[g] || []).push(m);
     });
     var leaders = {};
@@ -1659,7 +1660,7 @@ body:has(.boot-load) .tabs { display: none; }
       .filter(function (s) { return m.service.indexOf(s) >= 0; }).map(function (s) { return tag(s); }));
     // 순서 (2026-11-23 Francis님): 사역 센터 → 봉사단체 → 소그룹 → 연령단체 → 세실대
     affRow('소그룹', m.small.slice().sort(function (a, b) { return a.localeCompare(b, 'ko'); }).map(function (s) { return tag(s); }));
-    affRow('연령단체', m.ageGroup ? [tag(isDormant(m.ageGroup) ? m.ageGroup + ' (휴면)' : m.ageGroup, m.ageGroup)] : []);
+    affRow('연령별 활동단체', m.ageGroup ? [tag(isDormant(m.ageGroup) ? m.ageGroup + ' (휴면)' : m.ageGroup, m.ageGroup)] : []);
     affRow('세실대', m.cecil ? [tag(m.cecil, m.cecil)] : []);
     html += card('소속', affRows.length ? '<div class="aff-grid">' + affRows.join('') + '</div>' : '<div class="fam-none">소속 없음</div>');
 
@@ -1845,6 +1846,7 @@ body:has(.boot-load) .tabs { display: none; }
   }
 
   var KINDS = ['연령단체', '봉사단체', '소그룹', '세실대'];
+  var CECIL_STUDENT = ['7기'];  // 세실대 재학 중인 기수 — 졸업하면 여기서 뺀다 (2026-11-19 Francis님: 졸업은 1·2·5·6기)
 
   // 사역 센터 (2026-11-15 Francis님): 교회가 앞으로 사역을 묶어 운영할 네 센터. 센터장 넷 (2026-11-16 Francis님), 센터원은 구성 중
   // 환대와 돌봄 명단: 권석준 신부님 (2026-11-17)
@@ -1931,7 +1933,7 @@ body:has(.boot-load) .tabs { display: none; }
     var nAge = groupsOf('연령단체'), nSvc = groupsOf('봉사단체').filter(function (n) { return ['사목단', '교회위원'].indexOf(n) < 0; });
     var nSmall = groupsOf('소그룹');
     var nDorm = nAge.filter(isDormant).length;
-    var summary = '봉사단체 ' + nSvc.length + '개 · 소그룹 ' + nSmall.length + '개 · 연령단체 ' + nAge.length + '개' + (nDorm ? ' (휴면 ' + nDorm + ')' : '');  // 순서 기여·관여도 (2026-11-19)  // 세실대는 뺌 — 「5기」가 다섯 개 기수로 오해됨 (2026-11-13 Francis님)
+    var summary = '봉사단체 ' + nSvc.length + '개 · 소그룹 ' + nSmall.length + '개 · 연령별 활동단체 ' + nAge.length + '개' + (nDorm ? ' (휴면 ' + nDorm + ')' : '');  // 순서 기여·관여도 (2026-11-19)  // 세실대는 뺌 — 「5기」가 다섯 개 기수로 오해됨 (2026-11-13 Francis님)
     var html = '<header class="hero">' + brand('활동 단체').replace(/<\/div><\/div><\/div>$/, '</div><div class="hero-sum">' + summary.split(' · ').map(function (x) { return esc(x).replace(/ /g, '&nbsp;'); }).join(' · ') + '</div></div></div>') + '</header>';
     var sg = servantGroups();
     var count = function (k) { return sg[k].sections.reduce(function (t, x) { return t + x[1].length; }, 0); };
@@ -2000,7 +2002,7 @@ body:has(.boot-load) .tabs { display: none; }
     var cards = AGE_GROUP_SECTIONS.map(function (sec) {
       var ns = ages.filter(function (n) { return sec.names.indexOf(n) >= 0; });
       ns.forEach(function (n) { known[n] = 1; });
-      return { kind: '연령단체(' + sec.label + ')', names: ns };
+      return { kind: '연령별 활동단체(' + sec.label + ')', names: ns };  // 이름 2026-11-24 Francis님
     });
     var rest = ages.filter(function (n) { return !known[n]; });
     cards[cards.length - 1].names = cards[cards.length - 1].names.concat(rest); // 목록에 없는 연령단체는 기타로
@@ -2165,11 +2167,11 @@ body:has(.boot-load) .tabs { display: none; }
         return idxIn(AGE_ORDER, a) - idxIn(AGE_ORDER, b);
       });
       list.push({ id: 'absent', title: '비출석 현황', base: absent, den: absent.length,
-        note: '비출석 교우 ' + absent.length + '명 · 연령단체별',
+        note: '비출석 교우 ' + absent.length + '명 · 연령별 활동단체별',
         // 2026-11-14 Francis님: 남성·여성·기타로 나누고 나이대도 함께
         items: agKeys.map(function (g) {
           var sec = AGE_GROUP_SECTIONS.filter(function (x) { return x.names.indexOf(g) >= 0; })[0];
-          return { label: g ? (isDormant(g) ? g + ' (휴면)' : g) : '연령단체 없음', age: g ? ageShort(g) : '', group: sec ? sec.label : '기타',
+          return { label: g ? (isDormant(g) ? g + ' (휴면)' : g) : '연령별 활동단체 없음', age: g ? ageShort(g) : '', group: sec ? sec.label : '기타',
             color: '#C0392B', test: function (m) { return (m.ageGroup || '') === g; } };
         }).sort(function (a, b) {
           var o = ['남성', '여성', '기타'];
@@ -2188,11 +2190,11 @@ body:has(.boot-load) .tabs { display: none; }
     // 단체별 인원은 활동단체 화면에 있으므로 여기서는 「어디에 속해 있는가」만 본다 (2026-11-02 결정)
     var none = function (m) { return !m.service.length && !m.small.length && !m.cecil; };
     list.push({ id: 'belong', title: '소속 현황', base: att, den: att.length, note: '출석 교우 기준 · 한 사람이 여러 곳에 해당', items: [  // 2026-11-06 Francis님: 단체 회원은 출석 교우만 센다
-      { label: '연령단체 미지정', tone: 'red', test: function (m) { return !m.ageGroup; } },
-      { label: '연령단체 외 소속 없음', tone: 'red', test: none },
-      { label: '봉사단체 1곳 이상', color: '#2E6FB5', test: function (m) { return m.service.length > 0; } },
-      { label: '소그룹 1곳 이상', color: '#2E6FB5', test: function (m) { return m.small.length > 0; } },
-      { label: '세실대 수료', color: '#2E6FB5', test: function (m) { return !!m.cecil; } },
+      { label: '연령별 활동단체 미지정', tone: 'red', test: function (m) { return !m.ageGroup; } },
+      { label: '연령별 활동단체 외 소속 없음', tone: 'red', test: none },
+      { label: '봉사단체 가입자', color: '#2E6FB5', test: function (m) { return m.service.length > 0; } },
+      { label: '소그룹 가입자', color: '#2E6FB5', test: function (m) { return m.small.length > 0; } },
+      { label: '세실대 졸업자', color: '#2E6FB5', test: function (m) { return !!m.cecil && CECIL_STUDENT.indexOf(m.cecil) < 0; } },  // 2026-11-24 Francis님: 재학 중인 기수(7기)는 빼고 셈
     ] });
     // 2026-11-06 Francis님: 「홀로 출석」 → 「홀로 재적」. 출석 여부와 상관없이 교적에 함께 있는 가족(본인 포함) 수
     var famSize = function (m) {
@@ -2218,7 +2220,7 @@ body:has(.boot-load) .tabs { display: none; }
     ] });
     // 기준 문장은 Francis님 문안 (2026-11-02)
     if (ADMIN) list.push({ id: 'network', type: 'strip', priv: true, title: '공동체 연결 현황',
-      desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령단체는 제외)',
+      desc: '기준: 직계 가족 1명당 끈점수 1점\n소속 단체마다 끈점수 1점 (단 연령별 활동단체는 제외)',
       items: [
         // 빨·주·노·녹·파 5단계 (2026-11-02 Francis님). 색맹 검사로 이웃 색끼리 구별되는 값으로 고름
         { label: '매우 약함 (끈 0개)', tone: 'red', color: '#B03A2E', test: function (m) { return !(m.network >= 1); } },  // 빈칸도 0개로
@@ -2318,7 +2320,7 @@ body:has(.boot-load) .tabs { display: none; }
       var all = D.members, done = all.filter(function (m) { return r.done[m.id]; });
       var notYet = all.filter(function (m) { return !r.done[m.id] && m.status === '출석'; });
       var groups = {};
-      notYet.forEach(function (m) { var g = m.ageGroup || '연령단체 없음'; (groups[g] = groups[g] || []).push(m); });
+      notYet.forEach(function (m) { var g = m.ageGroup || '연령별 활동단체 없음'; (groups[g] = groups[g] || []).push(m); });
       var keys = Object.keys(groups).sort(function (a, b) { return idxIn(AGE_ORDER, a) - idxIn(AGE_ORDER, b); });
       var names = function (ms) { return ms.sort(byName).map(function (m) { return esc(m.name) + (m.saint ? ' <span class="muted">' + esc(m.saint) + '</span>' : ''); }).join(' · '); };
       el.innerHTML = '<h3>동의 현황<span class="op-badge">운영자만 보임</span><span class="muted">개인정보 동의서</span></h3>' +
@@ -2374,7 +2376,7 @@ body:has(.boot-load) .tabs { display: none; }
       // 기준 3회 이하 (2026-11-02 결정, 인원통계 「3회 이하」와 같음). 시트 비고 문장보다 이 기준이 우선.
       { name: '뜸한 교우', fixedNote: '분기(13주) 출석 3회 이하\n(출석 교우 중)', test: function (m) { return m.care ? m.care.low : m.recent !== null && m.recent !== undefined && m.recent <= 3; } },
       // 2026-11-02: 「매우 약함」(끈 0개)만 돌봄 대상으로
-      { name: '이어 드릴 교우', fixedNote: '가족·봉사단체·소그룹·세실대 끈 0개\n(연령단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
+      { name: '이어 드릴 교우', fixedNote: '가족·봉사단체·소그룹·세실대 끈 0개\n(연령별 활동단체 소속은 산입 제외)', test: function (m) { return m.care ? m.care.weak : m.network === 0; } },
     ].filter(function (g) {
       // 뜸한 교우·이어 드릴 교우는 운영자 전용 (2026-11-04 Francis님). 열람자는 새교우·초고령층만
       return ADMIN || g.name === '새교우' || g.name === '초고령층';
@@ -2438,7 +2440,7 @@ body:has(.boot-load) .tabs { display: none; }
     { title: '출석·교적', fields: [['status', '출석 상태', ['', '출석', '비출석', '확인필요']], ['registered', '교적 등재', ['', 'Y', '?', 'N']]] },
     // 돌봄 대상 (2026-11-04 Francis님): 직접 고르는 두 칸. 비워 두면 등록일·나이로 판단
     { title: '돌봄 대상', fields: [['newbie', '성사 단계', ['', '세례 대상', '영접 대상', '견진 대상']], ['elderly', '초고령자', ['', '예', '아니오']]] },
-    { title: '소속', fields: [['center', '사역 센터 (「센터 역할」, 쉼표로 여러 개)', '', '미래세대 실행위원, 환대와 돌봄 안내봉사자'], ['service', '봉사단체', 'multi:봉사단체'], ['small', '소그룹', 'multi:소그룹'], ['ageGroup', '연령단체', 'age'], ['cecil', '세실대', 'one:세실대']] },
+    { title: '소속', fields: [['center', '사역 센터 (「센터 역할」, 쉼표로 여러 개)', '', '미래세대 실행위원, 환대와 돌봄 안내봉사자'], ['service', '봉사단체', 'multi:봉사단체'], ['small', '소그룹', 'multi:소그룹'], ['ageGroup', '연령별 활동단체', 'age'], ['cecil', '세실대', 'one:세실대']] },
     { title: '신앙', fields: [['origin', '출신교파', ['', '성공회', '개신교', '가톨릭', '불교', '처음 신앙', '기타']], ['regDate', '등록일', '', '2018. 3. 14.'], ['baptism', '세례일', '', '2019. 4. 21.'], ['confirm', '견진일', '', '2020. 5. 3.'], ['sponsor', '후견인']] },
     { title: '가족', fields: [['father', '부', 'fam'], ['mother', '모', 'fam'], ['husband', '남편', 'fam'], ['wife', '아내', 'fam'], ['child1', '자녀1', 'fam'], ['child2', '자녀2', 'fam'], ['child3', '자녀3', 'fam'], ['siblings', '형제자매', 'sibs']] },
     { title: '연락', fields: [['phone', '휴대폰', '', '010-0000-0000'], ['kakao', '카톡 등록', ['', 'Y', 'N', '확인필요']], ['email', '이메일'], ['address', '주소'], ['photoOk', '사진사용 동의', ['', '예', '아니오']], ['contactOk', '연락 동의', ['', '예', '아니오']]] },
